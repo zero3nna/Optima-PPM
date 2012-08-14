@@ -1,0 +1,66 @@
+# object files (add here for new source files)
+$source_files = Dir.glob("src/*.c") + Dir.glob("src/*/*.c")
+$object_files = $source_files.collect { |s| s.gsub(/^src/, 'bin/obj').gsub(/\.c$/, ".o") }
+
+# options and settings
+$gcc_opts = "-g -Os -mcall-prologues -Wall -Wstrict-prototypes -mmcu=atmega48"
+$link_opts = "-mmcu=atmega48 -Wl,-Map,bin/project.map"
+$defines = {:CLOCK => '7372800L', :F_CPU => '7372800L'}
+$includes = ['./src']
+
+# turn defines into switches
+$defines = $defines.collect { |k,v| "'-D#{k}=#{v}'" }.join(" ")
+$includes = $includes.collect { |i| "-I'" + i + "'" }.join(" ")
+
+def find_source(of)
+  of = of.gsub(/\.o$/, '.c')
+  return of if File.exist?(of)
+  of = of.gsub(/^bin\/obj/, 'src')
+  return of if File.exist?(of)
+end
+
+rule '.o' => lambda { |of| find_source(of) } do |t|
+  unless File.directory?(File.dirname(t.name))
+    sh("mkdir -p #{File.dirname(t.name)}")
+  end
+  sh "avr-gcc -c #{$gcc_opts} #{$includes} #{$defines} \t -o #{t.name} \t #{t.source}"
+end
+
+file 'bin/project.elf' => $object_files do |t|
+  sh "avr-gcc -g -o #{t.name} #{t.prerequisites.join(' ')} \t #{$link_opts}"
+end
+
+file "bin/project.lst" => ['bin/project.elf'] do |t|
+  sh "avr-objdump -h -S #{t.prerequisites.join(' ')} > #{t.name}"
+end
+
+file "bin/project.hex" => ["bin/project.elf"] do |t|
+  sh "avr-objcopy -j .text -j .data -O ihex #{t.prerequisites.join(' ')} #{t.name}"
+end
+
+file "bin/project_eeprom.hex" => ["bin/project.elf"] do |t|
+  sh "avr-objcopy -j .eeprom --change-section-lma .eeprom=0 -O ihex #{t.prerequisites.join(' ')} #{t.name}"
+end
+
+file "bin/project.symsize" => ["bin/project.elf"] do |t|
+  sh "echo > #{t.name}"
+  t.prerequisites.each do |prq|
+    sh "avr-nm -S -r --size-sort #{prq} >> #{t.name}"
+  end
+end
+
+task :default => ["bin/project.hex", "bin/project_eeprom.hex", "bin/project.lst", "bin/project.symsize"] do
+  sh "avr-size -t -B bin/project.elf"
+  puts "\n*** build complete ***\n"
+  STDOUT.flush
+end
+
+task :flash => ["bin/project.hex"] do
+  sh "avrdude -v -c usbtiny -p m48 -e -U flash:w:bin/project.hex"
+end
+
+task :clean do
+  sh "rm -fr bin/*"
+  puts "*** done ***"
+  STDOUT.flush
+end
