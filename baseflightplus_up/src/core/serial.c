@@ -199,22 +199,22 @@ static void evaluateCommand(void)
         break;
     case MSP_SET_PID:
         for(i = 0; i < 3; ++i) {
-            systemConfig.pids[i].p = read8();
-            systemConfig.pids[i].i = read8() * 1000.0f;
-            systemConfig.pids[i].d = read8();
+            cfg.pids[i].p = read8();
+            cfg.pids[i].i = read8() / 1000.0f;
+            cfg.pids[i].d = read8();
         }
         for(i = 0; i < 4; ++i) {
             read8();
             read8();
             read8();
         }
-        systemConfig.pids[ROLL_LEVEL_PID].p = read8() * 10.0f;
-        systemConfig.pids[ROLL_LEVEL_PID].i = read8() * 1000.0f;
-        systemConfig.pids[ROLL_LEVEL_PID].d = read8();
+        cfg.pids[ROLL_LEVEL_PID].p = read8();
+        cfg.pids[ROLL_LEVEL_PID].i = read8() / 1000.0f;
+        cfg.pids[ROLL_LEVEL_PID].d = read8();
     
-        systemConfig.pids[HEADING_PID].p = read8() * 10.0f;
-        systemConfig.pids[HEADING_PID].i = read8() * 1000.0f;
-        systemConfig.pids[HEADING_PID].d = read8();
+        cfg.pids[HEADING_PID].p = read8();
+        cfg.pids[HEADING_PID].i = read8() / 1000.0f;
+        cfg.pids[HEADING_PID].d = read8();
     
         for(i = 0; i < 3; ++i)
             read8();
@@ -224,7 +224,7 @@ static void evaluateCommand(void)
         break;
     case MSP_SET_BOX:
         for (i = 0; i < AUX_OPTIONS; ++i)
-            systemConfig.auxActivate[i] = read16();
+            cfg.auxActivate[i] = read16();
         headSerialReply(0);
         break;
     case MSP_SET_RC_TUNING:
@@ -251,7 +251,7 @@ static void evaluateCommand(void)
     case MSP_IDENT:
         headSerialReply(7);
         serialize8(VERSION);                // multiwii version
-        serialize8(systemConfig.mixerConfiguration); // type of multicopter
+        serialize8(cfg.mixerConfiguration); // type of multicopter
         serialize8(MSP_VERSION);            // MultiWii Serial Protocol Version
         serialize32(PLATFORM_32BIT);        // "capability"
         break;
@@ -259,8 +259,7 @@ static void evaluateCommand(void)
         headSerialReply(10);
         serialize16(cycleTime);
         serialize16(i2cGetErrorCounter());
-        //serialize16(sensors(SENSOR_ACC) | sensors(SENSOR_BARO) << 1 | sensors(SENSOR_MAG) << 2 | sensors(SENSOR_GPS) << 3 | sensors(SENSOR_SONAR) << 4);
-        serialize16(1 | 1 << 1 | 1 << 2 | 0 << 3 | 0 << 4);
+        serialize16(sensorsAvailable);
         serialize32(mode.LEVEL_MODE << OPT_LEVEL | mode.ALTITUDE_MODE << OPT_ALTITUDE | mode.HEADING_MODE << OPT_HEADING | mode.ARMED << OPT_ARM | auxOptions[OPT_CAMSTAB] << OPT_CAMSTAB | auxOptions[OPT_CAMTRIG] << OPT_CAMTRIG | 
                     mode.GPS_HOME_MODE << OPT_GPSHOME | mode.GPS_HOLD_MODE << OPT_GPSHOLD | mode.HEADFREE_MODE << OPT_HEADFREE | mode.PASSTHRU_MODE << OPT_PASSTHRU | 
                     auxOptions[OPT_BEEPERON] << OPT_BEEPERON | auxOptions[OPT_LEDMAX] << OPT_LEDMAX | auxOptions[OPT_LANDING_LIGHTS] << OPT_LANDING_LIGHTS | auxOptions[OPT_HEADFREE_REF] << OPT_HEADFREE_REF);
@@ -268,11 +267,11 @@ static void evaluateCommand(void)
     case MSP_RAW_IMU:
         headSerialReply(18);
         for (i = 0; i < 3; i++)
-            serialize16(sensors.accel[i] / sensorConfig.accelScaleFactor[i]);
+            serialize16(sensors.accel[i] * 10.0f);
         for (i = 0; i < 3; i++)
-            serialize16(sensors.gyro[i] / sensors.gyroScaleFactor[i]);
+            serialize16(sensors.gyro[i] * 100.0f);
         for (i = 0; i < 3; i++)
-            serialize16(sensors.mag[i] / sensors.magScaleFactor[i]);
+            serialize16(sensors.mag[i]);
         break;
     case MSP_SERVO:
         headSerialReply(16);
@@ -347,11 +346,11 @@ static void evaluateCommand(void)
             serialize8(0);
             serialize8(0);
         }
-        serialize8(pids[ROLL_LEVEL_PID].p * 10.0f);
+        serialize8(pids[ROLL_LEVEL_PID].p);
         serialize8(pids[ROLL_LEVEL_PID].i * 1000.0f);
         serialize8(pids[ROLL_LEVEL_PID].d);
         
-        serialize8(pids[HEADING_PID].p * 10.0f);
+        serialize8(pids[HEADING_PID].p);
         serialize8(pids[HEADING_PID].i * 1000.0f);
         serialize8(pids[HEADING_PID].d);
         
@@ -362,7 +361,7 @@ static void evaluateCommand(void)
     case MSP_BOX:
         headSerialReply(2 * AUX_OPTIONS);
         for (i = 0; i < AUX_OPTIONS; i++)
-            serialize16(systemConfig.auxActivate[i]);
+            serialize16(cfg.auxActivate[i]);
         break;
     case MSP_BOXNAMES:
         headSerialReply(sizeof(boxnames) - 1);
@@ -403,11 +402,12 @@ static void evaluateCommand(void)
         break;
     case MSP_RESET_CONF:
         headSerialReply(0);
-        checkFirstTime(true, true);
+        checkFirstTime(true);
         systemReset(false);
         break;
     case MSP_ACC_CALIBRATION:
-        computeAccelRTBias();
+        accelCalibration();
+        computeGyroRTBias();
         headSerialReply(0);
         break;
     case MSP_MAG_CALIBRATION:
@@ -415,8 +415,7 @@ static void evaluateCommand(void)
         headSerialReply(0);
         break;
     case MSP_EEPROM_WRITE:
-        writeSystemParams();
-        writeSensorParams();
+        writeParams();
         headSerialReply(0);
         break;
     case MSP_DEBUG:

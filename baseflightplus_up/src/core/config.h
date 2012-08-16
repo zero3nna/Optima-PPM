@@ -19,34 +19,6 @@ typedef struct {
     float iLim;
 } pidConfig;
 
-typedef struct {
-    uint8_t version;
-
-    uint8_t accelCalibrated;
-    float accelBias[3];
-    float accelScaleFactor[3];
-
-    float gyroTCBiasSlope[3];
-    float gyroTCBiasIntercept[3];
-
-    uint8_t magCalibrated;
-    float magBias[3];
-
-    // For Mahony AHRS
-    
-    uint8_t magDriftCompensation;
-
-    float twoKp;
-
-    float twoKi;
-    
-    uint8_t battery;
-    float batScale;
-    float batMinCellVoltage;
-    float batMaxCellVoltage;
-
-} sensorConfig_t;
-
 ///////////////////////////////////////
 
 typedef struct {
@@ -117,14 +89,39 @@ typedef struct {
     uint16_t wingLeftMaximum;
     uint16_t wingRightMinimum;
     uint16_t wingRightMaximum;
+    
+    uint8_t accelLPF;
+    float accelLPF_A[4];
+    float accelLPF_B[5];
+    uint8_t accelCalibrated;
+    float accelBias[3];
 
-} systemConfig_t;
+    uint16_t gyroLPF;
+    float gyroTCBiasSlope[3];
+    float gyroTCBiasIntercept[3];
+
+    uint8_t magCalibrated;
+    float magBias[3];
+
+    // For Mahony AHRS
+    
+    uint8_t magDriftCompensation;
+    float magDeclination;
+
+    float twoKp;
+
+    float twoKi;
+    
+    uint8_t battery;
+    float batScale;
+    float batMinCellVoltage;
+    float batMaxCellVoltage;
+
+} cfg_t;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-extern sensorConfig_t sensorConfig;
-
-extern systemConfig_t systemConfig;
+extern cfg_t cfg;
 
 extern const char rcChannelLetters[8];
 
@@ -138,14 +135,10 @@ void readEEPROM(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void writeSensorParams(void);
+void writeParams(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void writeSystemParams(void);
-
-///////////////////////////////////////////////////////////////////////////////
-
-void checkFirstTime(bool sensorReset, bool systemReset);
+void checkFirstTime(bool reset);
 
 ///////////////////////////////////////////////////////////////////////////////

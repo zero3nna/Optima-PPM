@@ -13,6 +13,28 @@
 // Sensor Types
 ///////////////////////////////////////////////////////////////////////////////
 
+#define SENSOR_ACC      1 << 0
+#define SENSOR_BARO     1 << 1
+#define SENSOR_MAG      1 << 2
+#define SENSOR_SONAR    1 << 3
+#define SENSOR_GPS      1 << 4
+
+typedef void (* sensorInitFuncPtr)(void);                   // sensor init prototype
+typedef void (* sensorReadFuncPtr)(int16_t *data);          // sensor read and align prototype
+
+typedef struct
+{
+    sensorInitFuncPtr init;
+    sensorReadFuncPtr read;
+    sensorReadFuncPtr temperature;
+} gyro_t;
+
+typedef struct
+{
+    sensorInitFuncPtr init;
+    sensorReadFuncPtr read;
+} accel_t;
+
 typedef struct {
     int16_t x;
     int16_t y;
@@ -21,7 +43,7 @@ typedef struct {
 
 typedef struct {
     float accel[3]; // m/s/s
-    float accelRTBias[3];
+    float accelScaleFactor[3];
     
     float attitude[3]; // rad
     
@@ -45,11 +67,12 @@ ringBuffer_typedef(SensorSample, GyroBuffer);
 ringBuffer_typedef(SensorSample, MagBuffer);
 ringBuffer_typedef(int32_t, BaroBuffer);
 
-extern sensors_t sensors;
+extern uint16_t sensorsAvailable;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Sensor reading variables
 ///////////////////////////////////////////////////////////////////////////////
+extern sensors_t sensors;
 extern int32_t pressureSum;
 
 extern AccelBuffer *accelSampleBuffer;

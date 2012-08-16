@@ -55,7 +55,7 @@ static uint8_t numOutputChannels = 0;
 
 void TIM2_IRQHandler(void)
 {
-    if (systemConfig.usePPM)
+    if (cfg.usePPM)
         ppmIRQHandler(TIM2);
     else
         pwmIRQHandler(TIM2);
@@ -159,7 +159,7 @@ static void pwmInitializeInput(void)
     uint32_t i;
 
    // Input pins
-    if (systemConfig.usePPM) {
+    if (cfg.usePPM) {
         // Configure TIM2_CH1 for PPM input
         GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
         GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
@@ -297,12 +297,12 @@ void pwmInit(void)
 
     if (useServos) {
         // ch1, 2 for servo
-        TIM_TimeBaseStructure.TIM_Period = (1000000 / systemConfig.servoPwmRate) - 1;
+        TIM_TimeBaseStructure.TIM_Period = (1000000 / cfg.servoPwmRate) - 1;
         TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
-        TIM_TimeBaseStructure.TIM_Period = (1000000 / systemConfig.escPwmRate) - 1;
+        TIM_TimeBaseStructure.TIM_Period = (1000000 / cfg.escPwmRate) - 1;
         TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
     } else {
-        TIM_TimeBaseStructure.TIM_Period = (1000000 / systemConfig.escPwmRate) - 1;
+        TIM_TimeBaseStructure.TIM_Period = (1000000 / cfg.escPwmRate) - 1;
         TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
         TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
     }
@@ -336,7 +336,7 @@ void pwmInit(void)
     TIM_CtrlPWMOutputs(TIM4, ENABLE);
 
     // turn on more motor outputs if we're using ppm / not using pwm input
-    if (systemConfig.usePPM) {
+    if (cfg.usePPM) {
         // PWM 7,8,9,10
         GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
         GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
@@ -346,7 +346,7 @@ void pwmInit(void)
         GPIO_Init(GPIOB, &GPIO_InitStructure);
 
         // when in extra servos mode, init lower 4 channels as 50Hz outputs
-        TIM_TimeBaseStructure.TIM_Period = (1000000 / (systemConfig.escPwmRate)) - 1;
+        TIM_TimeBaseStructure.TIM_Period = (1000000 / (cfg.escPwmRate)) - 1;
         TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 
         TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;

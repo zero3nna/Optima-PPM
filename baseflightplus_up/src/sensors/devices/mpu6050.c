@@ -105,42 +105,73 @@
 // scale factor to get rad/s: (1/14.375*PI/180) = 0.00121414208834388144
 #define MPU6050_GYRO_SCALE_FACTOR     0.00121414208834388144f
 
-void mpu6050Read(int16_t accValues[3], int16_t gyroValues[3], int16_t* temperature)
+void mpu6050AccelRead(int16_t *accValues)
 {
-    uint8_t buf[14];
+    uint8_t buf[6];
 
     // Get data from device
-    i2cRead(MPU6050_ADDRESS, MPU_RA_ACCEL_XOUT_H, 14, buf);
+    i2cRead(MPU6050_ADDRESS, MPU_RA_ACCEL_XOUT_H, 6, buf);
 
-    if(temperature)
-        *temperature = (buf[6] << 8) | buf[7];
+    accValues[XAXIS] = ((buf[0] << 8) | buf[1]);
+    accValues[YAXIS] = -((buf[2] << 8) | buf[3]);
+    accValues[ZAXIS] = -((buf[4] << 8) | buf[5]);
+}
 
-    if(accValues)
-    {
-        accValues[XAXIS] = ((buf[0] << 8) | buf[1]);
-        accValues[YAXIS] = ((buf[2] << 8) | buf[3]);
-        accValues[ZAXIS] = -((buf[4] << 8) | buf[5]);
+void mpu6050GyroRead(int16_t *gyroValues)
+{
+    uint8_t buf[6];
+
+    // Get data from device
+    i2cRead(MPU6050_ADDRESS, MPU_RA_GYRO_XOUT_H, 6, buf);
+
+    gyroValues[XAXIS] = ((buf[0] << 8) | buf[1]);
+    gyroValues[YAXIS] = ((buf[2] << 8) | buf[3]);
+    gyroValues[ZAXIS] = -((buf[4] << 8) | buf[5]);
+}
+
+void mpu6050TempRead(int16_t *temperature)
+{
+    uint8_t buf[2];
+
+    // Get data from device
+    i2cRead(MPU6050_ADDRESS, MPU_RA_TEMP_OUT_H, 2, buf);
+
+    *temperature = (buf[0] << 8) | buf[1];
+}
+
+uint8_t mpu6050Detect(gyro_t *gyro, accel_t *accel)
+{
+    uint8_t data;
+    
+    if(! i2cRead(MPU6050_ADDRESS, MPU_RA_WHO_AM_I, 1, &data) || data != MPU6050_ADDRESS ) {
+        return false;
     }
 
-    if(gyroValues)
-    {
-        gyroValues[XAXIS] = ((buf[8] << 8) | buf[9]);
-        gyroValues[YAXIS] = ((buf[10] << 8) | buf[11]);
-        gyroValues[ZAXIS] = -((buf[12] << 8) | buf[13]);
+    gyro->init = mpu6050GyroInit;
+    gyro->read = mpu6050GyroRead;
+    gyro->temperature = mpu6050TempRead;
+    
+    accel->init = mpu6050AccelInit;
+    accel->read = mpu6050AccelRead;
+    
+    return true;
+}
+
+void mpu6050AccelInit(void)
+{
+    uint8_t i = 0;
+
+    for(i = 0; i < 3; i++) {
+        sensors.accelScaleFactor[i] = ACCEL_1G / 4096.0f; 
     }
 }
 
-bool mpu6050Init(void)
+void mpu6050GyroInit(void)
 {
-    int32_t i;
-    uint8_t data;
+    uint8_t i;
 
-    // datasheet page 13 says 30ms. other stuff could have been running meanwhile. but we'll be safe
+    // datasheet page 13 says 30ms.
     delay(35);
-
-    if(! i2cRead(MPU6050_ADDRESS, MPU_RA_WHO_AM_I, 1, &data) ||
-         data != MPU6050_ADDRESS )
-        return false;
 
     i2cWrite(MPU6050_ADDRESS, MPU_RA_PWR_MGMT_1, H_RESET);         //PWR_MGMT_1    -- DEVICE_RESET 1
     delay(5);
@@ -160,16 +191,8 @@ bool mpu6050Init(void)
     // Set Accel to 8G
     // notice- mpu-6000 RevC use different scaling, hopefully we don't care ;)
     i2cWrite(MPU6050_ADDRESS, MPU_RA_ACCEL_CONFIG, AFS_SEL_8G << 3);
-
-    if(!sensorConfig.accelCalibrated) {
-        for(i = 0; i < 3; i++) {
-            sensorConfig.accelScaleFactor[i] = ACCEL_1G / 4096.0f; // TODO Verify this!   
-        }
-    }
     
     for(i = 0; i < 3; ++i) {
         sensors.gyroScaleFactor[i] = MPU6050_GYRO_SCALE_FACTOR;
     }
-
-    return true;
 }

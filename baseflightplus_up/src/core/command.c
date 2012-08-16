@@ -32,9 +32,9 @@ uint16_t readRawRC(uint8_t chan)
 {
     uint16_t data;
 
-    data = pwmRead(systemConfig.rcMap[chan]);
+    data = pwmRead(cfg.rcMap[chan]);
     if (data < 750 || data > 2250)
-        data = systemConfig.midCommand;
+        data = cfg.midCommand;
 
     return data;
 }
@@ -76,26 +76,26 @@ void updateCommands(void)
     // Ground Routines
     ///////////////////////////////////////////////////////////////////////////////
     
-    if(rcData[THROTTLE] < systemConfig.minCheck) {
+    if(rcData[THROTTLE] < cfg.minCheck) {
         zeroPIDs(); // Stops integrators from exploding on the ground
         
-        if(systemConfig.auxActivate[OPT_ARM] > 0) {
+        if(cfg.auxActivate[OPT_ARM] > 0) {
             if(auxOptions[OPT_ARM] && mode.OK_TO_ARM) { // AUX Arming
                 mode.ARMED = 1;
                 headfreeReference = sensors.attitude[YAW];
             } else if(mode.ARMED){ // AUX Disarming
                 mode.ARMED = 0;
             }
-        } else if(rcData[YAW] > systemConfig.maxCheck && !mode.ARMED) { // Stick Arming
+        } else if(rcData[YAW] > cfg.maxCheck && !mode.ARMED) { // Stick Arming
             if(commandDelay++ == 20) {
                 mode.ARMED = 1;
                 headfreeReference = sensors.attitude[YAW];
             }
-        } else if(rcData[YAW] < systemConfig.minCheck && mode.ARMED) { // Stick Disarming
+        } else if(rcData[YAW] < cfg.minCheck && mode.ARMED) { // Stick Disarming
             if(commandDelay++ == 20) {
                 mode.ARMED = 0;
             }
-        } else if(rcData[YAW] < systemConfig.minCheck && rcData[PITCH] > systemConfig.minCheck && !mode.ARMED) {
+        } else if(rcData[YAW] < cfg.minCheck && rcData[PITCH] > cfg.minCheck && !mode.ARMED) {
             if(commandDelay++ == 20) {
                 computeGyroRTBias();
         		//pulseMotors(3);
@@ -104,14 +104,14 @@ void updateCommands(void)
         } else {
             commandDelay = 0;
         }
-    } else if(rcData[THROTTLE] > systemConfig.maxCheck && !mode.ARMED) {
-        if(rcData[YAW] > systemConfig.maxCheck && rcData[PITCH] < systemConfig.minCheck) {
+    } else if(rcData[THROTTLE] > cfg.maxCheck && !mode.ARMED) {
+        if(rcData[YAW] > cfg.maxCheck && rcData[PITCH] < cfg.minCheck) {
             if(commandDelay++ == 20) {
                 magCalibration();
             }
-        }else if(rcData[YAW] < systemConfig.minCheck && rcData[PITCH] < systemConfig.minCheck) {
+        }else if(rcData[YAW] < cfg.minCheck && rcData[PITCH] < cfg.minCheck) {
             if(commandDelay++ == 20) {
-                computeAccelRTBias();
+                accelCalibration();
                 pulseMotors(3);
             }
         } else {
@@ -124,21 +124,21 @@ void updateCommands(void)
     // Failsafe
     ///////////////////////////////////////////////////////////////////////////////
     
-    if(systemConfig.failsafe) {
-        if(failsafeCount > systemConfig.failsafeOnDelay && mode.ARMED) {
+    if(cfg.failsafe) {
+        if(failsafeCount > cfg.failsafeOnDelay && mode.ARMED) {
             // Stabilise and set Throttle to failsafe level
             for(i = 0; i < 3; ++i) {
-                rcData[i] = systemConfig.midCommand;
+                rcData[i] = cfg.midCommand;
             }
-            rcData[THROTTLE] = systemConfig.failsafeThrottle;
+            rcData[THROTTLE] = cfg.failsafeThrottle;
             mode.FAILSAFE = 1;
-            if(failsafeCount > systemConfig.failsafeOffDelay + systemConfig.failsafeOnDelay) {
+            if(failsafeCount > cfg.failsafeOffDelay + cfg.failsafeOnDelay) {
                 // Disarm
                 mode.ARMED = 0;
                 // you will have to switch off first to rearm
                 mode.OK_TO_ARM = 0;  
             }
-            if(failsafeCount > systemConfig.failsafeOnDelay && !mode.ARMED) {
+            if(failsafeCount > cfg.failsafeOnDelay && !mode.ARMED) {
                 mode.ARMED = 0;
                 // you will have to switch off first to rearm
                 mode.OK_TO_ARM = 0;
@@ -156,13 +156,13 @@ void updateCommands(void)
     uint16_t auxOptionMask = 0;
     
     for(i = 0; i < AUX_CHANNELS; ++i) {
-        auxOptionMask |= (rcData[AUX1 + i] < systemConfig.minCheck) << (3 * i) |
-                        (rcData[AUX1 + i] > systemConfig.minCheck && rcData[i] < systemConfig.minCheck) << (3 * i + 1) |
-                        (rcData[AUX1 + i] > systemConfig.maxCheck) << (3 * i + 2);
+        auxOptionMask |= (rcData[AUX1 + i] < cfg.minCheck) << (3 * i) |
+                        (rcData[AUX1 + i] > cfg.minCheck && rcData[i] < cfg.minCheck) << (3 * i + 1) |
+                        (rcData[AUX1 + i] > cfg.maxCheck) << (3 * i + 2);
     }
     
     for(i = 0; i < AUX_OPTIONS; ++i) {
-        auxOptions[i] = (auxOptionMask & systemConfig.auxActivate[i]) > 0;
+        auxOptions[i] = (auxOptionMask & cfg.auxActivate[i]) > 0;
     }
     
     if(auxOptions[OPT_ARM] == 0) {
@@ -236,25 +236,25 @@ void updateCommands(void)
         command[i] = (float)rcData[i];
     }
 
-    command[ROLL]       -= systemConfig.midCommand;                 // Roll Range    -500:500
-    command[PITCH]      -= systemConfig.midCommand;                 // Pitch Range   -500:500
-    command[YAW]        -= systemConfig.midCommand;                 // Yaw Range     -500:500
-    command[THROTTLE]   -= systemConfig.midCommand - MIDCOMMAND;    // Throttle Range 1000:2000
+    command[ROLL]       -= cfg.midCommand;                 // Roll Range    -500:500
+    command[PITCH]      -= cfg.midCommand;                 // Pitch Range   -500:500
+    command[YAW]        -= cfg.midCommand;                 // Yaw Range     -500:500
+    command[THROTTLE]   -= cfg.midCommand - MIDCOMMAND;    // Throttle Range 1000:2000
     
     // Apply deadbands
     for(i = 0; i < 3; ++i) {
         
         lastCommandInDetent[i] = commandInDetent[i];
     
-    	if ((command[i] <= systemConfig.deadBand[i]) && (command[i] >= -systemConfig.deadBand[i])) {
+    	if ((command[i] <= cfg.deadBand[i]) && (command[i] >= -cfg.deadBand[i])) {
             command[i] = 0;
             commandInDetent[i] = true;
   	    } else {
             commandInDetent[i] = false;
   	        if (command[i] > 0) {
-  		        command[i] = command[i] - systemConfig.deadBand[i];
+  		        command[i] = command[i] - cfg.deadBand[i];
   	        } else {
-  	            command[i] = command[i] + systemConfig.deadBand[i];
+  	            command[i] = command[i] + cfg.deadBand[i];
   	        }
         }
         

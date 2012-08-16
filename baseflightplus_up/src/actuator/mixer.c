@@ -21,22 +21,22 @@ bool useServos = false;
 void initMixer(void)
 {
     // enable servos for mixes that require them. note, this shifts motor counts.
-    if ( systemConfig.mixerConfiguration == MULTITYPE_GIMBAL    ||
-         systemConfig.mixerConfiguration == MULTITYPE_BI        ||
-         systemConfig.mixerConfiguration == MULTITYPE_TRI       ||
-         systemConfig.mixerConfiguration == MULTITYPE_QUADP     ||
-         systemConfig.mixerConfiguration == MULTITYPE_QUADX     ||
-         systemConfig.mixerConfiguration == MULTITYPE_Y4        ||
-         systemConfig.mixerConfiguration == MULTITYPE_VTAIL4    ||
-        (systemConfig.mixerConfiguration == MULTITYPE_FREEMIX   &&
-         systemConfig.freeMixMotors < 5)                        ||
-         systemConfig.mixerConfiguration == MULTITYPE_FLYING_WING ) {
+    if ( cfg.mixerConfiguration == MULTITYPE_GIMBAL    ||
+         cfg.mixerConfiguration == MULTITYPE_BI        ||
+         cfg.mixerConfiguration == MULTITYPE_TRI       ||
+         cfg.mixerConfiguration == MULTITYPE_QUADP     ||
+         cfg.mixerConfiguration == MULTITYPE_QUADX     ||
+         cfg.mixerConfiguration == MULTITYPE_Y4        ||
+         cfg.mixerConfiguration == MULTITYPE_VTAIL4    ||
+        (cfg.mixerConfiguration == MULTITYPE_FREEMIX   &&
+         cfg.freeMixMotors < 5)                        ||
+         cfg.mixerConfiguration == MULTITYPE_FLYING_WING ) {
              useServos = true;
     } else {
         useServos = false;
     }
 
-    switch (systemConfig.mixerConfiguration)
+    switch (cfg.mixerConfiguration)
     {
         case MULTITYPE_GIMBAL:
             numberMotor = 0;
@@ -64,7 +64,7 @@ void initMixer(void)
             break;
 
         case MULTITYPE_FREEMIX:
-        	numberMotor = systemConfig.freeMixMotors;
+        	numberMotor = cfg.freeMixMotors;
         	break;
 
         case MULTITYPE_FLYING_WING:
@@ -127,7 +127,7 @@ void pulseMotors(uint8_t quantity)
 
     for ( i = 0; i < quantity; i++ )
     {
-        writeAllMotors( systemConfig.minThrottle );
+        writeAllMotors( cfg.minThrottle );
         delay(250);
         writeAllMotors(MINCOMMAND);
         delay(250);
@@ -138,7 +138,7 @@ void pulseMotors(uint8_t quantity)
 // Mixer
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PIDMIX(X,Y,Z) command[THROTTLE] + axisPID[ROLL] * X + axisPID[PITCH] * Y + systemConfig.yawDirection * axisPID[YAW] * Z
+#define PIDMIX(X,Y,Z) command[THROTTLE] + axisPID[ROLL] * X + axisPID[PITCH] * Y + cfg.yawDirection * axisPID[YAW] * Z
 
 void mixTable(void)
 {
@@ -155,16 +155,16 @@ void mixTable(void)
     */
     ///////////////////////////////////
 
-    switch ( systemConfig.mixerConfiguration )
+    switch ( cfg.mixerConfiguration )
     {
         case MULTITYPE_BI:
             motor[0] = PIDMIX(  1.0f, 0.0f, 0.0f );        // Left Motor
             motor[1] = PIDMIX( -1.0f, 0.0f, 0.0f );        // Right Motor
 
-            servo[0] = constrain( systemConfig.biLeftServoMid + (systemConfig.yawDirection * axisPID[YAW]) + axisPID[PITCH],
-                                  systemConfig.biLeftServoMin, systemConfig.biLeftServoMax );   // Left Servo
-            servo[1] = constrain( systemConfig.biRightServoMid + (systemConfig.yawDirection * axisPID[YAW]) - axisPID[PITCH],
-                                  systemConfig.biRightServoMin, systemConfig.biRightServoMax );   // Right Servo
+            servo[0] = constrain( cfg.biLeftServoMid + (cfg.yawDirection * axisPID[YAW]) + axisPID[PITCH],
+                                  cfg.biLeftServoMin, cfg.biLeftServoMax );   // Left Servo
+            servo[1] = constrain( cfg.biRightServoMid + (cfg.yawDirection * axisPID[YAW]) - axisPID[PITCH],
+                                  cfg.biRightServoMin, cfg.biRightServoMax );   // Right Servo
             break;
 
         case MULTITYPE_TRI:
@@ -172,8 +172,8 @@ void mixTable(void)
             motor[1] = PIDMIX( -1.0f, -2.0f/3.0f, 0.0f );  // Right CCW
             motor[2] = PIDMIX(  0.0f,  4.0f/3.0f, 0.0f );  // Rear  CW or CCW
 
-            servo[0] = constrain( systemConfig.triYawServoMid + systemConfig.yawDirection * axisPID[YAW],
-                                  systemConfig.triYawServoMin, systemConfig.triYawServoMax ); // Tail Servo
+            servo[0] = constrain( cfg.triYawServoMid + cfg.yawDirection * axisPID[YAW],
+                                  cfg.triYawServoMin, cfg.triYawServoMax ); // Tail Servo
             break;
 
         case MULTITYPE_QUADP:
@@ -234,40 +234,40 @@ void mixTable(void)
         case MULTITYPE_FREEMIX:
         	for ( i = 0; i < numberMotor; i++ )
         	{
-        		motor[i] = PIDMIX ( systemConfig.freeMix[i][ROLL],
-        				            systemConfig.freeMix[i][PITCH],
-        				            systemConfig.freeMix[i][YAW] );
+        		motor[i] = PIDMIX ( cfg.freeMix[i][ROLL],
+        				            cfg.freeMix[i][PITCH],
+        				            cfg.freeMix[i][YAW] );
         	}
         	break;
 
         case MULTITYPE_GIMBAL:
-            servo[0] = constrain( systemConfig.gimbalRollServoMid + systemConfig.gimbalRollServoGain * sensors.attitude[ROLL] + command[ROLL],
-                                  systemConfig.gimbalRollServoMin, systemConfig.gimbalRollServoMax );
+            servo[0] = constrain( cfg.gimbalRollServoMid + cfg.gimbalRollServoGain * sensors.attitude[ROLL] + command[ROLL],
+                                  cfg.gimbalRollServoMin, cfg.gimbalRollServoMax );
 
-            servo[1] = constrain( systemConfig.gimbalPitchServoMid + systemConfig.gimbalPitchServoGain * sensors.attitude[PITCH] + command[PITCH],
-                                  systemConfig.gimbalPitchServoMin, systemConfig.gimbalPitchServoMax );
+            servo[1] = constrain( cfg.gimbalPitchServoMid + cfg.gimbalPitchServoGain * sensors.attitude[PITCH] + command[PITCH],
+                                  cfg.gimbalPitchServoMin, cfg.gimbalPitchServoMax );
             break;
 
         case MULTITYPE_FLYING_WING:
             motor[0] = command[THROTTLE];
             if (!mode.LEVEL_MODE)
             { // do not use sensors for correction, simple 2 channel mixing
-            	servo[0] = systemConfig.pitchDirectionLeft  * (command[PITCH] - systemConfig.midCommand) +
-            			   systemConfig.rollDirectionLeft   * (command[ROLL ] - systemConfig.midCommand);
-            	servo[1] = systemConfig.pitchDirectionRight * (command[PITCH] - systemConfig.midCommand) +
-            			   systemConfig.rollDirectionRight  * (command[ROLL]  - systemConfig.midCommand);
+            	servo[0] = cfg.pitchDirectionLeft  * (command[PITCH] - cfg.midCommand) +
+            			   cfg.rollDirectionLeft   * (command[ROLL ] - cfg.midCommand);
+            	servo[1] = cfg.pitchDirectionRight * (command[PITCH] - cfg.midCommand) +
+            			   cfg.rollDirectionRight  * (command[ROLL]  - cfg.midCommand);
             }
             else
             { // use sensors to correct (attitude only)
-            	servo[0] = systemConfig.pitchDirectionLeft  * axisPID[PITCH] +
-            			   systemConfig.rollDirectionLeft   * axisPID[ROLL];
-            	servo[1] = systemConfig.pitchDirectionRight * axisPID[PITCH] +
-            			   systemConfig.rollDirectionRight  * axisPID[ROLL];
+            	servo[0] = cfg.pitchDirectionLeft  * axisPID[PITCH] +
+            			   cfg.rollDirectionLeft   * axisPID[ROLL];
+            	servo[1] = cfg.pitchDirectionRight * axisPID[PITCH] +
+            			   cfg.rollDirectionRight  * axisPID[ROLL];
             }
-            servo[0] = constrain(servo[0] + systemConfig.midCommand, systemConfig.wingLeftMinimum,
-            		                                                 systemConfig.wingLeftMaximum);
-            servo[1] = constrain(servo[1] + systemConfig.midCommand, systemConfig.wingRightMinimum,
-            		                                                 systemConfig.wingRightMaximum);
+            servo[0] = constrain(servo[0] + cfg.midCommand, cfg.wingLeftMinimum,
+            		                                                 cfg.wingLeftMaximum);
+            servo[1] = constrain(servo[1] + cfg.midCommand, cfg.wingRightMinimum,
+            		                                                 cfg.wingRightMaximum);
             break;
     }
 
@@ -285,17 +285,17 @@ void mixTable(void)
 
     for (i = 0; i < numberMotor; i++)
     {
-        if (maxMotor > systemConfig.maxThrottle)
-            motor[i] -= maxMotor - systemConfig.maxThrottle;
+        if (maxMotor > cfg.maxThrottle)
+            motor[i] -= maxMotor - cfg.maxThrottle;
 
-        motor[i] = constrain(motor[i], systemConfig.minThrottle, systemConfig.maxThrottle);
+        motor[i] = constrain(motor[i], cfg.minThrottle, cfg.maxThrottle);
 
-        if ((rcData[THROTTLE]) < systemConfig.minCheck)
+        if ((rcData[THROTTLE]) < cfg.minCheck)
         {
-            if(systemConfig.motorStop) {
-                motor[i] = systemConfig.minCommand;
+            if(cfg.motorStop) {
+                motor[i] = cfg.minCommand;
             } else {
-                motor[i] = systemConfig.minThrottle;
+                motor[i] = cfg.minThrottle;
             }
         }
 

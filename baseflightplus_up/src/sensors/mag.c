@@ -16,12 +16,19 @@ int16_t rawMag[3];
 
 void magCalibration(void)
 {
-    int16_t minMag[3] = {32767, 32767, 32767};
-    int16_t maxMag[3] = {-32768, -32768, -32768};
+    int16_t minMag[3];
+    int16_t maxMag[3];
     uint8_t i;
-    uint32_t now = millis();
+    uint16_t samples;
+    
+    readMag();
+    
+    for(i = 0; i < 3; ++i) {
+        minMag[i] = rawMag[i];
+        maxMag[i] = rawMag[i];
+    }
 
-    while (millis() - now < 10000) {
+    for(samples = 0; samples < 500; ++samples) {
         readMag();
         
         for(i = 0; i < 3; ++i) {
@@ -33,13 +40,16 @@ void magCalibration(void)
             }
             delay(20);
         }
+        
+        if(samples % 500)
+            LED0_TOGGLE();
     };
 
     for(i = 0; i < 3; ++i) {
-        sensorConfig.magBias[i] = (float)(maxMag[i] + minMag[i]) / 2.0f;
+        cfg.magBias[i] = (float)(maxMag[i] + minMag[i]) / 2.0f;
     }
     
-    sensorConfig.magCalibrated = true;
+    cfg.magCalibrated = true;
 
 }
 

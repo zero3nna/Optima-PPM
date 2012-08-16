@@ -39,9 +39,9 @@ void updateAttitude(void)
     }
     
     if(numMagSamples) {
-        sensors.mag[XAXIS] = ((float) magAccum[XAXIS] / numMagSamples - sensorConfig.magBias[XAXIS]) * sensors.magScaleFactor[XAXIS];
-    	sensors.mag[YAXIS] = ((float) magAccum[YAXIS] / numMagSamples - sensorConfig.magBias[YAXIS]) * sensors.magScaleFactor[YAXIS];
-    	sensors.mag[ZAXIS] = ((float) magAccum[ZAXIS] / numMagSamples - sensorConfig.magBias[ZAXIS]) * sensors.magScaleFactor[ZAXIS]; 
+        sensors.mag[XAXIS] = ((float) magAccum[XAXIS] / numMagSamples - cfg.magBias[XAXIS]) * sensors.magScaleFactor[XAXIS];
+    	sensors.mag[YAXIS] = ((float) magAccum[YAXIS] / numMagSamples - cfg.magBias[YAXIS]) * sensors.magScaleFactor[YAXIS];
+    	sensors.mag[ZAXIS] = ((float) magAccum[ZAXIS] / numMagSamples - cfg.magBias[ZAXIS]) * sensors.magScaleFactor[ZAXIS]; 
     }
     
     while(bufferUsed(accelSampleBuffer)) {
@@ -61,12 +61,14 @@ void updateAttitude(void)
     }
     
     if(numAccelSamples) {
-        sensors.accel[XAXIS] = ((float) accelAccum[XAXIS] / numAccelSamples - sensors.accelRTBias[XAXIS] - sensorConfig.accelBias[XAXIS]) * sensorConfig.accelScaleFactor[XAXIS];
-        sensors.accel[YAXIS] = ((float) accelAccum[YAXIS] / numAccelSamples - sensors.accelRTBias[YAXIS] - sensorConfig.accelBias[YAXIS]) * sensorConfig.accelScaleFactor[YAXIS];
-        sensors.accel[ZAXIS] = ((float) accelAccum[ZAXIS] / numAccelSamples - sensors.accelRTBias[ZAXIS] - sensorConfig.accelBias[ZAXIS]) * sensorConfig.accelScaleFactor[ZAXIS];
-        //sensors.accel[XAXIS] = computeFourthOrder200Hz(sensors.accel[XAXIS], &accelFilter[XAXIS]);
-        //sensors.accel[YAXIS] = computeFourthOrder200Hz(sensors.accel[YAXIS], &accelFilter[YAXIS]);
-        //sensors.accel[ZAXIS] = computeFourthOrder200Hz(sensors.accel[ZAXIS], &accelFilter[ZAXIS]);
+        sensors.accel[XAXIS] = ((float) accelAccum[XAXIS] / numAccelSamples - cfg.accelBias[XAXIS]) * sensors.accelScaleFactor[XAXIS];
+        sensors.accel[YAXIS] = ((float) accelAccum[YAXIS] / numAccelSamples - cfg.accelBias[YAXIS]) * sensors.accelScaleFactor[YAXIS];
+        sensors.accel[ZAXIS] = ((float) accelAccum[ZAXIS] / numAccelSamples - cfg.accelBias[ZAXIS]) * sensors.accelScaleFactor[ZAXIS];
+        if(cfg.accelLPF) {
+            sensors.accel[XAXIS] = fourthOrderFilter(sensors.accel[XAXIS], &accelFilter[XAXIS], cfg.accelLPF_A, cfg.accelLPF_B);
+            sensors.accel[YAXIS] = fourthOrderFilter(sensors.accel[YAXIS], &accelFilter[YAXIS], cfg.accelLPF_A, cfg.accelLPF_B);
+            sensors.accel[ZAXIS] = fourthOrderFilter(sensors.accel[ZAXIS], &accelFilter[ZAXIS], cfg.accelLPF_A, cfg.accelLPF_B);
+        }
     }
 
     if(numGyroSamples) {
@@ -75,7 +77,7 @@ void updateAttitude(void)
         sensors.gyro[YAXIS] = ((float) gyroAccum[YAXIS]  / numGyroSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor[YAXIS];
         sensors.gyro[ZAXIS] = ((float) gyroAccum[ZAXIS]  / numGyroSamples - sensors.gyroRTBias[ZAXIS] - sensors.gyroTCBias[ZAXIS]) * sensors.gyroScaleFactor[ZAXIS];
     }
-    if(numMagSamples && sensorConfig.magDriftCompensation) {
+    if(numMagSamples && cfg.magDriftCompensation) {
         MahonyAHRSupdate( sensors.gyro[ROLL],   -sensors.gyro[PITCH],  sensors.gyro[YAW],
                         sensors.accel[XAXIS], sensors.accel[YAXIS], sensors.accel[ZAXIS],
                         sensors.mag[XAXIS],    sensors.mag[YAXIS],    sensors.mag[ZAXIS],
@@ -90,5 +92,7 @@ void updateAttitude(void)
     float q[4] = {q0, q1, q2, q3};
     
     Quaternion2RPY(q, sensors.attitude);
+    
+    sensors.attitude[YAW] += cfg.magDeclination;
 
 }

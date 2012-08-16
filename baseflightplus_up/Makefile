@@ -187,6 +187,10 @@ install:
 	$(HEXSIZE)
 	$(LOADER) -r -p $(SERIAL_DEV) -b 115200 -f $(TARGET_HEX)
 
+restore:
+	$(HEXSIZE)
+	$(LOADER) -p $(SERIAL_DEV) -b 115200 -f $(TARGET_HEX)
+
 help:
 	@echo ""
 	@echo "Makefile for the baseflight firmware"

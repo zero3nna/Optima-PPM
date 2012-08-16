@@ -42,16 +42,18 @@ int main(void)
     initPIDs();
     //mavlinkInit();
     
+    
     periodicEvent(updateAttitude, COUNT_300HZ);
-    periodicEvent(updateActuators, COUNT_200HZ);
+    periodicEvent(updateActuators, COUNT_300HZ);
     periodicEvent(updateCommands, COUNT_50HZ);
-    if(sensorConfig.magDriftCompensation)
+    if(cfg.magDriftCompensation)
         periodicEvent(magSample, COUNT_75HZ);
     periodicEvent(baroSample, COUNT_50HZ);
     periodicEvent(updateAltitude, COUNT_10HZ);
+    
     periodicEvent(serialCom, COUNT_50HZ);
     periodicEvent(statusLED, COUNT_10HZ);
-    if(sensorConfig.battery)
+    if(cfg.battery)
         periodicEvent(batterySample, COUNT_25HZ);
 
     while (1)
@@ -67,7 +69,7 @@ int main(void)
 
 void statusLED(void)
 {
-    if(!sensorConfig.accelCalibrated){
+    if(!cfg.accelCalibrated){
         LED1_TOGGLE();
     } else if (mode.LEVEL_MODE) {
         LED1_ON();
