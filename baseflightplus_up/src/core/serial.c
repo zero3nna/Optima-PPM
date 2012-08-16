@@ -211,6 +211,10 @@ static void evaluateCommand(void)
         cfg.pids[ROLL_LEVEL_PID].p = read8();
         cfg.pids[ROLL_LEVEL_PID].i = read8() / 1000.0f;
         cfg.pids[ROLL_LEVEL_PID].d = read8();
+        
+        cfg.pids[PITCH_LEVEL_PID].p = cfg.pids[ROLL_LEVEL_PID].p;
+        cfg.pids[PITCH_LEVEL_PID].i = cfg.pids[ROLL_LEVEL_PID].i;
+        cfg.pids[PITCH_LEVEL_PID].d = cfg.pids[ROLL_LEVEL_PID].d;
     
         cfg.pids[HEADING_PID].p = read8();
         cfg.pids[HEADING_PID].i = read8() / 1000.0f;
