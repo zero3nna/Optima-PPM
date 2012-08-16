@@ -187,7 +187,7 @@ void computeGyroRTBias(void)
         gyroSum[PITCH] += rawGyro[PITCH] - sensors.gyroTCBias[PITCH];
         gyroSum[YAW] += rawGyro[YAW] - sensors.gyroTCBias[YAW];
         
-        if(samples % 500)
+        if(!(samples % 250))
             LED0_TOGGLE();
 
         delay(1);

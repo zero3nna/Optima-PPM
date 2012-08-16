@@ -41,7 +41,7 @@ void magCalibration(void)
             delay(20);
         }
         
-        if(samples % 500)
+        if(!(samples % 250))
             LED0_TOGGLE();
     };
 

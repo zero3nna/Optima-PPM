@@ -224,7 +224,7 @@ void checkFirstTime(bool reset)
         cfg.accelBias[YAXIS]                = 0.0f;
         cfg.accelBias[ZAXIS]                = 0.0f;
 
-        cfg.gyroLPF                    = 42;
+        cfg.gyroLPF                    = 256;
         cfg.gyroTCBiasSlope[ROLL]      = 0.0f;
         cfg.gyroTCBiasSlope[PITCH]     = 0.0f;
         cfg.gyroTCBiasSlope[YAW]       = 0.0f;

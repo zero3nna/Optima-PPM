@@ -32,7 +32,7 @@ void accelCalibration(void)
         accelSum[YAXIS] += rawAccel[YAXIS];
         accelSum[ZAXIS] += rawAccel[ZAXIS];
         
-        if(samples % 500)
+        if(!(samples % 250))
             LED0_TOGGLE();
 
         delay(1);
