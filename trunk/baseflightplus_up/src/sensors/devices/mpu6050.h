@@ -1,5 +1,13 @@
 #pragma once
 
-bool mpu6050Init(void);
+void mpu6050AccelInit(void);
 
-void mpu6050Read(int16_t accValues[3], int16_t gyroValues[3], int16_t* temperature);
+void mpu6050GyroInit(void);
+
+uint8_t mpu6050Detect(gyro_t *gyro, accel_t *accel);
+
+void mpu6050AccelRead(int16_t *accValues);
+
+void mpu6050GyroRead(int16_t *gyroValues);
+
+void mpu6050TempRead(int16_t* temperature);

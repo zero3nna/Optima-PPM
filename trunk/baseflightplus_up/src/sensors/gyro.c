@@ -33,11 +33,12 @@
 
 ///////////////////////////////////////
 
-bool useMPU6050;
-
 int16_t rawGyro[3];
 
 int16_t rawGyroTemperature;
+
+gyro_t _gyro;
+gyro_t *gyro = &_gyro;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Read Gyro
@@ -45,14 +46,12 @@ int16_t rawGyroTemperature;
 
 void readGyro(void)
 {
-    if(useMPU6050)
-    {
-        mpu6050Read(0, rawGyro, &rawGyroTemperature);
-    }
-    else
-    {
-        mpu3050Read(rawGyro, &rawGyroTemperature);
-    }
+    gyro->read(rawGyro);
+}
+
+void readGyroTemp(void)
+{
+    gyro->temperature(&rawGyroTemperature);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,9 +62,9 @@ void computeGyroTCBias(void)
 {
     sensors.gyroTemperature = (float) (rawGyroTemperature + 13200) / 280.0f + 35.0f;
 
-    sensors.gyroTCBias[ROLL] = sensorConfig.gyroTCBiasSlope[ROLL] * sensors.gyroTemperature + sensorConfig.gyroTCBiasIntercept[ROLL];
-    sensors.gyroTCBias[PITCH] = sensorConfig.gyroTCBiasSlope[PITCH] * sensors.gyroTemperature + sensorConfig.gyroTCBiasIntercept[PITCH];
-    sensors.gyroTCBias[YAW] = sensorConfig.gyroTCBiasSlope[YAW] * sensors.gyroTemperature + sensorConfig.gyroTCBiasIntercept[YAW];
+    sensors.gyroTCBias[ROLL] = cfg.gyroTCBiasSlope[ROLL] * sensors.gyroTemperature + cfg.gyroTCBiasIntercept[ROLL];
+    sensors.gyroTCBias[PITCH] = cfg.gyroTCBiasSlope[PITCH] * sensors.gyroTemperature + cfg.gyroTCBiasIntercept[PITCH];
+    sensors.gyroTCBias[YAW] = cfg.gyroTCBiasSlope[YAW] * sensors.gyroTemperature + cfg.gyroTCBiasIntercept[YAW];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,6 +73,7 @@ void computeGyroTCBias(void)
 
 void gyroTempCalibration(void)
 {
+    uint16_t i;
     uint16_t gyroSampleRate = 1000;
     uint16_t numberOfGyroSamples = 2000;
 
@@ -83,16 +83,15 @@ void gyroTempCalibration(void)
     float gyroBias2[3] = { 0.0f, 00.f, 0.0f };
     float gyroTemperature2 = 0.0f;
 
-    uint16_t index;
-
     uartPrint("\nGyro Temperature Calibration:\n");
 
     ///////////////////////////////////
     // Get samples at temperature1
     ///////////////////////////////////
     uartPrint("\nBegin 1st Gyro Measurements...\n");
-    for (index = 0; index < numberOfGyroSamples; index++) {
+    for (i = 0; i < numberOfGyroSamples; i++) {
         readGyro();
+        readGyroTemp();
         gyroBias1[ROLL] += rawGyro[ROLL];
         gyroBias1[PITCH] += rawGyro[PITCH];
         gyroBias1[YAW] += rawGyro[YAW];
@@ -106,7 +105,7 @@ void gyroTempCalibration(void)
     gyroTemperature1 /= (float) numberOfGyroSamples;
 
     uartPrint("\nGyro Temperature Reading: ");
-    
+    printf_min("%f\n\n", gyroTemperature1);
     uartPrint("\n\nEnd 1st Gyro Measurements\n");
 
     ///////////////////////////////////
@@ -115,14 +114,20 @@ void gyroTempCalibration(void)
     ///////////////////////////////////
 
     uartPrint("\nWaiting for 15 minutes for gyro temp to rise...\n");
-    //delay(300000);    // Number of mSec in 5 minutes (for testing)
-    delay(900000);              // Number of mSec in 15 minutes
 
+    // Delay for 15 minutes
+    for(i = 0; i < 450; ++i) {
+        delay(2000);
+        LED0_TOGGLE();
+        readGyroTemp();
+        printf_min("Temp: %f\n", ((float) rawGyroTemperature + 13200.0f) / 280.0f + 35.0f);
+    }
+    
     ///////////////////////////////////
     // Get samples at temperature2
     ///////////////////////////////////
     uartPrint("\nBegin 2nd Gyro Measurements...\n");
-    for (index = 0; index < numberOfGyroSamples; index++) {
+    for (i = 0; i < numberOfGyroSamples; i++) {
         readGyro();
         gyroBias2[ROLL] += rawGyro[ROLL];
         gyroBias2[PITCH] += rawGyro[PITCH];
@@ -141,21 +146,21 @@ void gyroTempCalibration(void)
     printf_min("%f\n\n", gyroTemperature2);
     uartPrint("\n\nEnd 2nd Gyro Measurements\n");
 
-    sensorConfig.gyroTCBiasSlope[ROLL] = (gyroBias2[ROLL] - gyroBias1[ROLL]) / (gyroTemperature2 - gyroTemperature1);
-    sensorConfig.gyroTCBiasSlope[PITCH] = (gyroBias2[PITCH] - gyroBias1[PITCH]) / (gyroTemperature2 - gyroTemperature1);
-    sensorConfig.gyroTCBiasSlope[YAW] = (gyroBias2[YAW] - gyroBias1[YAW]) / (gyroTemperature2 - gyroTemperature1);
+    cfg.gyroTCBiasSlope[ROLL] = (gyroBias2[ROLL] - gyroBias1[ROLL]) / (gyroTemperature2 - gyroTemperature1);
+    cfg.gyroTCBiasSlope[PITCH] = (gyroBias2[PITCH] - gyroBias1[PITCH]) / (gyroTemperature2 - gyroTemperature1);
+    cfg.gyroTCBiasSlope[YAW] = (gyroBias2[YAW] - gyroBias1[YAW]) / (gyroTemperature2 - gyroTemperature1);
 
-    sensorConfig.gyroTCBiasIntercept[ROLL] = gyroBias2[ROLL] - sensorConfig.gyroTCBiasSlope[ROLL] * gyroTemperature2;
-    sensorConfig.gyroTCBiasIntercept[PITCH] = gyroBias2[PITCH] - sensorConfig.gyroTCBiasSlope[PITCH] * gyroTemperature2;
-    sensorConfig.gyroTCBiasIntercept[YAW] = gyroBias2[YAW] - sensorConfig.gyroTCBiasSlope[YAW] * gyroTemperature2;
+    cfg.gyroTCBiasIntercept[ROLL] = gyroBias2[ROLL] - cfg.gyroTCBiasSlope[ROLL] * gyroTemperature2;
+    cfg.gyroTCBiasIntercept[PITCH] = gyroBias2[PITCH] - cfg.gyroTCBiasSlope[PITCH] * gyroTemperature2;
+    cfg.gyroTCBiasIntercept[YAW] = gyroBias2[YAW] - cfg.gyroTCBiasSlope[YAW] * gyroTemperature2;
 
     
     uartPrint("\nGyro TC Bias Slope[3]      = { ");
-    printf_min("%f, %f, %f", sensorConfig.gyroTCBiasSlope[ROLL], sensorConfig.gyroTCBiasSlope[PITCH], sensorConfig.gyroTCBiasSlope[YAW]);
+    printf_min("%f, %f, %f", cfg.gyroTCBiasSlope[ROLL], cfg.gyroTCBiasSlope[PITCH], cfg.gyroTCBiasSlope[YAW]);
     uartPrint(" }\n");
 
     uartPrint("\n Gyro TC Bias Intercept[3]  = { ");
-    printf_min("%f, %f, %f", sensorConfig.gyroTCBiasIntercept[ROLL], sensorConfig.gyroTCBiasIntercept[PITCH], sensorConfig.gyroTCBiasIntercept[YAW]);
+    printf_min("%f, %f, %f", cfg.gyroTCBiasIntercept[ROLL], cfg.gyroTCBiasIntercept[PITCH], cfg.gyroTCBiasIntercept[YAW]);
     uartPrint(" }\n");
 
     uartPrint("\nGyro Temperature Calibration Complete.\n");
@@ -174,14 +179,18 @@ void computeGyroRTBias(void)
 
     for (samples = 0; samples < 2000; samples++) {
         readGyro();
+        readGyroTemp();
 
         computeGyroTCBias();
 
         gyroSum[ROLL] += rawGyro[ROLL] - sensors.gyroTCBias[ROLL];
         gyroSum[PITCH] += rawGyro[PITCH] - sensors.gyroTCBias[PITCH];
         gyroSum[YAW] += rawGyro[YAW] - sensors.gyroTCBias[YAW];
+        
+        if(samples % 500)
+            LED0_TOGGLE();
 
-        delayMicroseconds(1000);
+        delay(1);
     }
 
     for (axis = ROLL; axis < 3; axis++) {
@@ -190,19 +199,7 @@ void computeGyroRTBias(void)
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Gyro Initialization
-///////////////////////////////////////////////////////////////////////////////
-
 void initGyro(void)
 {
-    useMPU6050 = mpu6050Init();
-    if(!useMPU6050)
-    {
-        mpu3050Init();
-    }
-
-    //computeGyroRTBias();
+    gyro->init();
 }
-
-///////////////////////////////////////////////////////////////////////////////

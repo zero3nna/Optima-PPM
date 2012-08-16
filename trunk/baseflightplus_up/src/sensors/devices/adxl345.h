@@ -33,4 +33,6 @@
 
 void adxl345Init(void);
 
-void adxl345Read(int16_t values[3]);
+uint8_t adxl345Detect(accel_t *accel);
+
+void adxl345Read(int16_t *values);

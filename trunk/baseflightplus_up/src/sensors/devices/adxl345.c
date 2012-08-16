@@ -64,7 +64,7 @@
 // Read Accel
 ///////////////////////////////////////////////////////////////////////////////
 
-void adxl345Read(int16_t values[3])
+void adxl345Read(int16_t *values)
 {
     uint8_t buffer[6];
 
@@ -78,6 +78,19 @@ void adxl345Read(int16_t values[3])
 ///////////////////////////////////////////////////////////////////////////////
 // Accel Initialization
 ///////////////////////////////////////////////////////////////////////////////
+
+uint8_t adxl345Detect(accel_t *accel)
+{
+    uint8_t data = 0;
+
+    if (!i2cRead(ADXL345_ADDRESS, 0x00, 1, &data) || data != 0xE5)
+        return false;
+    
+    accel->init = adxl345Init;
+    accel->read = adxl345Read;
+    
+    return true;
+}
 
 void adxl345Init(void)
 {
@@ -95,10 +108,8 @@ void adxl345Init(void)
 
     delay(100);
     
-    if(!sensorConfig.accelCalibrated) {
-        for(i = 0; i < 3; ++i) {
-            sensorConfig.accelScaleFactor[i] = ACCEL_1G / 256.0f;
-        }
+    for(i = 0; i < 3; ++i) {
+        sensors.accelScaleFactor[i] = ACCEL_1G / 256.0f;
     }
 }
 

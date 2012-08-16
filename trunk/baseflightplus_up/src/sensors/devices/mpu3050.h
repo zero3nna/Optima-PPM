@@ -33,4 +33,8 @@
 
 void mpu3050Init(void);
 
-void mpu3050Read(int16_t values[3], int16_t* temperature);
+uint8_t mpu3050Detect(gyro_t *gyro);
+
+void mpu3050GyroRead(int16_t* values);
+
+void mpu3050TempRead(int16_t* temperature);

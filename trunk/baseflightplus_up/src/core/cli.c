@@ -84,8 +84,7 @@ typedef struct {
 } calibcmd_t;
 
 const calibcmd_t calibCmdTable[] = {
-    { "accel", "6 way mag calibration", accelCalibration },
-    { "accelRT", "Placed level and fixed", computeAccelRTBias },
+    { "accel", "Placed level and fixed", accelCalibration },
     { "gyro", "Temp compensation (15 min)", gyroTempCalibration},
     { "gyroRT", "Placed fixed", computeGyroRTBias} ,
     { "help", "", calibHelp }, 
@@ -103,81 +102,91 @@ typedef struct {
 } clivalue_t;
 
 const clivalue_t valueTable[] = {
-    { "ppm", VAR_UINT8, &systemConfig.usePPM, 0, 1},
-    { "escPwmRate", VAR_UINT16, &systemConfig.escPwmRate, 50, 498},
-    { "servoPwmRate", VAR_UINT16, &systemConfig.servoPwmRate, 50, 498},
-    { "failsafe", VAR_UINT8, &systemConfig.failsafe, 0, 1},
-    { "failsafeOnDelay",    VAR_UINT16, &systemConfig.failsafeOnDelay, 0, 1000 },
-    { "dailsafeOffDelay",   VAR_UINT16, &systemConfig.failsafeOffDelay, 0, 100000 },
-    { "failsafeThrottle",   VAR_UINT16, &systemConfig.failsafeThrottle, 1000, 2000 },
-    { "minCommand", VAR_UINT16, &systemConfig.minCommand, 0, 2000 },
-    { "midCommand", VAR_UINT16, &systemConfig.midCommand, 1200, 1700 },
-    { "maxCommand", VAR_UINT16, &systemConfig.maxCommand, 0, 2000 },
-    { "minCheck", VAR_UINT16, &systemConfig.minCheck, 0, 2000 },
-    { "maxCheck", VAR_UINT16, &systemConfig.maxCheck, 0, 2000 },
-    { "minThrottle", VAR_UINT16, &systemConfig.minThrottle, 0, 2000 },
-    { "maxThrottle", VAR_UINT16, &systemConfig.maxThrottle, 0, 2000 },
-    { "maxStop", VAR_UINT8, &systemConfig.motorStop, 0, 1 },
-    { "rollDeadband",   VAR_UINT8, &systemConfig.deadBand[ROLL], 0, 32 },
-    { "pitchDeadband",  VAR_UINT8, &systemConfig.deadBand[PITCH], 0, 32 },
-    { "yawDeadband",    VAR_UINT8, &systemConfig.deadBand[YAW], 0, 32 },
-    { "biLeftServoMin", VAR_UINT16, &systemConfig.biLeftServoMin, 0, 2000 },
-    { "biLeftServoMid", VAR_UINT16, &systemConfig.biLeftServoMid, 0, 2000 },
-    { "biLeftServoMax", VAR_UINT16, &systemConfig.biLeftServoMax, 0, 2000 },
-    { "biRightServoMin", VAR_UINT16, &systemConfig.biRightServoMin, 0, 2000 },
-    { "biRightServoMid", VAR_UINT16, &systemConfig.biRightServoMid, 0, 2000 },
-    { "biRightServoMax", VAR_UINT16, &systemConfig.biRightServoMax, 0, 2000 },
-    { "yawDirection", VAR_INT8, &systemConfig.yawDirection, -1, 1 },
-    { "triYawServoMin", VAR_UINT16, &systemConfig.triYawServoMin, 0, 2000 },
-    { "triYawServoMid", VAR_UINT16, &systemConfig.triYawServoMid, 0, 2000 },
-    { "triYawServoMax", VAR_UINT16, &systemConfig.triYawServoMax, 0, 2000 },
-    { "gimbalRollServoMin", VAR_UINT16, &systemConfig.gimbalRollServoMin, 0, 2000 },
-    { "gimbalRollServoMid", VAR_UINT16, &systemConfig.gimbalRollServoMid, 0, 2000 },
-    { "gimbalRollServoMax", VAR_UINT16, &systemConfig.gimbalRollServoMax, 0, 2000 },
-    { "gimbalRollServoGain", VAR_FLOAT, &systemConfig.gimbalRollServoGain, -100, 100 },
-    { "gimbalPitchServoMin", VAR_UINT16, &systemConfig.gimbalPitchServoMin, 0, 2000 },
-    { "gimbalPitchServoMid", VAR_UINT16, &systemConfig.gimbalPitchServoMid, 0, 2000 },
-    { "gimbalPitchServoMax", VAR_UINT16, &systemConfig.gimbalPitchServoMax, 0, 2000 },
-    { "gimbalPitchServoGain", VAR_FLOAT, &systemConfig.gimbalPitchServoGain, -100, 100 },
-    { "rollDirectionLeft",      VAR_INT8, &systemConfig.rollDirectionLeft, -1, 1},
-    { "rollDirectionRight",     VAR_INT8, &systemConfig.rollDirectionRight, -1, 1},
-    { "pitchDirectionLeft",     VAR_INT8, &systemConfig.pitchDirectionLeft, -1, 1},
-    { "pitchDirectionRight",    VAR_INT8, &systemConfig.pitchDirectionRight, -1, 1},
-    { "wingLeftMinimum",    VAR_UINT16, &systemConfig.wingLeftMinimum, 0, 2000 },
-    { "wingLeftMaximum",    VAR_UINT16, &systemConfig.wingLeftMaximum, 0, 2000 },
-    { "wingRightMinimum",   VAR_UINT16, &systemConfig.wingRightMinimum, 0, 2000 },
-    { "wingRightMaximum",   VAR_UINT16, &systemConfig.wingRightMaximum, 0, 2000 },
-    { "p_roll_rate",        VAR_FLOAT, &systemConfig.pids[ROLL_RATE_PID].p,     0, 400 },
-    { "i_roll_rate",        VAR_FLOAT, &systemConfig.pids[ROLL_RATE_PID].i,     0, 400 },
-    { "d_roll_rate",        VAR_FLOAT, &systemConfig.pids[ROLL_RATE_PID].d,     0, 400 },
-    { "ilim_roll_rate",     VAR_FLOAT, &systemConfig.pids[ROLL_RATE_PID].iLim,   0, 200},
-    { "p_pitch_rate",       VAR_FLOAT, &systemConfig.pids[PITCH_RATE_PID].p,    0, 400 },
-    { "i_pitch_rate",       VAR_FLOAT, &systemConfig.pids[PITCH_RATE_PID].i,    0, 400 },
-    { "d_pitch_rate",       VAR_FLOAT, &systemConfig.pids[PITCH_RATE_PID].d,    0, 400 },
-    { "ilim_pitch_rate",    VAR_FLOAT, &systemConfig.pids[PITCH_RATE_PID].iLim, 0, 200},
-    { "p_yaw_rate",         VAR_FLOAT, &systemConfig.pids[YAW_RATE_PID].p,      0, 400 },
-    { "i_yaw_rate",         VAR_FLOAT, &systemConfig.pids[YAW_RATE_PID].i,      0, 400 },
-    { "d_yaw_rate",         VAR_FLOAT, &systemConfig.pids[YAW_RATE_PID].d,      0, 400 },
-    { "ilim_yaw_rate",      VAR_FLOAT, &systemConfig.pids[YAW_RATE_PID].iLim,    0, 200},
-    { "p_roll_level",       VAR_FLOAT, &systemConfig.pids[ROLL_LEVEL_PID].p,      0, 400 },
-    { "i_roll_level",       VAR_FLOAT, &systemConfig.pids[ROLL_LEVEL_PID].i,      0, 400 },
-    { "d_roll_level",       VAR_FLOAT, &systemConfig.pids[ROLL_LEVEL_PID].d,      0, 400 },
-    { "ilim_roll_level",    VAR_FLOAT, &systemConfig.pids[ROLL_LEVEL_PID].iLim,    0, 200},
-    { "p_pitch_level",      VAR_FLOAT, &systemConfig.pids[PITCH_LEVEL_PID].p,      0, 400 },
-    { "i_pitch_level",      VAR_FLOAT, &systemConfig.pids[PITCH_LEVEL_PID].i,      0, 400 },
-    { "d_pitch_level",      VAR_FLOAT, &systemConfig.pids[PITCH_LEVEL_PID].d,      0, 400 },
-    { "ilim_pitch_level",   VAR_FLOAT, &systemConfig.pids[PITCH_LEVEL_PID].iLim,    0, 200},
-    { "p_heading",     VAR_FLOAT, &systemConfig.pids[HEADING_PID].p,      0, 400 },
-    { "i_heading",     VAR_FLOAT, &systemConfig.pids[HEADING_PID].i,      0, 400 },
-    { "d_heading",     VAR_FLOAT, &systemConfig.pids[HEADING_PID].d,      0, 400 },
-    { "ilim_heading",  VAR_FLOAT, &systemConfig.pids[HEADING_PID].iLim,    0, 200},
-    { "imuKp",  VAR_FLOAT, &sensorConfig.twoKp,    0, 50},
-    { "imuKi",  VAR_FLOAT, &sensorConfig.twoKi,    0, 50},
-    { "magDriftCompensation",  VAR_UINT8, &sensorConfig.magDriftCompensation,    0, 1},
-    { "battery",  VAR_UINT8, &sensorConfig.battery,    0, 1},
-    { "batScale",  VAR_FLOAT, &sensorConfig.batScale,    0, 50},
-    { "batMinCellVoltage",  VAR_FLOAT, &sensorConfig.batMinCellVoltage,    0, 5},
-    { "batMaxCellVoltage",  VAR_FLOAT, &sensorConfig.batMaxCellVoltage,    0, 5},
+    { "ppm", VAR_UINT8, &cfg.usePPM, 0, 1},
+    { "escPwmRate", VAR_UINT16, &cfg.escPwmRate, 50, 498},
+    { "servoPwmRate", VAR_UINT16, &cfg.servoPwmRate, 50, 498},
+    { "failsafe", VAR_UINT8, &cfg.failsafe, 0, 1},
+    { "failsafeOnDelay",    VAR_UINT16, &cfg.failsafeOnDelay, 0, 1000 },
+    { "dailsafeOffDelay",   VAR_UINT16, &cfg.failsafeOffDelay, 0, 100000 },
+    { "failsafeThrottle",   VAR_UINT16, &cfg.failsafeThrottle, 1000, 2000 },
+    { "minCommand", VAR_UINT16, &cfg.minCommand, 0, 2000 },
+    { "midCommand", VAR_UINT16, &cfg.midCommand, 1200, 1700 },
+    { "maxCommand", VAR_UINT16, &cfg.maxCommand, 0, 2000 },
+    { "minCheck", VAR_UINT16, &cfg.minCheck, 0, 2000 },
+    { "maxCheck", VAR_UINT16, &cfg.maxCheck, 0, 2000 },
+    { "minThrottle", VAR_UINT16, &cfg.minThrottle, 0, 2000 },
+    { "maxThrottle", VAR_UINT16, &cfg.maxThrottle, 0, 2000 },
+    { "maxStop", VAR_UINT8, &cfg.motorStop, 0, 1 },
+    { "rollDeadband",   VAR_UINT8, &cfg.deadBand[ROLL], 0, 32 },
+    { "pitchDeadband",  VAR_UINT8, &cfg.deadBand[PITCH], 0, 32 },
+    { "yawDeadband",    VAR_UINT8, &cfg.deadBand[YAW], 0, 32 },
+    { "biLeftServoMin", VAR_UINT16, &cfg.biLeftServoMin, 0, 2000 },
+    { "biLeftServoMid", VAR_UINT16, &cfg.biLeftServoMid, 0, 2000 },
+    { "biLeftServoMax", VAR_UINT16, &cfg.biLeftServoMax, 0, 2000 },
+    { "biRightServoMin", VAR_UINT16, &cfg.biRightServoMin, 0, 2000 },
+    { "biRightServoMid", VAR_UINT16, &cfg.biRightServoMid, 0, 2000 },
+    { "biRightServoMax", VAR_UINT16, &cfg.biRightServoMax, 0, 2000 },
+    { "yawDirection", VAR_INT8, &cfg.yawDirection, -1, 1 },
+    { "triYawServoMin", VAR_UINT16, &cfg.triYawServoMin, 0, 2000 },
+    { "triYawServoMid", VAR_UINT16, &cfg.triYawServoMid, 0, 2000 },
+    { "triYawServoMax", VAR_UINT16, &cfg.triYawServoMax, 0, 2000 },
+    { "gimbalRollServoMin", VAR_UINT16, &cfg.gimbalRollServoMin, 0, 2000 },
+    { "gimbalRollServoMid", VAR_UINT16, &cfg.gimbalRollServoMid, 0, 2000 },
+    { "gimbalRollServoMax", VAR_UINT16, &cfg.gimbalRollServoMax, 0, 2000 },
+    { "gimbalRollServoGain", VAR_FLOAT, &cfg.gimbalRollServoGain, -100, 100 },
+    { "gimbalPitchServoMin", VAR_UINT16, &cfg.gimbalPitchServoMin, 0, 2000 },
+    { "gimbalPitchServoMid", VAR_UINT16, &cfg.gimbalPitchServoMid, 0, 2000 },
+    { "gimbalPitchServoMax", VAR_UINT16, &cfg.gimbalPitchServoMax, 0, 2000 },
+    { "gimbalPitchServoGain", VAR_FLOAT, &cfg.gimbalPitchServoGain, -100, 100 },
+    { "rollDirectionLeft",      VAR_INT8, &cfg.rollDirectionLeft, -1, 1},
+    { "rollDirectionRight",     VAR_INT8, &cfg.rollDirectionRight, -1, 1},
+    { "pitchDirectionLeft",     VAR_INT8, &cfg.pitchDirectionLeft, -1, 1},
+    { "pitchDirectionRight",    VAR_INT8, &cfg.pitchDirectionRight, -1, 1},
+    { "wingLeftMinimum",    VAR_UINT16, &cfg.wingLeftMinimum, 0, 2000 },
+    { "wingLeftMaximum",    VAR_UINT16, &cfg.wingLeftMaximum, 0, 2000 },
+    { "wingRightMinimum",   VAR_UINT16, &cfg.wingRightMinimum, 0, 2000 },
+    { "wingRightMaximum",   VAR_UINT16, &cfg.wingRightMaximum, 0, 2000 },
+    { "p_roll_rate",        VAR_FLOAT, &cfg.pids[ROLL_RATE_PID].p,     0, 400 },
+    { "i_roll_rate",        VAR_FLOAT, &cfg.pids[ROLL_RATE_PID].i,     0, 400 },
+    { "d_roll_rate",        VAR_FLOAT, &cfg.pids[ROLL_RATE_PID].d,     0, 400 },
+    { "ilim_roll_rate",     VAR_FLOAT, &cfg.pids[ROLL_RATE_PID].iLim,   0, 200},
+    { "p_pitch_rate",       VAR_FLOAT, &cfg.pids[PITCH_RATE_PID].p,    0, 400 },
+    { "i_pitch_rate",       VAR_FLOAT, &cfg.pids[PITCH_RATE_PID].i,    0, 400 },
+    { "d_pitch_rate",       VAR_FLOAT, &cfg.pids[PITCH_RATE_PID].d,    0, 400 },
+    { "ilim_pitch_rate",    VAR_FLOAT, &cfg.pids[PITCH_RATE_PID].iLim, 0, 200},
+    { "p_yaw_rate",         VAR_FLOAT, &cfg.pids[YAW_RATE_PID].p,      0, 400 },
+    { "i_yaw_rate",         VAR_FLOAT, &cfg.pids[YAW_RATE_PID].i,      0, 400 },
+    { "d_yaw_rate",         VAR_FLOAT, &cfg.pids[YAW_RATE_PID].d,      0, 400 },
+    { "ilim_yaw_rate",      VAR_FLOAT, &cfg.pids[YAW_RATE_PID].iLim,    0, 200},
+    { "p_roll_level",       VAR_FLOAT, &cfg.pids[ROLL_LEVEL_PID].p,      0, 400 },
+    { "i_roll_level",       VAR_FLOAT, &cfg.pids[ROLL_LEVEL_PID].i,      0, 400 },
+    { "d_roll_level",       VAR_FLOAT, &cfg.pids[ROLL_LEVEL_PID].d,      0, 400 },
+    { "ilim_roll_level",    VAR_FLOAT, &cfg.pids[ROLL_LEVEL_PID].iLim,    0, 200},
+    { "p_pitch_level",      VAR_FLOAT, &cfg.pids[PITCH_LEVEL_PID].p,      0, 400 },
+    { "i_pitch_level",      VAR_FLOAT, &cfg.pids[PITCH_LEVEL_PID].i,      0, 400 },
+    { "d_pitch_level",      VAR_FLOAT, &cfg.pids[PITCH_LEVEL_PID].d,      0, 400 },
+    { "ilim_pitch_level",   VAR_FLOAT, &cfg.pids[PITCH_LEVEL_PID].iLim,    0, 200},
+    { "p_heading",     VAR_FLOAT, &cfg.pids[HEADING_PID].p,      0, 400 },
+    { "i_heading",     VAR_FLOAT, &cfg.pids[HEADING_PID].i,      0, 400 },
+    { "d_heading",     VAR_FLOAT, &cfg.pids[HEADING_PID].d,      0, 400 },
+    { "ilim_heading",  VAR_FLOAT, &cfg.pids[HEADING_PID].iLim,    0, 200},
+    { "imuKp",  VAR_FLOAT, &cfg.twoKp,    0, 50},
+    { "imuKi",  VAR_FLOAT, &cfg.twoKi,    0, 50},
+    { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
+    { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
+    { "battery",  VAR_UINT8, &cfg.battery,    0, 1},
+    { "batScale",  VAR_FLOAT, &cfg.batScale,    0, 50},
+    { "batMinCellVoltage",  VAR_FLOAT, &cfg.batMinCellVoltage,    0, 5},
+    { "batMaxCellVoltage",  VAR_FLOAT, &cfg.batMaxCellVoltage,    0, 5},
+    { "accelLPF_A1",  VAR_FLOAT, &cfg.accelLPF_A[1-1],    -100, 100},
+    { "accelLPF_A2",  VAR_FLOAT, &cfg.accelLPF_A[2-1],    -100, 100},
+    { "accelLPF_A3",  VAR_FLOAT, &cfg.accelLPF_A[3-1],    -100, 100},
+    { "accelLPF_A4",  VAR_FLOAT, &cfg.accelLPF_A[4-1],    -100, 100},
+    { "accelLPF_B0",  VAR_FLOAT, &cfg.accelLPF_B[0],    -100, 100},
+    { "accelLPF_B1",  VAR_FLOAT, &cfg.accelLPF_B[1],    -100, 100},
+    { "accelLPF_B2",  VAR_FLOAT, &cfg.accelLPF_B[2],    -100, 100},
+    { "accelLPF_B3",  VAR_FLOAT, &cfg.accelLPF_B[3],    -100, 100},
+    { "accelLPF_B4",  VAR_FLOAT, &cfg.accelLPF_B[4],    -100, 100},
 };
 
 #define VALUE_COUNT (sizeof(valueTable) / sizeof(valueTable[0]))
@@ -199,7 +208,7 @@ static int cliCompare(const void *a, const void *b)
 static void cliDefaults(char *cmdline)
 {
     uartPrint("Resetting to defaults...\r\n");
-    checkFirstTime(true, true);
+    checkFirstTime(true);
     uartPrint("Rebooting...");
     delay(10);
     systemReset(false);
@@ -252,7 +261,7 @@ static void cliMap(char *cmdline)
     }
     uartPrint("Current assignment: ");
     for (i = 0; i < 8; i++)
-        out[systemConfig.rcMap[i]] = rcChannelLetters[i];
+        out[cfg.rcMap[i]] = rcChannelLetters[i];
     out[i] = '\0';
     uartPrint(out);
     uartPrint("\r\n");
@@ -267,7 +276,7 @@ static void cliMixer(char *cmdline)
 
     if (len == 0) {
         uartPrint("Current mixer: ");
-        uartPrint((char *)mixerNames[systemConfig.mixerConfiguration - 1]);
+        uartPrint((char *)mixerNames[cfg.mixerConfiguration - 1]);
         uartPrint("\r\n");
         return;
     } else if (strncasecmp(cmdline, "list", len) == 0) {
@@ -288,7 +297,7 @@ static void cliMixer(char *cmdline)
             break;
         }
         if (strncasecmp(cmdline, mixerNames[i], len) == 0) {
-            systemConfig.mixerConfiguration = i + 1;
+            cfg.mixerConfiguration = i + 1;
             uartPrint("Mixer set to ");
             uartPrint((char *)mixerNames[i]);
             uartPrint("\r\n");
@@ -300,8 +309,7 @@ static void cliMixer(char *cmdline)
 static void cliSave(char *cmdline)
 {
     uartPrint("Saving...");
-    writeSystemParams();
-    writeSensorParams();
+    writeParams();
     uartPrint("\r\nRebooting...");
     delay(10);
     systemReset(false);
@@ -358,8 +366,6 @@ static void cliSetVar(const clivalue_t *var, const char *eqptr)
     } else {
         value = atoi(eqptr);
     }
-    
-    printf_min("F:%f\nI%d\n", fvalue, value);
     
     if ((var->type != VAR_FLOAT && value < var->min && value > var->max) ||
         (var->type == VAR_FLOAT && fvalue < var->min && fvalue > var->max)) {
@@ -472,7 +478,7 @@ static void cliStatus(char *cmdline)
 static void calibHelp(void)
 {
     uint8_t i;
-    uartPrint("Available calibration commands: ");
+    uartPrint("Available calibration commands: \r\n");
     for(i = 0; i < CALIB_CMD_COUNT ; ++i) {
         uartPrint(calibCmdTable[i].name);
         uartWrite('\t');
@@ -493,20 +499,18 @@ static void cliCalibrate(char *cmdline)
         ///////////////////////////////
         uartPrint("Sensor calibration data: \r\n");
         ///////////////////////////////
-        printf_min("ACCEL BIAS:\r\n%f, %f, %f\r\n", sensorConfig.accelBias[XAXIS], 
-            sensorConfig.accelBias[YAXIS], sensorConfig.accelBias[ZAXIS]);
-        printf_min("ACCEL RT BIAS:\r\n%f, %f, %f\r\n", sensors.accelRTBias[XAXIS], 
-            sensors.accelRTBias[YAXIS], sensors.accelRTBias[ZAXIS]);
+        printf_min("ACCEL BIAS:\r\n%f, %f, %f\r\n", cfg.accelBias[XAXIS], 
+            cfg.accelBias[YAXIS], cfg.accelBias[ZAXIS]);
         ///////////////////////////////
-        printf_min("GYRO TC BIAS:\r\n%f, %f, %f\r\n", sensorConfig.gyroTCBiasSlope[ROLL], 
-            sensorConfig.gyroTCBiasSlope[PITCH], sensorConfig.gyroTCBiasSlope[YAW]);
-        printf_min("GYRO TC BIAS INTERCEPT:\r\n%f, %f, %f\r\n", sensorConfig.gyroTCBiasIntercept[ROLL], 
-            sensorConfig.gyroTCBiasIntercept[PITCH], sensorConfig.gyroTCBiasIntercept[YAW]);
+        printf_min("GYRO TC BIAS:\r\n%f, %f, %f\r\n", cfg.gyroTCBiasSlope[ROLL], 
+            cfg.gyroTCBiasSlope[PITCH], cfg.gyroTCBiasSlope[YAW]);
+        printf_min("GYRO TC BIAS INTERCEPT:\r\n%f, %f, %f\r\n", cfg.gyroTCBiasIntercept[ROLL], 
+            cfg.gyroTCBiasIntercept[PITCH], cfg.gyroTCBiasIntercept[YAW]);
         printf_min("GYRO RT BIAS:\r\n%f, %f, %f\r\n", sensors.gyroRTBias[ROLL], 
             sensors.gyroRTBias[PITCH], sensors.gyroRTBias[YAW]);
 	    ///////////////////////////////
-	    printf_min("MAG BIAS:\r\n%f, %f, %f\r\n", sensorConfig.magBias[XAXIS], sensorConfig.magBias[YAXIS],
-            sensorConfig.magBias[ZAXIS]);
+	    printf_min("MAG BIAS:\r\n%f, %f, %f\r\n", cfg.magBias[XAXIS], cfg.magBias[YAXIS],
+            cfg.magBias[ZAXIS]);
         ///////////////////////////////
     } else {
         for(i = 0; i < CALIB_CMD_COUNT; ++i) {

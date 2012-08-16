@@ -12,7 +12,7 @@ float batteryAdcToVoltage(float src)
 {
     // calculate battery voltage based on ADC reading
     // result is Vbatt in 0.1V steps. 3.3V = ADC Vref, 4095 = 12bit adc, 11 = 11:1 voltage divider (10k:1k) for 1V
-    return (((src) * 3.3f) / 4095.0f) * sensorConfig.batScale;
+    return (((src) * 3.3f) / 4095.0f) * cfg.batScale;
 }
 
 void batteryInit(void)
@@ -30,9 +30,9 @@ void batteryInit(void)
 
     // autodetect cell count, going from 2S..6S
     for (i = 2; i < 6; i++) {
-        if (voltage < i * sensorConfig.batMaxCellVoltage)
+        if (voltage < i * cfg.batMaxCellVoltage)
             break;
     }
     sensors.batteryCellCount = i;
-    sensors.batteryWarningVoltage = i * sensorConfig.batMinCellVoltage; // 3.3V per cell minimum, configurable in CLI
+    sensors.batteryWarningVoltage = i * cfg.batMinCellVoltage; // 3.3V per cell minimum, configurable in CLI
 }

@@ -117,10 +117,10 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 		halfez = (ay * halfvx - ax * halfvy) + (mx * halfwy - my * halfwx);
 
 		// Compute and apply integral feedback if enabled
-		if(sensorConfig.twoKi > 0.0f) {
-			integralFBx += sensorConfig.twoKi * halfex * dT;	// integral error scaled by Ki
-			integralFBy += sensorConfig.twoKi * halfey * dT;
-			integralFBz += sensorConfig.twoKi * halfez * dT;
+		if(cfg.twoKi > 0.0f) {
+			integralFBx += cfg.twoKi * halfex * dT;	// integral error scaled by Ki
+			integralFBy += cfg.twoKi * halfey * dT;
+			integralFBz += cfg.twoKi * halfez * dT;
 			gx += integralFBx;	// apply integral feedback
 			gy += integralFBy;
 			gz += integralFBz;
@@ -132,9 +132,9 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 		}
 
 		// Apply proportional feedback
-		gx += sensorConfig.twoKp * halfex;
-		gy += sensorConfig.twoKp * halfey;
-		gz += sensorConfig.twoKp * halfez;
+		gx += cfg.twoKp * halfex;
+		gy += cfg.twoKp * halfey;
+		gz += cfg.twoKp * halfez;
 	}
 	
 	// Integrate rate of change of quaternion
@@ -205,10 +205,10 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
 		halfez = (ay * halfvx - ax * halfvy);
 
 		// Compute and apply integral feedback if enabled
-		if(sensorConfig.twoKi > 0.0f) {
-			integralFBx += sensorConfig.twoKi * halfex * dT;	// integral error scaled by Ki
-			integralFBy += sensorConfig.twoKi * halfey * dT;
-			integralFBz += sensorConfig.twoKi * halfez * dT;
+		if(cfg.twoKi > 0.0f) {
+			integralFBx += cfg.twoKi * halfex * dT;	// integral error scaled by Ki
+			integralFBy += cfg.twoKi * halfey * dT;
+			integralFBz += cfg.twoKi * halfez * dT;
 			gx += integralFBx;	// apply integral feedback
 			gy += integralFBy;
 			gz += integralFBz;
@@ -220,9 +220,9 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
 		}
 
 		// Apply proportional feedback
-		gx += sensorConfig.twoKp * halfex;
-		gy += sensorConfig.twoKp * halfey;
-		gz += sensorConfig.twoKp * halfez;
+		gx += cfg.twoKp * halfex;
+		gy += cfg.twoKp * halfey;
+		gz += cfg.twoKp * halfez;
 	}
 	
 	// Integrate rate of change of quaternion

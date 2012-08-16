@@ -15,7 +15,8 @@
 #define MAG_BUFF    8
 #define BARO_BUFF   8
 
-sensors_t      sensors;
+sensors_t sensors;
+uint16_t sensorsAvailable = 0;
 
 AccelBuffer _accelSampleBuffer;
 AccelBuffer *accelSampleBuffer = &_accelSampleBuffer;
@@ -96,6 +97,7 @@ void gyroSample(void)
     SensorSample gyroSample;
     
     readGyro();
+    readGyroTemp();
     
     gyroSample.x = rawGyro[XAXIS];
     gyroSample.y = rawGyro[YAXIS];
@@ -109,10 +111,19 @@ void sensorsInit(void)
     bufferInit(gyroSampleBuffer, gyroSamples, GYRO_BUFF);
     bufferInit(magSampleBuffer, magSamples, MAG_BUFF);
     bufferInit(baroSampleBuffer, baroSamples, BARO_BUFF);
-    initAccel();
+    
+    mpu3050Detect(gyro);
+    if(mpu6050Detect(gyro, accel))
+        set(sensorsAvailable, SENSOR_ACC);
+    
+    if(adxl345Detect(accel))
+        set(sensorsAvailable, SENSOR_ACC);
+    
     initGyro();
+    initAccel();
     initMag();
     initPressure();
-    if(sensorConfig.battery)
+    set(sensorsAvailable, SENSOR_BARO | SENSOR_MAG);
+    if(cfg.battery)
         batteryInit();
 }

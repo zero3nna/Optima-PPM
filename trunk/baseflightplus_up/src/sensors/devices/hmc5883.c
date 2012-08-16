@@ -73,7 +73,7 @@
 // Read Magnetometer
 ///////////////////////////////////////////////////////////////////////////////
 
-void hmc5883Read(int16_t values[3])
+void hmc5883Read(int16_t *values)
 {
     uint8_t buf[6];
 

@@ -238,7 +238,7 @@ void systemInit(void)
 
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);     // 2 bits for pre-emption priority, 2 bits for subpriority
 
-    checkFirstTime(false, false);
+    checkFirstTime(false);
     readEEPROM();
 
     initMixer(); // Must be called before pwmInit

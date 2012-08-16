@@ -26,6 +26,9 @@
 #define digitalLo(p, i)     { p->BRR = i; }
 #define digitalToggle(p, i) { p->ODR ^= i; }
 
+#define set(value, mask)    value |= mask
+#define clear(value, mask)  value &= ~mask
+
 // Hardware definitions and GPIO
 
 #define LED0_GPIO   GPIOB

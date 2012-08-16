@@ -14,10 +14,10 @@ void initPIDs(void)
 {
     uint8_t i;
     for(i = 0; i < NUM_PIDS; ++i) {
-        pids[i].p = systemConfig.pids[i].p;
-        pids[i].i = systemConfig.pids[i].i;
-        pids[i].d = systemConfig.pids[i].d;
-        pids[i].iLim = systemConfig.pids[i].iLim;
+        pids[i].p = cfg.pids[i].p;
+        pids[i].i = cfg.pids[i].i;
+        pids[i].d = cfg.pids[i].d;
+        pids[i].iLim = cfg.pids[i].iLim;
     }
 }
 
