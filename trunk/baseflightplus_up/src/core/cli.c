@@ -174,10 +174,7 @@ const clivalue_t valueTable[] = {
     { "imuKi",  VAR_FLOAT, &cfg.twoKi,    0, 50},
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
     { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
-    { "battery",  VAR_UINT8, &cfg.battery,    0, 1},
-    { "batScale",  VAR_FLOAT, &cfg.batScale,    0, 50},
-    { "batMinCellVoltage",  VAR_FLOAT, &cfg.batMinCellVoltage,    0, 5},
-    { "batMaxCellVoltage",  VAR_FLOAT, &cfg.batMaxCellVoltage,    0, 5},
+    { "accelLPF", VAR_UINT8, &cfg.accelLPF, 0, 1},
     { "accelLPF_A1",  VAR_FLOAT, &cfg.accelLPF_A[1-1],    -100, 100},
     { "accelLPF_A2",  VAR_FLOAT, &cfg.accelLPF_A[2-1],    -100, 100},
     { "accelLPF_A3",  VAR_FLOAT, &cfg.accelLPF_A[3-1],    -100, 100},
@@ -187,6 +184,11 @@ const clivalue_t valueTable[] = {
     { "accelLPF_B2",  VAR_FLOAT, &cfg.accelLPF_B[2],    -100, 100},
     { "accelLPF_B3",  VAR_FLOAT, &cfg.accelLPF_B[3],    -100, 100},
     { "accelLPF_B4",  VAR_FLOAT, &cfg.accelLPF_B[4],    -100, 100},
+    { "gyroLPF", VAR_UINT16, &cfg.gyroLPF, 10, 256},
+    { "battery",  VAR_UINT8, &cfg.battery,    0, 1},
+    { "batScale",  VAR_FLOAT, &cfg.batScale,    0, 50},
+    { "batMinCellVoltage",  VAR_FLOAT, &cfg.batMinCellVoltage,    0, 5},
+    { "batMaxCellVoltage",  VAR_FLOAT, &cfg.batMaxCellVoltage,    0, 5},
 };
 
 #define VALUE_COUNT (sizeof(valueTable) / sizeof(valueTable[0]))
@@ -367,8 +369,8 @@ static void cliSetVar(const clivalue_t *var, const char *eqptr)
         value = atoi(eqptr);
     }
     
-    if ((var->type != VAR_FLOAT && value < var->min && value > var->max) ||
-        (var->type == VAR_FLOAT && fvalue < var->min && fvalue > var->max)) {
+    if ((var->type != VAR_FLOAT && (value < var->min || value > var->max)) ||
+        (var->type == VAR_FLOAT && (fvalue < var->min || fvalue > var->max))) {
         uartPrint("ERR: Value assignment out of range\r\n");
         return;
     }
