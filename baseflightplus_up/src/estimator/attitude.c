@@ -5,7 +5,7 @@
 
 #include "board.h"
 #include "core/ring_buffer.h"
-#include "estimator/lp_filter.h"
+#include "sensors/lp_filter.h"
 
 fourthOrderData_t accelFilter[3];
 

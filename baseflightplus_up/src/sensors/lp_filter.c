@@ -1,5 +1,5 @@
 #include "board.h"
-#include "estimator/lp_filter.h"
+#include "sensors/lp_filter.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //  4th Order Filter
