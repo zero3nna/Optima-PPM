@@ -206,18 +206,18 @@ void checkFirstTime(bool reset)
         cfg.pids[HEADING_PID].d                 =   0.0f;
         cfg.pids[HEADING_PID].iLim              =   0.5f;  // radians/sec
         
-        cfg.accelLPF                        = true;
         // [b, a] = cheby2(4,60,12.5/100) cheby2(order, stopband_ripple, Wst)
         // Wst is cutoff frequency from 0.0 to 1.0 (1.0 corresponds to half the sampling rate)
-        cfg.accelLPF_A[1-1]    = -3.692341608388116f;
-        cfg.accelLPF_A[2-1]    = 5.123502002652351f;
-        cfg.accelLPF_A[3-1]    = -3.165946995349404f;
-        cfg.accelLPF_A[4-1]    = 0.734958387305099f;
-        cfg.accelLPF_B[0]      = 0.001139392787073f;
-        cfg.accelLPF_B[1]      = -0.003386240693441f;
-        cfg.accelLPF_B[2]      = 0.004665482032666f;
-        cfg.accelLPF_B[3]      = -0.003386240693441f;
-        cfg.accelLPF_B[4]      = 0.001139392787073f;
+        cfg.accelLPF            = true;
+        cfg.accelLPF_A[1-1]     = -3.692341608388116f;
+        cfg.accelLPF_A[2-1]     = 5.123502002652351f;
+        cfg.accelLPF_A[3-1]     = -3.165946995349404f;
+        cfg.accelLPF_A[4-1]     = 0.734958387305099f;
+        cfg.accelLPF_B[0]       = 0.001139392787073f;
+        cfg.accelLPF_B[1]       = -0.003386240693441f;
+        cfg.accelLPF_B[2]       = 0.004665482032666f;
+        cfg.accelLPF_B[3]       = -0.003386240693441f;
+        cfg.accelLPF_B[4]       = 0.001139392787073f;
         
         cfg.accelCalibrated                 = false;
         cfg.accelBias[XAXIS]                = 0.0f;

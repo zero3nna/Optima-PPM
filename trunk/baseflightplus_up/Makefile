@@ -58,7 +58,6 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			drivers/uart.c \
 			estimator/altitude.c \
 			estimator/attitude.c \
-			estimator/lp_filter.c \
 			estimator/MahonyAHRS.c \
 			sensors/accel.c \
 			sensors/battery.c \
@@ -67,6 +66,7 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			sensors/devices/adxl345.c \
 			sensors/devices/bmp085.c \
 			sensors/devices/hmc5883.c \
+			sensors/lp_filter.c \
 			sensors/mag.c \
 			sensors/devices/mpu3050.c \
 			sensors/devices/mpu6050.c \
