@@ -90,8 +90,7 @@ typedef struct {
     uint16_t wingRightMaximum;
     
     uint8_t accelLPF;
-    float accelLPF_A[4];
-    float accelLPF_B[5];
+    float accelLPF_Factor;
     uint8_t accelCalibrated;
     float accelBias[3];
 

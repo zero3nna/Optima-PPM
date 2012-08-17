@@ -212,18 +212,8 @@ void checkFirstTime(bool reset)
         cfg.pids[ALTITUDE_PID].d                 =   7.0f;
         cfg.pids[ALTITUDE_PID].iLim              =   30000.0f; // 0.1 m
         
-        // [b, a] = cheby2(4,60,12.5/100) cheby2(order, stopband_ripple, Wst)
-        // Wst is cutoff frequency from 0.0 to 1.0 (1.0 corresponds to half the sampling rate)
         cfg.accelLPF            = true;
-        cfg.accelLPF_A[1-1]     = -3.837272826544910f;
-        cfg.accelLPF_A[2-1]     = 5.524932751742638f;
-        cfg.accelLPF_A[3-1]     = -3.537433081638875f;
-        cfg.accelLPF_A[4-1]     = 0.849787555893637f;
-        cfg.accelLPF_B[0]       = 0.001004206824498f;
-        cfg.accelLPF_B[1]       = -0.003683756690832f;
-        cfg.accelLPF_B[2]       = 0.005373499185159f;
-        cfg.accelLPF_B[3]       = -0.003683756690832f;
-        cfg.accelLPF_B[4]       = 0.001004206824498f;
+        cfg.accelLPF_Factor     = 0.90f;
         
         cfg.accelCalibrated                 = false;
         cfg.accelBias[XAXIS]                = 0.0f;
@@ -253,7 +243,7 @@ void checkFirstTime(bool reset)
         
         cfg.twoKp                      = 3.0f;
 
-        cfg.twoKi                      = 0.01f;
+        cfg.twoKi                      = 0.0f;
 
         cfg.battery                    = false;
         cfg.batScale                   = 11.0f;

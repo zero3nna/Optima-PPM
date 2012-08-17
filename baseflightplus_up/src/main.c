@@ -21,6 +21,7 @@
 #define COUNT_1000HZ    1000
 #define COUNT_500HZ     2000
 #define COUNT_300HZ     3333
+#define COUNT_250HZ     4000
 #define COUNT_200HZ     5000
 #define COUNT_100HZ     10000
 #define COUNT_75HZ      13333
@@ -55,7 +56,7 @@ int main(void)
     periodicEvent(accelSample, 0);
     
     periodicEvent(updateAttitude, COUNT_300HZ);
-    periodicEvent(updateActuators, COUNT_300HZ);
+    periodicEvent(updateActuators, COUNT_250HZ);
     periodicEvent(updateCommands, COUNT_50HZ);
     if(cfg.magDriftCompensation)
         periodicEvent(magSample, COUNT_75HZ);

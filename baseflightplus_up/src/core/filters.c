@@ -23,8 +23,11 @@ float filterSmooth(float currentData, float previousData, float smoothFactor)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//  4th Order Filter
+//  4th Order IIR Filter
 ///////////////////////////////////////////////////////////////////////////////
+
+// [b, a] = cheby2(4,60,12.5/100) cheby2(order, stopband_ripple, Wst)
+// Wst is cutoff frequency from 0.0 to 1.0 (1.0 corresponds to half the sampling rate)
 
 float fourthOrderFilter(float input, fourthOrderData_t *filterData, float *A, float *B)
 {
