@@ -703,6 +703,9 @@ static void telemetry(void)
         case 'q':
             printf_min("%f,%f,%f,%f\n", q0, q1, q2, q3);
             break;
+        case 't':
+            printEventDeltas();
+            break;
         case 'w':
             printf_min("%f,%f,%f\n", sensors.attitude[ROLL] * RAD2DEG, sensors.attitude[PITCH] * RAD2DEG, sensors.attitude[YAW] * RAD2DEG);
             break;

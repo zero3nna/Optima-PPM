@@ -13,6 +13,8 @@
 
 #include "actuator/mixer.h"
 
+#include "core/printf_min.h"
+
 #include "drivers/adc.h"
 #include "drivers/i2c.h"
 #include "drivers/pwm_ppm.h"
@@ -64,47 +66,69 @@ static void cycleCounterInit(void)
 // Coarse Timer Utilities
 ///////////////////////////////////////////////////////////////////////////////
 
-struct timer_event {
+struct periodic_timer_event {
     uint32_t start;
     uint32_t period;
+    uint32_t delta;
     event_callback callback;
 };
 
-static volatile struct timer_event singleEvents[TIMER_MAX_EVENTS];
-static volatile struct timer_event periodicEvents[TIMER_MAX_EVENTS];
+struct single_timer_event {
+    uint32_t start;
+    uint32_t delay;
+    event_callback callback;
+};
+
+static volatile struct single_timer_event singleEvents[TIMER_MAX_EVENTS];
+static volatile struct periodic_timer_event periodicEvents[TIMER_MAX_EVENTS];
 
 void eventCallbacks(void)
 {
 	uint8_t i;
+    uint32_t temp;
+    
 	for (i = 0; i < TIMER_MAX_EVENTS; ++i) {
-		if (singleEvents[i].callback && (micros() - singleEvents[i].start) > singleEvents[i].period) {
+		if (singleEvents[i].callback && (micros() - singleEvents[i].start) > singleEvents[i].delay) {
 			singleEvents[i].callback();
             singleEvents[i].callback = 0;
 		} if (periodicEvents[i].callback && (micros() - periodicEvents[i].start) > periodicEvents[i].period) {
 			periodicEvents[i].callback();
+            temp = periodicEvents[i].start;
 			periodicEvents[i].start = micros();
+            periodicEvents[i].delta = periodicEvents[i].start - temp;
 		}
 	}
 }
 
 void singleEvent(event_callback callback, uint32_t delay)
 {
-	volatile struct timer_event *ev = singleEvents;
+	volatile struct single_timer_event *ev = singleEvents;
 	while (ev->callback)
 		++ev;
     ev->start = micros();
-	ev->period = delay;
+	ev->delay = delay;
 	ev->callback = callback;
 }
 
 void periodicEvent(event_callback callback, uint32_t period)
 {
-	volatile struct timer_event *ev = periodicEvents;
+	volatile struct periodic_timer_event *ev = periodicEvents;
 	while (ev->callback)
 		++ev;
 	ev->start = micros();
 	ev->period = period;
 	ev->callback = callback;
+}
+
+void printEventDeltas(void)
+{
+    uint8_t i;
+    
+    for(i = 0; i < TIMER_MAX_EVENTS - 1; ++i) {
+        printf_min("%u, ", periodicEvents[i].delta);
+    }
+    
+    printf_min("%u\n", periodicEvents[TIMER_MAX_EVENTS - 1].delta);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
