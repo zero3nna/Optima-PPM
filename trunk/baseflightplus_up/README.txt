@@ -29,7 +29,7 @@ Write dynamic sensor detection at the moment it selects between MPU3050/ADXL345 
 Get MPU6050 hardware working...just need to fix up sensor directions and scale factors. -Still need to differentiate between revisions.
 Gimbal stabilisation
 Dynamic feature selection, only have ppm and failsafe at the moment
-Add altitude hold mode
+Add altitude hold mode ﻿ -Have not tested yet..
 Add Rates/Expo
 THE SENSORS MUST BE PROPERLY CALIBRATED IN ORDER TO GET THE BEST RESULTS
 
@@ -73,5 +73,7 @@ http://www.rcgroups.com/forums/showthread.php?t=1668623
 http://www.rcgroups.com/forums/showthread.php?t=1595761
 
 http://www.x-io.co.uk/node/8
+
+http://diydrones.com/forum/topics/a-computationally-inexpensive?id=705844%3ATopic%3A154086&page=2#comments
 
 http://www.abusemark.com/store/
