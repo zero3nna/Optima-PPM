@@ -3,7 +3,13 @@
  */
 
 #include "board.h"
-#include "core/mavlink.h"
+
+#include "actuator/mixer.h"
+
+#include "core/cli.h"
+#include "core/printf_min.h"
+
+#include "drivers/i2c.h"
 
 // Multiwii Serial Protocol 0 
 #define VERSION                  210

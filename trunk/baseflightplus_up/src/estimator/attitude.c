@@ -9,14 +9,20 @@
 
 fourthOrderData_t accelFilter[3];
 
+volatile float q0 = -1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;					// quaternion of sensor frame relative to auxiliary frame
+
 void updateAttitude(void)
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    
     static uint32_t now, last;
     float dT;
     
     now = micros();
     dT = (float)(now - last) * 1e-6f;
     last = now;
+    
+    ///////////////////////////////////////////////////////////////////////////////
     
     uint8_t numAccelSamples = 0;
     int32_t accelAccum[3] = {0, 0, 0};
@@ -29,6 +35,8 @@ void updateAttitude(void)
     uint8_t numMagSamples = 0;
     int32_t magAccum[3] = {0, 0, 0};
     SensorSample magSample;
+    
+    ///////////////////////////////////////////////////////////////////////////////
     
     while(bufferUsed(magSampleBuffer)) {
         bufferRead(magSampleBuffer, &magSample);
@@ -44,20 +52,14 @@ void updateAttitude(void)
     	sensors.mag[ZAXIS] = ((float) magAccum[ZAXIS] / numMagSamples - cfg.magBias[ZAXIS]) * sensors.magScaleFactor[ZAXIS]; 
     }
     
+    ///////////////////////////////////////////////////////////////////////////////
+    
     while(bufferUsed(accelSampleBuffer)) {
         bufferRead(accelSampleBuffer, &accelSample);
         accelAccum[XAXIS] += accelSample.x;
         accelAccum[YAXIS] += accelSample.y;
         accelAccum[ZAXIS] += accelSample.z;
         ++numAccelSamples;
-    }
-    
-    while(bufferUsed(gyroSampleBuffer)) {
-        bufferRead(gyroSampleBuffer, &gyroSample);
-        gyroAccum[XAXIS] += gyroSample.x;
-        gyroAccum[YAXIS] += gyroSample.y;
-        gyroAccum[ZAXIS] += gyroSample.z;
-        ++numGyroSamples;
     }
     
     if(numAccelSamples) {
@@ -70,6 +72,16 @@ void updateAttitude(void)
             sensors.accel[ZAXIS] = fourthOrderFilter(sensors.accel[ZAXIS], &accelFilter[ZAXIS], cfg.accelLPF_A, cfg.accelLPF_B);
         }
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////
+    
+    while(bufferUsed(gyroSampleBuffer)) {
+        bufferRead(gyroSampleBuffer, &gyroSample);
+        gyroAccum[XAXIS] += gyroSample.x;
+        gyroAccum[YAXIS] += gyroSample.y;
+        gyroAccum[ZAXIS] += gyroSample.z;
+        ++numGyroSamples;
+    }
 
     if(numGyroSamples) {
         readGyroTemp();
@@ -78,6 +90,9 @@ void updateAttitude(void)
         sensors.gyro[YAXIS] = ((float) gyroAccum[YAXIS]  / numGyroSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor[YAXIS];
         sensors.gyro[ZAXIS] = ((float) gyroAccum[ZAXIS]  / numGyroSamples - sensors.gyroRTBias[ZAXIS] - sensors.gyroTCBias[ZAXIS]) * sensors.gyroScaleFactor[ZAXIS];
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////
+    
     if(numMagSamples && cfg.magDriftCompensation) {
         MahonyAHRSupdate( sensors.gyro[ROLL],   -sensors.gyro[PITCH],  sensors.gyro[YAW],
                         sensors.accel[XAXIS], sensors.accel[YAXIS], sensors.accel[ZAXIS],
@@ -89,11 +104,16 @@ void updateAttitude(void)
                         dT);
     }
     
+    ///////////////////////////////////////////////////////////////////////////////
     
     float q[4] = {q0, q1, q2, q3};
     
     Quaternion2RPY(q, sensors.attitude);
     
     sensors.attitude[YAW] += cfg.magDeclination;
+    
+    ///////////////////////////////////////////////////////////////////////////////
 
 }
+
+///////////////////////////////////////////////////////////////////////////////

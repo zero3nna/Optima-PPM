@@ -9,6 +9,8 @@
 
 #define ALT_SMOOTH_FACTOR 0.05f
 
+///////////////////////////////////////////////////////////////////////////////
+
 void updateAltitude(void)
 {
     int16_t temperature; // 0.1C
@@ -23,3 +25,5 @@ void updateAltitude(void)
     // Sonar/GPS stuff can go here for combination of data, maybe look at including accelerometer as well?
     sensors.altitude = sensors.baroAltitude;
 }
+
+///////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
  */
 
 #include "board.h"
+#include "actuator/mixer.h"
 
 #define PULSE_1MS       (1000) // 1ms pulse width
 

@@ -3,6 +3,7 @@
  */
  
 #include "board.h"
+#include "actuator/mixer.h"
 
 static volatile uint16_t adc1Ch4Value = 0;
 

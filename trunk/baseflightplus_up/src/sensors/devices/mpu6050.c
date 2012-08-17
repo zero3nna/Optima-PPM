@@ -1,4 +1,5 @@
 #include "board.h"
+#include "drivers/i2c.h"
 
 #define MPU6050_ADDRESS         0x68
 

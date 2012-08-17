@@ -1,6 +1,12 @@
-
+/*
+ * Copyright (c) 2012 Baseflight U.P.
+ * Licensed under the MIT License
+ * @author  Scott Driessens v0.1 (August 2012)
+ *
+ */
 
 #include "board.h"
+#include "core/printf_min.h"
 
 #define CALIBRATION_SAMPLES 2000
 
@@ -42,6 +48,9 @@ void computeGyroTCBias(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Gyro Temperature Calibration
+//
+// From Aeroquad
+// http://code.google.com/p/aeroquad/source/browse/trunk/AeroQuad
 ///////////////////////////////////////////////////////////////////////////////
 
 void gyroTempCalibration(void)
@@ -155,7 +164,11 @@ void computeGyroRTBias(void)
         sensors.gyroRTBias[i] = (float) gyroSum[i] / (float)CALIBRATION_SAMPLES;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 void initGyro(void)
 {
     gyro->init();
 }
+
+///////////////////////////////////////////////////////////////////////////////

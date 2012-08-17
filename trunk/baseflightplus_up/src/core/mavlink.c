@@ -1,5 +1,6 @@
 #include "board.h"
 #include "core/mavlink.h"
+#include "actuator/mixer.h"
 
 uint8_t mavlinkMode = false;
 

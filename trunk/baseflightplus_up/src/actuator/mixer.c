@@ -4,6 +4,13 @@
 
 #include "board.h"
 
+#include "actuator/mixer.h"
+#include "actuator/stabilisation.h"
+
+#include "core/command.h"
+
+#include "drivers/pwm_ppm.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 uint8_t numberMotor;
