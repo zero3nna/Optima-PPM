@@ -110,7 +110,7 @@ void updateAttitude(void)
     
     Quaternion2RPY(q, sensors.attitude);
     
-    sensors.attitude[YAW] += cfg.magDeclination;
+    sensors.attitude[YAW] += cfg.magDeclination * DEG2RAD;
     
     ///////////////////////////////////////////////////////////////////////////////
 
