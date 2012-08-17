@@ -10,7 +10,12 @@
  */
 
 #include "board.h"
+
+#include "actuator/mixer.h"
+
 #include "drivers/adc.h"
+#include "drivers/i2c.h"
+#include "drivers/pwm_ppm.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

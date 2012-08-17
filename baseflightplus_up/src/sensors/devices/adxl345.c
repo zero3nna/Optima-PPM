@@ -31,6 +31,7 @@
 
 #include "board.h"
 #include "adxl345.h"
+#include "drivers/i2c.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ADXL345 Defines and Variables

@@ -5,8 +5,14 @@
  */
 
 #include "board.h"
-#include "core/mavlink.h"
+
+#include "actuator/mixer.h"
+#include "actuator/pid.h"
+#include "actuator/stabilisation.h"
+
 #include "core/command.h"
+#include "core/mavlink.h"
+#include "core/serial.h"
 
 ///////////////////////////////////////
 // Timing Defines
@@ -25,7 +31,9 @@
 #define COUNT_1HZ       1000000
 
 ///////////////////////////////////////////////////////////////////////////////
+
 uint32_t cycleTime;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void highSpeedTelemetry(void);
@@ -65,6 +73,7 @@ int main(void)
     return 0;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
 void statusLED(void)
 {
@@ -83,6 +92,8 @@ void statusLED(void)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 void updateActuators(void)
 {
     static uint32_t last;
@@ -96,3 +107,4 @@ void updateActuators(void)
     writeMotors(); 
 }
 
+///////////////////////////////////////////////////////////////////////////////

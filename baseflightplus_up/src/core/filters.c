@@ -1,6 +1,18 @@
+/*
+ * Copyright (c) 2012 Baseflight U.P.
+ * Licensed under the MIT License
+ * @author  Scott Driessens v0.1 (August 2012)
+ *
+ * Adapted from AeroQuad
+ * http://code.google.com/p/aeroquad/source/browse/trunk/AeroQuad
+ */
+
 #include "core/filters.h"
 
+///////////////////////////////////////////////////////////////////////////////
 // Low pass filter, kept as regular C function for speed
+///////////////////////////////////////////////////////////////////////////////
+
 float filterSmooth(float currentData, float previousData, float smoothFactor) 
 {
   if (smoothFactor != 1.0) //only apply time compensated filter if smoothFactor is applied

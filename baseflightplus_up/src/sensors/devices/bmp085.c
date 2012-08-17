@@ -1,4 +1,16 @@
+/*
+ * Copyright (c) 2012 Baseflight U.P.
+ * Licensed under the MIT License
+ * @author  Scott Driessens v0.1 (August 2012)
+ *
+ * Modified to use single event hooks (August 2012)
+ *
+ * From Timecop's Original Baseflight
+ *
+ */
+ 
 #include "board.h"
+#include "drivers/i2c.h"
 
 // BMP085, Standard address 0x77
 

@@ -6,6 +6,10 @@
 
 #include "board.h"
 
+#include "core/printf_min.h"
+
+#include "drivers/i2c.h"
+
 // we unset this on 'exit'
 uint8_t cliMode;
 static void cliDefaults(char *cmdline);
@@ -23,10 +27,25 @@ static void telemetryOn(char *cmdline);
 static void telemetry(void);
 static void calibHelp(void);
 
+///////////////////////////////////////////////////////////////////////////////
+
+typedef enum {
+    VAR_UINT8,
+    VAR_INT8,
+    VAR_UINT16,
+    VAR_INT16,
+    VAR_UINT32,
+    VAR_FLOAT
+} vartype_e;
+
+///////////////////////////////////////////////////////////////////////////////
 // buffer
+///////////////////////////////////////////////////////////////////////////////
 static char cliBuffer[32];
 static uint32_t bufferIndex = 0;
 static uint8_t telemetryEnabled = false;
+
+///////////////////////////////////////////////////////////////////////////////
 
 // sync this with MultiType enum from mw.h
 const char *mixerNames[] = {
@@ -45,6 +64,8 @@ const char *sensorNames[] = {
 const char *accNames[] = {
     "", "ADXL345", "MPU6050", NULL
 };
+
+///////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
     char *name;
@@ -68,14 +89,9 @@ const clicmd_t cmdTable[] = {
 };
 #define CMD_COUNT (sizeof(cmdTable) / sizeof(cmdTable[0]))
 
-typedef enum {
-    VAR_UINT8,
-    VAR_INT8,
-    VAR_UINT16,
-    VAR_INT16,
-    VAR_UINT32,
-    VAR_FLOAT
-} vartype_e;
+///////////////////////////////////////////////////////////////////////////////
+// CLI Calibration
+///////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
     char *name;
@@ -92,6 +108,10 @@ const calibcmd_t calibCmdTable[] = {
 };
 
 #define CALIB_CMD_COUNT (sizeof(calibCmdTable) / sizeof(calibCmdTable[0]))
+
+///////////////////////////////////////////////////////////////////////////////
+// CLI Value
+///////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
     const char *name;
@@ -197,19 +217,27 @@ const clivalue_t valueTable[] = {
 
 #define VALUE_COUNT (sizeof(valueTable) / sizeof(valueTable[0]))
 
+///////////////////////////////////////////////////////////////////////////////
+
 static void cliSetVar(const clivalue_t *var, const char *value);
 static void cliPrintVar(const clivalue_t *var, uint32_t full);
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void cliPrompt(void)
 {
     uartPrint("\r\n# ");
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 static int cliCompare(const void *a, const void *b)
 {
     const clicmd_t *ca = a, *cb = b;
     return strncasecmp(ca->name, cb->name, strlen(cb->name));
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void cliDefaults(char *cmdline)
 {
@@ -220,6 +248,8 @@ static void cliDefaults(char *cmdline)
     systemReset(false);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 static void cliExit(char *cmdline)
 {
     uartPrint("\r\nLeaving CLI mode...\r\n");
@@ -229,6 +259,8 @@ static void cliExit(char *cmdline)
     // save and reboot... I think this makes the most sense
     cliSave(cmdline);
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void cliHelp(char *cmdline)
 {
@@ -244,6 +276,8 @@ static void cliHelp(char *cmdline)
         while (!uartTransmitEmpty());
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void cliMap(char *cmdline)
 {
@@ -272,6 +306,8 @@ static void cliMap(char *cmdline)
     uartPrint(out);
     uartPrint("\r\n");
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void cliMixer(char *cmdline)
 {
@@ -312,6 +348,8 @@ static void cliMixer(char *cmdline)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 static void cliSave(char *cmdline)
 {
     uartPrint("Saving...");
@@ -320,6 +358,8 @@ static void cliSave(char *cmdline)
     delay(10);
     systemReset(false);
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void cliPrintVar(const clivalue_t *var, uint32_t full)
 {
@@ -361,6 +401,10 @@ static void cliPrintVar(const clivalue_t *var, uint32_t full)
         uartPrint(buf);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Set
+///////////////////////////////////////////////////////////////////////////////
 
 static void cliSetVar(const clivalue_t *var, const char *eqptr)
 {   
@@ -439,21 +483,17 @@ static void cliSet(char *cmdline)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 static void cliStatus(char *cmdline)
 {
-    char buf[16];
     //uint8_t i;
     //uint32_t mask;
 
-    uartPrint("System Uptime: ");
-    itoa(millis() / 1000, buf, 10);
-    uartPrint(buf);
+    printf_min("System Uptime: %u", millis() / 1000);
     uartPrint(" seconds, Voltage: ");
-    //itoa(vbat, buf, 10);
-    uartPrint("11.1");
-    uartPrint(" * 0.1V (");
-    //itoa(batteryCellCount, buf, 10);
-    uartPrint("3");
+    printf_min("0.2f", sensors.batteryVoltage);
+    printf_min(", %u", sensors.batteryCellCount);
     uartPrint("S battery)\r\n");
 
     //mask = sensorsMask();
@@ -472,14 +512,12 @@ static void cliStatus(char *cmdline)
     }
     uartPrint("\r\n");*/
 
-    //uartPrint("Cycle Time: ");
-    //itoa(cycleTime, buf, 10);
-    //uartPrint(buf);
-    uartPrint(", I2C Errors: ");
-    itoa(i2cGetErrorCounter(), buf, 10);
-    uartPrint(buf);
+    printf_min("Cycle Time: %u", cycleTime);
+    printf_min(", i2c Errors: %u", i2cGetErrorCounter());
     uartPrint("\r\n");
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void calibHelp(void)
 {
@@ -531,10 +569,14 @@ static void cliCalibrate(char *cmdline)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 static void cliVersion(char *cmdline)
 {
     uartPrint("Afro32 CLI version 2.0 " __DATE__ " / " __TIME__);
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 void cliProcess(void)
 {
@@ -630,6 +672,10 @@ void cliProcess(void)
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// AeroQuad style telemetry
+///////////////////////////////////////////////////////////////////////////////
 
 static void telemetry(void)
 {
