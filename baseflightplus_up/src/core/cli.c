@@ -170,6 +170,10 @@ const clivalue_t valueTable[] = {
     { "i_heading",     VAR_FLOAT, &cfg.pids[HEADING_PID].i,      0, 400 },
     { "d_heading",     VAR_FLOAT, &cfg.pids[HEADING_PID].d,      0, 400 },
     { "ilim_heading",  VAR_FLOAT, &cfg.pids[HEADING_PID].iLim,    0, 200},
+    { "p_altitude",     VAR_FLOAT, &cfg.pids[ALTITUDE_PID].p ,      0, 400 },
+    { "i_altitude",     VAR_FLOAT, &cfg.pids[ALTITUDE_PID].i,      0, 400 },
+    { "d_altitude",     VAR_FLOAT, &cfg.pids[ALTITUDE_PID].d,      0, 400 },
+    { "ilim_altitude",  VAR_FLOAT, &cfg.pids[ALTITUDE_PID].iLim,    0, 50000},    
     { "imuKp",  VAR_FLOAT, &cfg.twoKp,    0, 50},
     { "imuKi",  VAR_FLOAT, &cfg.twoKi,    0, 50},
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
@@ -642,7 +646,7 @@ static void telemetry(void)
             printf_min("%f,%f,%f\n", sensors.accel[ROLL], sensors.accel[PITCH], sensors.accel[YAW]);
             break;
         case 'b':
-            printf_min("%f\n", sensors.pressureAlt);
+            printf_min("%f\n", sensors.baroAltitude);
             break;
         case 'g':
             printf_min("%f,%f,%f\n", sensors.gyro[ROLL], sensors.gyro[PITCH], sensors.gyro[YAW]);

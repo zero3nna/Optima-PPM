@@ -47,6 +47,7 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			core/cli.c \
 			core/command.c \
 			core/config.c \
+			core/filters.c \
 			core/mavlink.c \
 			core/printf_min.c \
 			core/serial.c \
@@ -66,7 +67,6 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			sensors/devices/adxl345.c \
 			sensors/devices/bmp085.c \
 			sensors/devices/hmc5883.c \
-			sensors/lp_filter.c \
 			sensors/mag.c \
 			sensors/devices/mpu3050.c \
 			sensors/devices/mpu6050.c \

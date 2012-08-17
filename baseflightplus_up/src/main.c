@@ -48,9 +48,7 @@ int main(void)
     periodicEvent(updateCommands, COUNT_50HZ);
     if(cfg.magDriftCompensation)
         periodicEvent(magSample, COUNT_75HZ);
-    periodicEvent(baroSample, COUNT_50HZ);
-    periodicEvent(updateAltitude, COUNT_10HZ);
-    
+    periodicEvent(updateAltitude, COUNT_25HZ);
     periodicEvent(serialCom, COUNT_50HZ);
     periodicEvent(statusLED, COUNT_10HZ);
     if(cfg.battery)

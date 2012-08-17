@@ -5,21 +5,21 @@
  
 #include "board.h"
 #include "sensors/sensors.h"
+#include "core/filters.h"
+
+#define ALT_SMOOTH_FACTOR 0.02f
 
 void updateAltitude(void)
 {
-    uint8_t numBaroSamples = 0;
-    int32_t baroAccum = 0;
-    int32_t baroSample;
+    int16_t temperature; // 0.1C
+    int32_t pressure, altitude; // 1 pa, 1 cm
     
-    while(bufferUsed(baroSampleBuffer)) {
-        bufferRead(baroSampleBuffer, &baroSample);
-        baroAccum += baroSample;
-        ++numBaroSamples;
-    }
+    bmp085Read(&temperature, &pressure, &altitude);
     
-    pressureAverage = baroAccum / numBaroSamples;
-	calculateTemperature();
-	calculatePressureAltitude();
-	sensors.pressureAlt = pressureAlt;  
+    sensors.baroTemperature = (float)temperature / 10.0f;
+    sensors.baroPressure = (float)pressure;
+    sensors.baroAltitude = filterSmooth(altitude, sensors.baroAltitude, ALT_SMOOTH_FACTOR);
+    
+    // Sonar/GPS stuff can go here for combination of data, maybe look at including accelerometer as well?
+    sensors.altitude = sensors.baroAltitude;
 }

@@ -187,7 +187,7 @@ void mavlinkSendData(void)
             (int16_t)((float)rawMag[0]*mag_scale), (int16_t)((float)rawMag[1]*mag_scale), (int16_t)((float)rawMag[2]*mag_scale)
             );
         // Absolute pressure (hectopascal)
-        mavlink_msg_scaled_pressure_send(MAVLINK_COMM_0, _millis, sensors.pressureAlt*0.01f, 0, 0);
+        mavlink_msg_scaled_pressure_send(MAVLINK_COMM_0, _millis, sensors.baroPressure*0.01f, 0, 0);
         mavlinkData.streamNext[MAV_DATA_STREAM_RAW_SENSORS] = _millis + mavlinkData.streamInterval[MAV_DATA_STREAM_RAW_SENSORS];;
     }
 

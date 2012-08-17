@@ -30,10 +30,6 @@ MagBuffer _magSampleBuffer;
 MagBuffer *magSampleBuffer = &_magSampleBuffer;
 SensorSample magSamples[MAG_BUFF];
 
-BaroBuffer _baroSampleBuffer;
-BaroBuffer *baroSampleBuffer = &_baroSampleBuffer;
-int32_t baroSamples[BARO_BUFF];
-
 void batterySample(void)
 {
     static uint8_t ind;
@@ -53,21 +49,6 @@ void batterySample(void)
     } else
         buzzerFreq = 4;     // low battery
     */
-}
-
-void baroSample(void)
-{
-    static uint8_t barometerCount;
-    
-    if (barometerCount++ == 0) {
-        readTemperatureRequestPressure();
-    } else if (barometerCount >= 10) {
-        readPressureRequestTemperature();
-        barometerCount = 0;
-    } else {
-        readPressureRequestPressure();
-    }
-    bufferWrite(baroSampleBuffer, &uncompensatedPressure);
 }
 
 void magSample(void)
@@ -97,7 +78,6 @@ void gyroSample(void)
     SensorSample gyroSample;
     
     readGyro();
-    readGyroTemp();
     
     gyroSample.x = rawGyro[XAXIS];
     gyroSample.y = rawGyro[YAXIS];
@@ -110,7 +90,6 @@ void sensorsInit(void)
     bufferInit(accelSampleBuffer, accelSamples, ACCEL_BUFF);
     bufferInit(gyroSampleBuffer, gyroSamples, GYRO_BUFF);
     bufferInit(magSampleBuffer, magSamples, MAG_BUFF);
-    bufferInit(baroSampleBuffer, baroSamples, BARO_BUFF);
     
     mpu3050Detect(gyro);
     if(mpu6050Detect(gyro, accel))
@@ -121,9 +100,13 @@ void sensorsInit(void)
     
     initGyro();
     initAccel();
+    
     initMag();
-    initPressure();
-    set(sensorsAvailable, SENSOR_BARO | SENSOR_MAG);
+    set(sensorsAvailable, SENSOR_MAG);
+    
+    if(bmp085Init())
+        set(sensorsAvailable, SENSOR_BARO);
+        
     if(cfg.battery)
         batteryInit();
 }

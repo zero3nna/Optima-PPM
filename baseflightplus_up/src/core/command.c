@@ -10,17 +10,21 @@
 // Process Pilot Commands Defines and Variables
 ///////////////////////////////////////////////////////////////////////////////
 
+#define THROTTLE_HOLD_DEADBAND  20
+
 int16_t rcData[8];
 
 uint8_t auxOptions[AUX_OPTIONS];
 modeFlags_t mode;
 
 float command[4] = {0.0f, 0.0f, 0.0f, 1000.0f};
-uint8_t commandInDetent[4] = {true, true, true, true};
-uint8_t lastCommandInDetent[4] = {true, true, true, true};
+uint8_t commandInDetent[3] = {true, true, true};
+uint8_t lastCommandInDetent[3] = {true, true, true};
 
 float headfreeReference;
 float headingHold;
+float altitudeThrottleHold;
+float altitudeHold;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Read Flight Commands
@@ -187,20 +191,6 @@ void updateCommands(void)
         mode.LEVEL_MODE = 0;
     }
     
-    // Altitude TODO Add barometer check
-    if(auxOptions[OPT_ALTITUDE]) {
-        if(!mode.ALTITUDE_MODE) {
-            mode.ALTITUDE_MODE = 1;
-            //TODO
-            //AltHold = EstAlt;
-            //initialThrottleHold = rcCommand[THROTTLE];
-            //errorAltitudeI = 0;
-            //BaroPID = 0;
-        }
-    } else {
-        mode.ALTITUDE_MODE = 0;
-    }
-    
     // Heading 
     if(auxOptions[OPT_HEADING]) {
         if(!mode.HEADING_MODE) {
@@ -260,7 +250,22 @@ void updateCommands(void)
         
         // TODO - Do we need dynamic PID?
     }
-
+    
+    // This will force a reset
+    if(fabs(command[THROTTLE] - altitudeThrottleHold) > THROTTLE_HOLD_DEADBAND)
+        mode.ALTITUDE_MODE = 0;
+    
+    // Altitude TODO Add barometer check
+    if(auxOptions[OPT_ALTITUDE]) {
+        if(!mode.ALTITUDE_MODE) {
+            mode.ALTITUDE_MODE = 1;
+            altitudeThrottleHold = command[THROTTLE];
+            altitudeHold = sensors.altitude;
+            zeroPID(&pids[ALTITUDE_PID]);
+        }
+    } else {
+        mode.ALTITUDE_MODE = 0;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

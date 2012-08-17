@@ -203,7 +203,13 @@ static void evaluateCommand(void)
             cfg.pids[i].i = read8() / 1000.0f;
             cfg.pids[i].d = read8();
         }
-        for(i = 0; i < 4; ++i) {
+        
+        cfg.pids[ALTITUDE_PID].p = read8();
+        cfg.pids[ALTITUDE_PID].i = read8() / 1000.0f;
+        cfg.pids[ALTITUDE_PID].d = read8();
+        
+        // POS, POSR, NAVR
+        for(i = 0; i < 3; ++i) {
             read8();
             read8();
             read8();
@@ -220,6 +226,7 @@ static void evaluateCommand(void)
         cfg.pids[HEADING_PID].i = read8() / 1000.0f;
         cfg.pids[HEADING_PID].d = read8();
     
+        // Velocity
         for(i = 0; i < 3; ++i)
             read8();
             
@@ -319,7 +326,7 @@ static void evaluateCommand(void)
         break;
     case MSP_ALTITUDE:
         headSerialReply(4);
-        serialize32(sensors.pressureAlt);
+        serialize32(sensors.baroAltitude);
         break;
     case MSP_BAT:
         headSerialReply(3);
@@ -345,7 +352,13 @@ static void evaluateCommand(void)
             serialize8(pids[i].i * 1000.0f);
             serialize8(pids[i].d);
         }
-        for(i = 0; i < 4; ++i) {
+        
+        serialize8(pids[ALTITUDE_PID].p);
+        serialize8(pids[ALTITUDE_PID].i * 1000.0f);
+        serialize8(pids[ALTITUDE_PID].d);
+        
+        // POS, POSR, NAVR
+        for(i = 0; i < 3; ++i) {
             serialize8(0);
             serialize8(0);
             serialize8(0);
@@ -358,6 +371,7 @@ static void evaluateCommand(void)
         serialize8(pids[HEADING_PID].i * 1000.0f);
         serialize8(pids[HEADING_PID].d);
         
+        // Velocity
         serialize8(0);
         serialize8(0);
         serialize8(0);

@@ -1,82 +1,18 @@
-/*
-  June 2012
-
-  BaseFlightPlus Rev -
-
-  An Open Source STM32 Based Multicopter
-
-  Includes code and/or ideas from:
-
-  1)AeroQuad
-  2)BaseFlight
-  3)CH Robotics
-  4)MultiWii
-  5)S.O.H. Madgwick
-
-  Designed to run on Naze32 Flight Control Board
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #pragma once
 
-///////////////////////////////////////////////////////////////////////////////
-// BMP085 Variables
-///////////////////////////////////////////////////////////////////////////////
+bool bmp085Init(void);
 
-extern float pressureAlt;
+// polled versions
+int16_t bmp085_read_temperature(void);
+int32_t bmp085_read_pressure(void);
 
-extern int32_t pressureAverage;
+// interrupt versions
+void bmp085_start_ut(void);
+uint16_t bmp085_get_ut(void);
+void bmp085_start_up(void);
+uint32_t bmp085_get_up(void);
+int16_t bmp085_get_temperature(uint32_t ut);
+int32_t bmp085_get_pressure(uint32_t up);
 
-extern int32_t uncompensatedPressure;
-
-extern int16_t uncompensatedTemperature;
-
-///////////////////////////////////////////////////////////////////////////////
-// Read Temperature Request Pressure
-///////////////////////////////////////////////////////////////////////////////
-
-void readTemperatureRequestPressure(void);
-
-///////////////////////////////////////////////////////////////////////////////
-// Read Pressure Request Pressure
-///////////////////////////////////////////////////////////////////////////////
-
-void readPressureRequestPressure(void);
-
-///////////////////////////////////////////////////////////////////////////////
-// Read Pressure Request Temperature
-///////////////////////////////////////////////////////////////////////////////
-
-void readPressureRequestTemperature(void);
-
-///////////////////////////////////////////////////////////////////////////////
-// Calculate Temperature
-///////////////////////////////////////////////////////////////////////////////
-
-void calculateTemperature(void);
-
-///////////////////////////////////////////////////////////////////////////////
-// Calculate Pressure Altitude
-///////////////////////////////////////////////////////////////////////////////
-
-void calculatePressureAltitude(void);
-
-///////////////////////////////////////////////////////////////////////////////
-// Pressure Initialization
-///////////////////////////////////////////////////////////////////////////////
-
-void initPressure(void);
-
-///////////////////////////////////////////////////////////////////////////////
+void bmp085Update(void);
+void bmp085Read(int16_t *temperature, int32_t *pressure, int32_t *altitude);
