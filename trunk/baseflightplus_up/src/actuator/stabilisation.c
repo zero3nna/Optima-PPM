@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #define RATE_SCALING     0.005  // Stick to rate scaling (5 radians/sec)/(500 RX PWM Steps) = 0.005
-#define ATTITUDE_SCALING 0.001  // Stick to att scaling (1 radian)/(500 RX PWM Steps) = 0.001
+#define ATTITUDE_SCALING 0.002  // Stick to att scaling (1 radian)/(500 RX PWM Steps) = 0.001
 
 float axisPID[4];
 

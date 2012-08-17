@@ -7,8 +7,6 @@
 #include "core/ring_buffer.h"
 #include "core/filters.h"
 
-fourthOrderData_t accelFilter[3];
-
 volatile float q0 = -1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;					// quaternion of sensor frame relative to auxiliary frame
 
 void updateAttitude(void)
@@ -35,6 +33,10 @@ void updateAttitude(void)
     uint8_t numMagSamples = 0;
     int32_t magAccum[3] = {0, 0, 0};
     SensorSample magSample;
+    
+    float temp[3] = {0.0f, 0.0f, 0.0f};
+    
+    uint8_t i;
     
     ///////////////////////////////////////////////////////////////////////////////
     
@@ -63,13 +65,14 @@ void updateAttitude(void)
     }
     
     if(numAccelSamples) {
+        for(i = 0; i < 3; ++i)
+            temp[i] = sensors.accel[i];
         sensors.accel[XAXIS] = ((float) accelAccum[XAXIS] / numAccelSamples - cfg.accelBias[XAXIS]) * sensors.accelScaleFactor[XAXIS];
         sensors.accel[YAXIS] = ((float) accelAccum[YAXIS] / numAccelSamples - cfg.accelBias[YAXIS]) * sensors.accelScaleFactor[YAXIS];
         sensors.accel[ZAXIS] = ((float) accelAccum[ZAXIS] / numAccelSamples - cfg.accelBias[ZAXIS]) * sensors.accelScaleFactor[ZAXIS];
         if(cfg.accelLPF) {
-            sensors.accel[XAXIS] = fourthOrderFilter(sensors.accel[XAXIS], &accelFilter[XAXIS], cfg.accelLPF_A, cfg.accelLPF_B);
-            sensors.accel[YAXIS] = fourthOrderFilter(sensors.accel[YAXIS], &accelFilter[YAXIS], cfg.accelLPF_A, cfg.accelLPF_B);
-            sensors.accel[ZAXIS] = fourthOrderFilter(sensors.accel[ZAXIS], &accelFilter[ZAXIS], cfg.accelLPF_A, cfg.accelLPF_B);
+            for(i = 0; i < 3; ++i)
+                sensors.accel[i] = filterSmooth(sensors.accel[i], temp[i], cfg.accelLPF_Factor);
         }
     }
     
