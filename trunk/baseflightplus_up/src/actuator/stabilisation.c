@@ -11,7 +11,7 @@
 #define RATE_SCALING     0.005  // Stick to rate scaling (5 radians/sec)/(500 RX PWM Steps) = 0.005
 #define ATTITUDE_SCALING 0.001  // Stick to att scaling (1 radian)/(500 RX PWM Steps) = 0.001
 
-float axisPID[3];
+float axisPID[4];
 
 ///////////////////////////////////////////////////////////////////////////////
 // Stabilisation
@@ -64,6 +64,14 @@ void stabilisation(void)
     } else { // Default to rates
         desired[YAW]    = command[YAW] * RATE_SCALING;
         headingHold     = sensors.attitude[YAW]; // Get our new heading
+    }
+    
+    // And Throttle
+    if(mode.ALTITUDE_MODE) {
+        axisPID[THROTTLE]   = applyPID(&pids[ALTITUDE_PID], (altitudeHold - sensors.altitude) / 10.0f, dT); // 0.1m
+        axisPID[THROTTLE]   = constrain(axisPID[THROTTLE], -200.0f, 200.0f);
+    } else {
+        axisPID[THROTTLE]   = 0.0f;
     }
     
     ///////////////////////////////////////////////////////////////////////////////

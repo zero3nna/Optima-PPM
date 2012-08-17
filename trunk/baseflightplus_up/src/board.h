@@ -31,25 +31,25 @@
 
 // Hardware definitions and GPIO
 
-#define LED0_GPIO   GPIOB
-#define LED0_PIN    GPIO_Pin_3
-#define LED1_GPIO   GPIOB
-#define LED1_PIN    GPIO_Pin_4
+#define LED0_GPIO       GPIOB
+#define LED0_PIN        GPIO_Pin_3
+#define LED1_GPIO       GPIOB
+#define LED1_PIN        GPIO_Pin_4
 
-#define LED0_TOGGLE() digitalToggle(LED0_GPIO, LED0_PIN);
-#define LED0_OFF()    digitalHi(LED0_GPIO, LED0_PIN);
-#define LED0_ON()     digitalLo(LED0_GPIO, LED0_PIN);
+#define LED0_TOGGLE()   digitalToggle(LED0_GPIO, LED0_PIN);
+#define LED0_OFF()      digitalHi(LED0_GPIO, LED0_PIN);
+#define LED0_ON()       digitalLo(LED0_GPIO, LED0_PIN);
 
-#define LED1_TOGGLE() digitalToggle(LED1_GPIO, LED1_PIN);
-#define LED1_OFF()    digitalHi(LED1_GPIO, LED1_PIN);
-#define LED1_ON()     digitalLo(LED1_GPIO, LED1_PIN);
+#define LED1_TOGGLE()   digitalToggle(LED1_GPIO, LED1_PIN);
+#define LED1_OFF()      digitalHi(LED1_GPIO, LED1_PIN);
+#define LED1_ON()       digitalLo(LED1_GPIO, LED1_PIN);
 
-#define BEEP_GPIO   GPIOA
-#define BEEP_PIN    GPIO_Pin_12
+#define BEEP_GPIO       GPIOA
+#define BEEP_PIN        GPIO_Pin_12
 
-#define BEEP_TOGGLE() digitalToggle(BEEP_GPIO, BEEP_PIN);
-#define BEEP_OFF()    digitalHi(BEEP_GPIO, BEEP_PIN);
-#define BEEP_ON()     digitalLo(BEEP_GPIO, BEEP_PIN);
+#define BEEP_TOGGLE()   digitalToggle(BEEP_GPIO, BEEP_PIN);
+#define BEEP_OFF()      digitalHi(BEEP_GPIO, BEEP_PIN);
+#define BEEP_ON()       digitalLo(BEEP_GPIO, BEEP_PIN);
 
 #include "actuator/pid.h"
 

@@ -14,7 +14,9 @@
 #define PITCH_LEVEL_PID     4
 #define HEADING_PID         5
 
-#define NUM_PIDS            6
+#define ALTITUDE_PID        6
+
+#define NUM_PIDS            7
 
 ///////////////////////////////////////////////////////////////////////////////
 

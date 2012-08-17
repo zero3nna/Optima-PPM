@@ -25,7 +25,7 @@ void accelCalibration(void)
     uint16_t samples;
     float accelSum[3] = { 0, 0, 0 };
 
-    for (samples = 0; samples < 2000; samples++) {
+    for (samples = 0; samples < 2000; ++samples) {
         readAccel();
 
         accelSum[XAXIS] += rawAccel[XAXIS];

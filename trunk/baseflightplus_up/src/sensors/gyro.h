@@ -8,12 +8,6 @@
 
 #include "sensors/sensors.h"
 
-extern float gyroRTBias[3];
-
-extern float gyroTCBias[3];
-
-extern float gyroTemperature;
-
 extern int16_t rawGyro[3];
 
 extern int16_t rawGyroTemperature;

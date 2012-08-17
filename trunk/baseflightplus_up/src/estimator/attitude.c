@@ -5,7 +5,7 @@
 
 #include "board.h"
 #include "core/ring_buffer.h"
-#include "sensors/lp_filter.h"
+#include "core/filters.h"
 
 fourthOrderData_t accelFilter[3];
 
@@ -72,6 +72,7 @@ void updateAttitude(void)
     }
 
     if(numGyroSamples) {
+        readGyroTemp();
         computeGyroTCBias();
         sensors.gyro[XAXIS] = ((float) gyroAccum[XAXIS]  / numGyroSamples - sensors.gyroRTBias[XAXIS] - sensors.gyroTCBias[XAXIS]) * sensors.gyroScaleFactor[XAXIS];
         sensors.gyro[YAXIS] = ((float) gyroAccum[YAXIS]  / numGyroSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor[YAXIS];

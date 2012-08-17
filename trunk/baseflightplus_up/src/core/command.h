@@ -52,11 +52,13 @@ extern uint8_t auxOptions[AUX_OPTIONS];
 extern modeFlags_t mode;
 
 extern float command[4];
-extern uint8_t commandInDetent[4];
-extern uint8_t lastCommandInDetent[4];
+extern uint8_t commandInDetent[3];
+extern uint8_t lastCommandInDetent[3];
 
 extern float headfreeReference;;
 extern float headingHold;
+extern float altitudeThrottleHold;
+extern float altitudeHold;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Process Flight Commands

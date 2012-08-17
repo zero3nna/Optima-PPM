@@ -206,6 +206,11 @@ void checkFirstTime(bool reset)
         cfg.pids[HEADING_PID].d                 =   0.0f;
         cfg.pids[HEADING_PID].iLim              =   0.5f;  // radians/sec
         
+        cfg.pids[ALTITUDE_PID].p                 =   20.0f;
+        cfg.pids[ALTITUDE_PID].i                 =   15.0f;
+        cfg.pids[ALTITUDE_PID].d                 =   5.0f;
+        cfg.pids[ALTITUDE_PID].iLim              =   30000.0f; // 0.1 m
+        
         // [b, a] = cheby2(4,60,12.5/100) cheby2(order, stopband_ripple, Wst)
         // Wst is cutoff frequency from 0.0 to 1.0 (1.0 corresponds to half the sampling rate)
         cfg.accelLPF            = true;
