@@ -42,6 +42,9 @@ int main(void)
     initPIDs();
     //mavlinkInit();
     
+    // Called every time -> oversampling
+    periodicEvent(gyroSample, 0);
+    periodicEvent(accelSample, 0);
     
     periodicEvent(updateAttitude, COUNT_300HZ);
     periodicEvent(updateActuators, COUNT_300HZ);
@@ -57,8 +60,6 @@ int main(void)
     while (1)
     {
         eventCallbacks();
-        gyroSample();
-        accelSample();
     }
     
     return 0;
