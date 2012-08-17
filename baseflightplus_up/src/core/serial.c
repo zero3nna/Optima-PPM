@@ -48,9 +48,9 @@
 #define INBUF_SIZE 64
 
 static const char boxnames[] =
-    "ACC;"
-    "BARO;"
-    "MAG;"
+    "LEVEL;"
+    "ALTITUDE;"
+    "HEADING;"
     "CAMSTAB;"
     "CAMTRIG;"
     "ARM;"
