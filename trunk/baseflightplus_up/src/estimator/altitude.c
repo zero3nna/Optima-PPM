@@ -7,7 +7,7 @@
 #include "sensors/sensors.h"
 #include "core/filters.h"
 
-#define ALT_SMOOTH_FACTOR 0.02f
+#define ALT_SMOOTH_FACTOR 0.05f
 
 void updateAltitude(void)
 {

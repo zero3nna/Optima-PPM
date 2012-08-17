@@ -207,8 +207,8 @@ void checkFirstTime(bool reset)
         cfg.pids[HEADING_PID].iLim              =   0.5f;  // radians/sec
         
         cfg.pids[ALTITUDE_PID].p                 =   20.0f;
-        cfg.pids[ALTITUDE_PID].i                 =   15.0f;
-        cfg.pids[ALTITUDE_PID].d                 =   5.0f;
+        cfg.pids[ALTITUDE_PID].i                 =   17.0f;
+        cfg.pids[ALTITUDE_PID].d                 =   7.0f;
         cfg.pids[ALTITUDE_PID].iLim              =   30000.0f; // 0.1 m
         
         // [b, a] = cheby2(4,60,12.5/100) cheby2(order, stopband_ripple, Wst)
@@ -229,7 +229,7 @@ void checkFirstTime(bool reset)
         cfg.accelBias[YAXIS]                = 0.0f;
         cfg.accelBias[ZAXIS]                = 0.0f;
 
-        cfg.gyroLPF                    = 256;
+        cfg.gyroLPF                    = 42;
         cfg.gyroTCBiasSlope[ROLL]      = 0.0f;
         cfg.gyroTCBiasSlope[PITCH]     = 0.0f;
         cfg.gyroTCBiasSlope[YAW]       = 0.0f;
