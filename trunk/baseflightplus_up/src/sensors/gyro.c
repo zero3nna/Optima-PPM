@@ -94,7 +94,7 @@ void gyroTempCalibration(void)
     uartPrint("\nWaiting 15 minutes for temp to rise, press a key to break.\n");
 
     // Delay for 15 minutes
-    while (i < 450 || !uartAvailable()) {
+    while (i++ < 450 && !uartAvailable()) {
         delay(1000);
         LED0_TOGGLE();
         readGyroTemp();
