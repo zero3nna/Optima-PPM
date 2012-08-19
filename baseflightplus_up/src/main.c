@@ -14,22 +14,7 @@
 #include "core/mavlink.h"
 #include "core/serial.h"
 
-///////////////////////////////////////
-// Timing Defines
-///////////////////////////////////////
-
-#define COUNT_1000HZ    1000
-#define COUNT_500HZ     2000
-#define COUNT_300HZ     3333
-#define COUNT_250HZ     4000
-#define COUNT_200HZ     5000
-#define COUNT_100HZ     10000
-#define COUNT_75HZ      13333
-#define COUNT_50HZ      20000
-#define COUNT_25HZ      40000
-#define COUNT_10HZ      100000
-#define COUNT_5HZ       200000
-#define COUNT_1HZ       1000000
+#include "drivers/pwm_ppm.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -45,26 +30,39 @@ void statusLED(void);
 
 int main(void)
 {
+    drv_pwm_config_t pwm_params;
+    
     systemInit();
     sensorsInit();
+    
+    initMixer(); // Must be called before pwmInit
+    // pwmInit returns true if throttle calibration is requested. if so, do it here. throttleCalibration() does NOT return - for safety.
+    pwm_params.usePPM = cfg.usePPM;
+    pwm_params.enableInput = false;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
+    pwm_params.useServos = useServos;
+    pwm_params.extraServos = false;//cfg.gimbal_flags & GIMBAL_FORWARDAUX;
+    pwm_params.motorPwmRate = cfg.escPwmRate;
+    pwm_params.servoPwmRate = cfg.servoPwmRate;
+
+    pwmInit(&pwm_params);
+    
 
     initPIDs();
     //mavlinkInit();
     
-    // Called every time -> oversampling
-    periodicEvent(gyroSample, 0);
-    periodicEvent(accelSample, 0);
+    periodicEvent(gyroSample, 500);
+    periodicEvent(accelSample, 500);
     
-    periodicEvent(updateAttitude, COUNT_300HZ);
-    periodicEvent(updateActuators, COUNT_250HZ);
-    periodicEvent(updateCommands, COUNT_50HZ);
+    periodicEvent(updateAttitude, 3000);
+    periodicEvent(updateActuators, 4000);
+    periodicEvent(updateCommands, 20000);
     if(cfg.magDriftCompensation)
-        periodicEvent(magSample, COUNT_75HZ);
-    periodicEvent(updateAltitude, COUNT_25HZ);
-    periodicEvent(serialCom, COUNT_50HZ);
-    periodicEvent(statusLED, COUNT_10HZ);
+        periodicEvent(magSample, 20000);
+    periodicEvent(updateAltitude, 40000);
+    periodicEvent(serialCom, 20000);
+    periodicEvent(statusLED, 100000);
     if(cfg.battery)
-        periodicEvent(batterySample, COUNT_25HZ);
+        periodicEvent(batterySample, 40000);
 
     while (1)
     {
