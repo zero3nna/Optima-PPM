@@ -17,7 +17,6 @@
 
 #include "drivers/adc.h"
 #include "drivers/i2c.h"
-#include "drivers/pwm_ppm.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -270,11 +269,8 @@ void systemInit(void)
     checkFirstTime(false);
     readEEPROM();
 
-    initMixer(); // Must be called before pwmInit
-
     adcInit();
     i2cInit(I2C2);
-    pwmInit();
     uartInit(115200);
 
     delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....

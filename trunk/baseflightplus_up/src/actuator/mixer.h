@@ -16,11 +16,17 @@ typedef enum {
     MULTITYPE_GIMBAL = 5,
     MULTITYPE_Y6 = 6,
     MULTITYPE_HEX6P = 7,
+    MULTITYPE_FLYING_WING = 8,
     MULTITYPE_Y4 = 9,
     MULTITYPE_HEX6X = 10,
+    MULTITYPE_OCTOX8 = 11,
+    MULTITYPE_OCTOFLATP = 12,
+    MULTITYPE_OCTOFLATX = 13,
+    MULTITYPE_AIRPLANE = 14,
+    MULTITYPE_HELI_120_CCPM = 15,
+    MULTITYPE_HELI_90_DEG = 16,
     MULTITYPE_VTAIL4 = 17,
     MULTITYPE_FREEMIX = 18,
-    MULTITYPE_FLYING_WING = 21
 } MultiType;
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -50,9 +50,9 @@ static uint8_t telemetryEnabled = false;
 // sync this with MultiType enum from mw.h
 const char *mixerNames[] = {
     "TRI", "QUADP", "QUADX", "BI",
-    "GIMBAL", "Y6", "HEX6",
+    "GIMBAL", "Y6", "HEX6P",
     "FLYING_WING", "Y4", "HEX6X", "OCTOX8", "OCTOFLATP", "OCTOFLATX",
-    "AIRPLANE", "HELI_120_CCPM", "HELI_90_DEG", "VTAIL4", NULL
+    "AIRPLANE", "HELI_120_CCPM", "HELI_90_DEG", "VTAIL4", "FREEMIX", NULL
 };
 
 // sync this with AvailableSensors enum from board.h

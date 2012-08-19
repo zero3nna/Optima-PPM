@@ -133,25 +133,25 @@ void updateCommands(void)
     ///////////////////////////////////////////////////////////////////////////////
     
     if(cfg.failsafe) {
-        if(failsafeCount > cfg.failsafeOnDelay && mode.ARMED) {
+        if(failsafeCnt > cfg.failsafeOnDelay && mode.ARMED) {
             // Stabilise and set Throttle to failsafe level
             for(i = 0; i < 3; ++i) {
                 rcData[i] = cfg.midCommand;
             }
             rcData[THROTTLE] = cfg.failsafeThrottle;
             mode.FAILSAFE = 1;
-            if(failsafeCount > cfg.failsafeOffDelay + cfg.failsafeOnDelay) {
+            if(failsafeCnt > cfg.failsafeOffDelay + cfg.failsafeOnDelay) {
                 // Disarm
                 mode.ARMED = 0;
                 // you will have to switch off first to rearm
                 mode.OK_TO_ARM = 0;  
             }
-            if(failsafeCount > cfg.failsafeOnDelay && !mode.ARMED) {
+            if(failsafeCnt > cfg.failsafeOnDelay && !mode.ARMED) {
                 mode.ARMED = 0;
                 // you will have to switch off first to rearm
                 mode.OK_TO_ARM = 0;
             }
-            ++failsafeCount;
+            ++failsafeCnt;
         } else {
             mode.FAILSAFE = 0;
         }

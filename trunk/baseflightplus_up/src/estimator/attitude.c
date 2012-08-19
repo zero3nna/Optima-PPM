@@ -96,7 +96,7 @@ void updateAttitude(void)
     
     ///////////////////////////////////////////////////////////////////////////////
     
-    if(numMagSamples && cfg.magDriftCompensation) {
+    if(cfg.magDriftCompensation) {
         MahonyAHRSupdate( sensors.gyro[ROLL],   -sensors.gyro[PITCH],  sensors.gyro[YAW],
                         sensors.accel[XAXIS], sensors.accel[YAXIS], sensors.accel[ZAXIS],
                         sensors.mag[XAXIS],    sensors.mag[YAXIS],    sensors.mag[ZAXIS],
