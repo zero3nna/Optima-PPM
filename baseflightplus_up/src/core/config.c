@@ -140,33 +140,6 @@ void checkFirstTime(bool reset)
 		cfg.gimbalPitchServoMax                = 2000;
 		cfg.gimbalPitchServoGain               = 1.0f;
 
-        // Free Mix
-		cfg.freeMixMotors = 4;
-
-		cfg.freeMix[0][ROLL]                   =  0.0f;
-        cfg.freeMix[0][PITCH]                  =  0.0f;
-        cfg.freeMix[0][YAW]                    = -1.0f;
-
-        cfg.freeMix[1][ROLL]                   =  1.0f;
-        cfg.freeMix[1][PITCH]                  = -2.0f/3.0f;
-        cfg.freeMix[1][YAW]                    =  1.0f/6.0f;
-
-        cfg.freeMix[2][ROLL]                   = -1.0f;
-        cfg.freeMix[2][PITCH]                  = -2.0f/3.0f;
-        cfg.freeMix[2][YAW]                    =  1.0f/6.0f;
-
-        cfg.freeMix[3][ROLL]                   =  0.0f;
-        cfg.freeMix[3][PITCH]                  =  4.0f/3.0f;
-        cfg.freeMix[3][YAW]                    =  1.0f/6.0f;
-
-        cfg.freeMix[4][ROLL]                   =  0.0f;
-        cfg.freeMix[4][PITCH]                  =  0.0f;
-        cfg.freeMix[4][YAW]                    =  0.0f;
-
-        cfg.freeMix[5][ROLL]                   =  0.0f;
-        cfg.freeMix[5][PITCH]                  =  0.0f;
-        cfg.freeMix[5][YAW]                    =  0.0f;
-
         cfg.rollDirectionLeft                  = -1;
         cfg.rollDirectionRight                 =  1;
         cfg.pitchDirectionLeft                 = -1;

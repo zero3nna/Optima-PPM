@@ -4,7 +4,9 @@
 
 #pragma once
 
-extern int16_t failsafeCnt;
+#define MAX_MOTORS  12
+#define MAX_SERVOS  8
+#define MAX_INPUTS  8
 
 typedef struct drv_pwm_config_t {
     bool enableInput;
@@ -15,6 +17,8 @@ typedef struct drv_pwm_config_t {
     uint16_t motorPwmRate;
     uint16_t servoPwmRate;
 } drv_pwm_config_t;
+
+extern int16_t failsafeCnt;
 
 bool pwmInit(drv_pwm_config_t *init); // returns whether driver is asking to calibrate throttle or not
 void pwmWriteMotor(uint8_t index, uint16_t value);

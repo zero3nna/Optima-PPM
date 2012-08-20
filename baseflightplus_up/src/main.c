@@ -35,17 +35,16 @@ int main(void)
     systemInit();
     sensorsInit();
     
-    initMixer(); // Must be called before pwmInit
+    mixerInit(); // Must be called before pwmInit
     // pwmInit returns true if throttle calibration is requested. if so, do it here. throttleCalibration() does NOT return - for safety.
     pwm_params.usePPM = cfg.usePPM;
-    pwm_params.enableInput = false;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
+    pwm_params.enableInput = true;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
     pwm_params.useServos = useServos;
     pwm_params.extraServos = false;//cfg.gimbal_flags & GIMBAL_FORWARDAUX;
     pwm_params.motorPwmRate = cfg.escPwmRate;
     pwm_params.servoPwmRate = cfg.servoPwmRate;
 
     pwmInit(&pwm_params);
-    
 
     initPIDs();
     //mavlinkInit();

@@ -75,10 +75,6 @@ typedef struct {
     uint16_t gimbalPitchServoMax;
     float gimbalPitchServoGain;
 
-    uint8_t freeMixMotors;
-
-    float freeMix[6][3];
-
     int8_t rollDirectionLeft;
     int8_t rollDirectionRight;
     int8_t pitchDirectionLeft;
