@@ -17,12 +17,12 @@ mavlink_system_t mavlink_system;
 
 #define MAVLINK_PARAMID_LEN                     16
 
-#define MAVLINK_HEARTBEAT_INTERVAL              (1000)	    //  1Hz
-#define MAVLINK_PARAM_INTERVAL                  (1000/50)   // 50Hz
-#define MAVLINK_DS_RAW_SENSORS_INTERVAL         (1000/100)   // 50Hz
-#define MAVLINK_DS_RAW_SENSORS_POSITION         (1000/2)    //  5Hz
-#define MAVLINK_DS_RAW_SENSORS_RC_CHANNELS      (1000/20)   // 20Hz
-#define MAVLINK_DS_RAW_SENSORS_RAW_CONTROLLER   (1000/20)   // 20Hz
+#define MAVLINK_HEARTBEAT_INTERVAL              (1000/30)	    //  30Hz
+//#define MAVLINK_PARAM_INTERVAL                  (1000/1)   // 50Hz
+#define MAVLINK_DS_RAW_SENSORS_INTERVAL         (1000/150)   // 150Hz
+//#define MAVLINK_DS_RAW_SENSORS_POSITION         (1000/2)    //  5Hz
+#define MAVLINK_DS_RAW_SENSORS_RC_CHANNELS      (1000/50)   // 20Hz
+#define MAVLINK_DS_RAW_SENSORS_RAW_CONTROLLER   (1000/50)   // 150Hz
 
 #define IS_STREAM_TRIGGERED(id) \
     (mavlinkData.streamInterval[id] && mavlinkData.streamNext[id] < _millis)
@@ -44,6 +44,28 @@ static mavlinkStruct_t mavlinkData;
 extern uint32_t cycleTime;
 extern int32_t b5, p; // temp / pressure - bmp085.c
 uint16_t acc_1G = 265; // 3.3V operation
+
+#define CURRENT_SCALE_FACTOR    5.0f/(1023.0f * 0.133f)
+
+static float current; // A
+
+// UART2 Receive ISR callback
+void currentDataReceive(uint16_t c)
+{
+    static char data[5];
+    static uint8_t index;
+    
+    if(c == '\n' && index) {
+        data[index] = '\0';
+        current = (float)atoi(data);
+        current = (current - 102.3) * CURRENT_SCALE_FACTOR;
+        index = 0;
+    } else if(index < 5){
+        data[index++] = (uint8_t)c;
+    } else {
+        index = 0;
+    }
+}
 
 // ==============================================================================================
 // Parameters mapping
@@ -120,7 +142,7 @@ void mavlinkInit(void)
     mavlinkData.status = MAV_STATE_ACTIVE;
 
     mavlinkData.streamInterval[MAV_DATA_STREAM_RAW_SENSORS] = MAVLINK_DS_RAW_SENSORS_INTERVAL;
-    mavlinkData.streamInterval[MAV_DATA_STREAM_POSITION] = MAVLINK_DS_RAW_SENSORS_POSITION;
+    //mavlinkData.streamInterval[MAV_DATA_STREAM_POSITION] = MAVLINK_DS_RAW_SENSORS_POSITION;
     mavlinkData.streamInterval[MAV_DATA_STREAM_RC_CHANNELS] = MAVLINK_DS_RAW_SENSORS_RC_CHANNELS;
     mavlinkData.streamInterval[MAV_DATA_STREAM_RAW_CONTROLLER] = MAVLINK_DS_RAW_SENSORS_RAW_CONTROLLER;
 }
@@ -158,9 +180,9 @@ void mavlinkSendData(void)
             0,                  // onboard_control_sensors_present
             0,                  // onboard_control_sensors_enabled
             0,                  // onboard_control_sensors_health
-            1000 ,          // load
-            0,                  // voltage_battery
-            -1,                 // current_battery
+            cycleTime ,          // load
+            (uint16_t)sensors.batteryVoltage*1000,                  // voltage_battery
+            (int16_t)current*100,                 // current_battery
             -1,                 // battery_remaining
             0,                  // drop_rate_comm
             mavlinkData.packetDrops,    // errors_comm
@@ -192,32 +214,22 @@ void mavlinkSendData(void)
         mavlinkData.streamNext[MAV_DATA_STREAM_RAW_SENSORS] = _millis + mavlinkData.streamInterval[MAV_DATA_STREAM_RAW_SENSORS];;
     }
 
-    // position
+    /*// position
     if (IS_STREAM_TRIGGERED(MAV_DATA_STREAM_POSITION))
     {
 	//mavlink_msg_gps_raw_int_send(MAVLINK_COMM_0, _millis, 3, GPS_coord[LAT]*1e7, GPS_coord[LON]*1e7, GPS_altitude*1e3, 65535, 65535, GPS_speed, GPS_ground_course, GPS_numSat);
 	mavlinkData.streamNext[MAV_DATA_STREAM_POSITION] = _millis + mavlinkData.streamInterval[MAV_DATA_STREAM_POSITION];;
-    }
-
+    }*/
+/*
     // extended status
     if (IS_STREAM_TRIGGERED(MAV_DATA_STREAM_EXTENDED_STATUS))
     {
         mavlinkData.streamNext[MAV_DATA_STREAM_EXTENDED_STATUS] = _millis + mavlinkData.streamInterval[MAV_DATA_STREAM_EXTENDED_STATUS];;
-    }
+    }*/
 
     // rc channels
     if (IS_STREAM_TRIGGERED(MAV_DATA_STREAM_RC_CHANNELS))
     {
-	mavlink_msg_rc_channels_raw_send(MAVLINK_COMM_0, _millis, 0,
-            rcData[THROTTLE], 
-            rcData[ROLL],
-            rcData[PITCH],
-            rcData[YAW],
-            rcData[AUX1],
-            rcData[AUX2],
-            rcData[AUX3],
-            rcData[AUX4],
-            255);
 	mavlink_msg_rc_channels_scaled_send(MAVLINK_COMM_0, _millis, 0,
             command[THROTTLE],
             command[ROLL],
@@ -247,13 +259,16 @@ void mavlinkSendData(void)
     //mavlink_msg_statustext_send(MAVLINK_COMM_0, 0, (const char *)msg);
 
     // list all parameters
-    if (mavlinkData.currentParam < PARAM_COUNT && mavlinkData.nextParam < _millis) {
+    /*if (mavlinkData.currentParam < PARAM_COUNT && mavlinkData.nextParam < _millis) {
 	mavlink_msg_param_value_send(MAVLINK_COMM_0, configParameters[mavlinkData.currentParam].name, getConfigParameterValue(mavlinkData.currentParam), MAVLINK_TYPE_FLOAT, PARAM_COUNT, mavlinkData.currentParam);
 	mavlinkData.currentParam++;
 	mavlinkData.nextParam = _millis + MAVLINK_PARAM_INTERVAL;
-    }
+    }*/
 
     lastMillis = _millis;
+    
+    if(mavlinkMode)
+        singleEvent(mavlinkSendData, 4000);
 }
 
 static void mavlinkDoCommand(mavlink_message_t *msg) {

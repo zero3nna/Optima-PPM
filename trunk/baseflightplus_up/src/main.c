@@ -18,6 +18,8 @@
 #include "drivers/i2c.h"
 #include "drivers/pwm_ppm.h"
 
+#include "core/printf_min.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 uint32_t cycleTime;
@@ -39,6 +41,7 @@ int main(void)
     adcInit();
     i2cInit(I2C2);
     uartInit(115200);
+    uart2Init(9600, currentDataReceive);
     
     sensorsInit();
     
@@ -54,7 +57,7 @@ int main(void)
     pwmInit(&pwm_params);
 
     initPIDs();
-    //mavlinkInit();
+    mavlinkInit();
     
     delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....
     

@@ -102,6 +102,8 @@ typedef struct {
 
     // For Mahony AHRS
     
+    float accelCutoff;
+    
     uint8_t magDriftCompensation;
     float magDeclination;
 

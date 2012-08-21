@@ -207,8 +207,10 @@ void checkFirstTime(bool reset)
         cfg.magBias[YAW]               = 0.0f;
 
         // For Mahony AHRS
+        
+        cfg.accelCutoff                 = ACCEL_1G;
 
-        cfg.magDriftCompensation       = true;
+        cfg.magDriftCompensation       = false;
 
         // Get your magnetic decliniation from here : http://magnetic-declination.com/
         // For example, -6deg 37min, = -6.37 Japan, format is [sign]ddd.mm (degreesminutes)
@@ -218,7 +220,7 @@ void checkFirstTime(bool reset)
 
         cfg.twoKi                      = 0.0f;
 
-        cfg.battery                    = false;
+        cfg.battery                    = true;
         cfg.batScale                   = 11.0f;
         cfg.batMinCellVoltage          = 3.3f;
         cfg.batMaxCellVoltage          = 4.2f;
