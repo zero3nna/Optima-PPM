@@ -61,6 +61,7 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			estimator/attitude.c \
 			estimator/MahonyAHRS.c \
 			sensors/accel.c \
+			sensors/baro.c \
 			sensors/battery.c \
 			sensors/gyro.c \
 			sensors/sensors.c \

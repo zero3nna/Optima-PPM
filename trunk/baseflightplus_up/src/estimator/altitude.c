@@ -7,23 +7,27 @@
 #include "sensors/sensors.h"
 #include "core/filters.h"
 
-#define ALT_SMOOTH_FACTOR 0.05f
+#define BARO_TAB_SIZE   40
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void updateAltitude(void)
 {
-    int16_t temperature; // 0.1C
-    int32_t pressure, altitude; // 1 pa, 1 cm
-    
-    bmp085Read(&temperature, &pressure, &altitude);
-    
-    sensors.baroTemperature = (float)temperature / 10.0f;
-    sensors.baroPressure = (float)pressure;
-    sensors.baroAltitude = filterSmooth(altitude, sensors.baroAltitude, ALT_SMOOTH_FACTOR);
-    
-    // Sonar/GPS stuff can go here for combination of data, maybe look at including accelerometer as well?
-    sensors.altitude = sensors.baroAltitude;
+    uint32_t index;
+    static int16_t BaroHistTab[BARO_TAB_SIZE];
+    static uint32_t BaroHistIdx;
+    static int32_t BaroHigh = 0;
+
+    BaroHistTab[BaroHistIdx] = sensors.baroAltitude / 10;
+    BaroHigh += BaroHistTab[BaroHistIdx];
+    index = (BaroHistIdx + (BARO_TAB_SIZE / 2)) % BARO_TAB_SIZE;
+    BaroHigh -= BaroHistTab[index];
+    BaroHistIdx++;
+    if (BaroHistIdx >= BARO_TAB_SIZE)
+        BaroHistIdx = 0;
+
+    sensors.altitude = BaroHigh * 10 / (BARO_TAB_SIZE / 2);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

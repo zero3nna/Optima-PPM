@@ -50,7 +50,8 @@ typedef struct {
     
     uint16_t deadBand[3];
     
-    pidConfig pids[NUM_PIDS];
+    int16_t servotrim[8];                   // Adjust Servo MID Offset & Swash angles
+    int8_t servoreverse[8];
 
     uint16_t biLeftServoMin;
     uint16_t biLeftServoMid;
@@ -84,6 +85,8 @@ typedef struct {
     uint16_t wingLeftMaximum;
     uint16_t wingRightMinimum;
     uint16_t wingRightMaximum;
+    
+    pidConfig pids[NUM_PIDS];
     
     uint8_t accelLPF;
     float accelLPF_Factor;

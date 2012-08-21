@@ -70,7 +70,7 @@ void stabilisation(void)
     
     // And Throttle
     if(mode.ALTITUDE_MODE) {
-        axisPID[THROTTLE]   = applyPID(&pids[ALTITUDE_PID], (altitudeHold - sensors.altitude) / 10.0f, dT); // 0.1m
+        axisPID[THROTTLE]   = applyPID(&pids[ALTITUDE_PID], (altitudeHold - sensors.baroAltitude) / 10.0f, dT); // 0.1m
         axisPID[THROTTLE]   = constrain(axisPID[THROTTLE], -200.0f, 200.0f);
     } else {
         axisPID[THROTTLE]   = 0.0f;

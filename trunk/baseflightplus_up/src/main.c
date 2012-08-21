@@ -14,6 +14,8 @@
 #include "core/mavlink.h"
 #include "core/serial.h"
 
+#include "drivers/adc.h"
+#include "drivers/i2c.h"
 #include "drivers/pwm_ppm.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,6 +35,11 @@ int main(void)
     drv_pwm_config_t pwm_params;
     
     systemInit();
+    
+    adcInit();
+    i2cInit(I2C2);
+    uartInit(115200);
+    
     sensorsInit();
     
     mixerInit(); // Must be called before pwmInit
@@ -48,6 +55,8 @@ int main(void)
 
     initPIDs();
     //mavlinkInit();
+    
+    delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....
     
     periodicEvent(gyroSample, 500);
     periodicEvent(accelSample, 500);

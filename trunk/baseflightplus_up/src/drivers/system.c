@@ -15,9 +15,6 @@
 
 #include "core/printf_min.h"
 
-#include "drivers/adc.h"
-#include "drivers/i2c.h"
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // Cycle counter stuff - these should be defined by CMSIS, but they aren't
@@ -268,12 +265,6 @@ void systemInit(void)
 
     checkFirstTime(false);
     readEEPROM();
-
-    adcInit();
-    i2cInit(I2C2);
-    uartInit(115200);
-
-    delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....
 }
 
 ///////////////////////////////////////////////////////////////////////////////

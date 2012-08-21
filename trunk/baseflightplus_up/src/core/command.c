@@ -264,7 +264,7 @@ void updateCommands(void)
         if(!mode.ALTITUDE_MODE) {
             mode.ALTITUDE_MODE = 1;
             altitudeThrottleHold = command[THROTTLE];
-            altitudeHold = sensors.altitude;
+            altitudeHold = sensors.baroAltitude;
             zeroPID(&pids[ALTITUDE_PID]);
         }
     } else {
