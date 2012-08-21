@@ -34,6 +34,8 @@
 #define MIDCOMMAND  1500
 #define MAXCOMMAND  2000
 
+//#define MAVLINK 1
+
 ///////////////////////////////////////////////////////////////////////////////
 
 extern uint32_t cycleTime;

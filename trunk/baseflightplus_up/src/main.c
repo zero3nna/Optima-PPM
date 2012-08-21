@@ -11,14 +11,15 @@
 #include "actuator/stabilisation.h"
 
 #include "core/command.h"
-#include "core/mavlink.h"
 #include "core/serial.h"
 
 #include "drivers/adc.h"
 #include "drivers/i2c.h"
 #include "drivers/pwm_ppm.h"
 
-#include "core/printf_min.h"
+#ifdef MAVLINK
+#include "core/mavlink.h"
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -41,23 +42,28 @@ int main(void)
     adcInit();
     i2cInit(I2C2);
     uartInit(115200);
-    uart2Init(9600, currentDataReceive);
     
     sensorsInit();
     
     mixerInit(); // Must be called before pwmInit
-    // pwmInit returns true if throttle calibration is requested. if so, do it here. throttleCalibration() does NOT return - for safety.
+    // when using airplane/wing mixer, servo/motor outputs are remapped
+    if (cfg.mixerConfiguration == MULTITYPE_AIRPLANE || cfg.mixerConfiguration == MULTITYPE_FLYING_WING)
+        pwm_params.airplane = true;
     pwm_params.usePPM = cfg.usePPM;
     pwm_params.enableInput = true;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
     pwm_params.useServos = useServos;
     pwm_params.extraServos = false;//cfg.gimbal_flags & GIMBAL_FORWARDAUX;
     pwm_params.motorPwmRate = cfg.escPwmRate;
     pwm_params.servoPwmRate = cfg.servoPwmRate;
-
+    
     pwmInit(&pwm_params);
 
     initPIDs();
+    
+#ifdef MAVLINK
+    uart2Init(9600, currentDataReceive);
     mavlinkInit();
+#endif
     
     delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....
     

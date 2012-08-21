@@ -21,7 +21,7 @@ cfg_t cfg;
 
 const char rcChannelLetters[] = "AERT1234";
 
-static uint8_t checkNewSystemConf = 2;
+static uint8_t checkNewSystemConf = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 
