@@ -118,9 +118,11 @@ void sensorsInit(void)
     initMag();
     set(sensorsAvailable, SENSOR_MAG);
     
-    if(bmp085Init())
+    if (bmp085Detect(baro)) {
         set(sensorsAvailable, SENSOR_BARO);
-        
+        singleEvent(baroUpdate, baro->repeat_delay); // Begin baro conversion state machine
+    }
+          
     if(cfg.battery)
         batteryInit();
 }

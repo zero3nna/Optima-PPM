@@ -66,6 +66,7 @@
 #include "drivers/uart.h"
 
 #include "sensors/accel.h"
+#include "sensors/baro.h"
 #include "sensors/battery.h"
 #include "sensors/gyro.h"
 #include "sensors/sensors.h"

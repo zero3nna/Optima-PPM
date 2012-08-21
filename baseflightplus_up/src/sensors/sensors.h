@@ -38,11 +38,8 @@ typedef struct {
     float mag[3];
     float magScaleFactor[3];
     
-    float baroTemperature;
-    float baroPressure;
-    float baroAltitude;
-    
-    float altitude;
+    int32_t baroAltitude;
+    int32_t altitude;
     
     float batteryVoltage;
     float batteryWarningVoltage;
@@ -59,21 +56,34 @@ ringBuffer_typedef(SensorSample, AccelBuffer);
 ringBuffer_typedef(SensorSample, GyroBuffer);
 ringBuffer_typedef(SensorSample, MagBuffer);
 
-typedef void (* sensorInitFuncPtr)(void);                   // sensor init prototype
+typedef void (* sensorFuncPtr)(void);                   // sensor init prototype
 typedef void (* sensorReadFuncPtr)(int16_t *data);          // sensor read and align prototype
+typedef int32_t (* baroCalculateFuncPtr)(void);             // baro calculation (returns altitude in cm based on static data collected)
 
 typedef struct
 {
-    sensorInitFuncPtr init;
+    sensorFuncPtr init;
     sensorReadFuncPtr read;
     sensorReadFuncPtr temperature;
 } gyro_t;
 
 typedef struct
 {
-    sensorInitFuncPtr init;
+    sensorFuncPtr init;
     sensorReadFuncPtr read;
 } accel_t;
+
+typedef struct baro_t
+{
+    uint16_t ut_delay;
+    uint16_t up_delay;
+    uint16_t repeat_delay;
+    sensorFuncPtr start_ut;
+    sensorFuncPtr get_ut;
+    sensorFuncPtr start_up;
+    sensorFuncPtr get_up;
+    baroCalculateFuncPtr calculate;
+} baro_t;
 
 ///////////////////////////////////////////////////////////////////////////////
 // External Variables

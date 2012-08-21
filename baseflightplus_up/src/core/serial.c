@@ -332,7 +332,7 @@ static void evaluateCommand(void)
         break;
     case MSP_ALTITUDE:
         headSerialReply(4);
-        serialize32(sensors.baroAltitude);
+        serialize32(sensors.altitude);
         break;
     case MSP_BAT:
         headSerialReply(3);
