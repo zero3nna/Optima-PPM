@@ -196,6 +196,7 @@ const clivalue_t valueTable[] = {
     { "ilim_altitude",  VAR_FLOAT, &cfg.pids[ALTITUDE_PID].iLim,    0, 50000},    
     { "imuKp",  VAR_FLOAT, &cfg.twoKp,    0, 50},
     { "imuKi",  VAR_FLOAT, &cfg.twoKi,    0, 50},
+    { "accelCutoff",  VAR_FLOAT, &cfg.accelCutoff,    0, 50},
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
     { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
     { "accelLPF", VAR_UINT8, &cfg.accelLPF, 0, 1},
