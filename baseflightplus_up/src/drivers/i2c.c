@@ -61,6 +61,7 @@ static void i2c_er_handler(void)
 
     if (SR1Register & 0x0F00)   //an error
     {
+        error = true;
         // I2C1error.error = ((SR1Register & 0x0F00) >> 8);               //save error
         // I2C1error.job = job;    //the task
     }
@@ -104,6 +105,7 @@ bool i2cWriteBuffer(uint8_t addr_, uint8_t reg_, uint8_t len_, uint8_t * data)
     read_p = my_data;
     bytes = len_;
     busy = 1;
+    error = false;
 
     if (len_ > 16)
         return false;           //too long
@@ -129,7 +131,7 @@ bool i2cWriteBuffer(uint8_t addr_, uint8_t reg_, uint8_t len_, uint8_t * data)
         return false;
     }
 
-    return true;
+    return !error;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -153,6 +155,7 @@ bool i2cRead(uint8_t addr_, uint8_t reg_, uint8_t len, uint8_t * buf)
     write_p = buf;
     bytes = len;
     busy = 1;
+    error = false;
 
     if (!(I2Cx->CR2 & I2C_IT_EVT))      //if we are restarting the driver
     {
@@ -172,7 +175,7 @@ bool i2cRead(uint8_t addr_, uint8_t reg_, uint8_t len, uint8_t * buf)
         return false;
     }
 
-    return true;
+    return !error;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
