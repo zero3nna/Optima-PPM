@@ -31,10 +31,4 @@
 
 #pragma once
 
-void mpu3050Init(void);
-
 uint8_t mpu3050Detect(gyro_t *gyro);
-
-void mpu3050GyroRead(int16_t* values);
-
-void mpu3050TempRead(int16_t* temperature);

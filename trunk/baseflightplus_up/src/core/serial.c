@@ -11,7 +11,7 @@
 
 #include "drivers/i2c.h"
 
-#ifdef MAVLINK
+#ifdef THESIS
 #include "core/mavlink.h"
 #endif
 
@@ -464,7 +464,7 @@ static void evaluateCommand(void)
 static void evaluateOtherData(uint8_t sr)
 {
     switch (sr) {
-#ifdef MAVLINK
+#ifdef THESIS
         case '~':
             mavlinkMode = true;
             singleEvent(mavlinkSendData, 10000);
@@ -493,7 +493,7 @@ void serialCom(void)
         HEADER_CMD,
     } c_state = IDLE;
 
-#ifdef MAVLINK
+#ifdef THESIS
     if(mavlinkMode){
         mavlinkComm();
         return;

@@ -14,8 +14,6 @@
 
 int16_t rawGyro[3];
 
-int16_t rawGyroTemperature;
-
 gyro_t _gyro;
 gyro_t *gyro = &_gyro;
 
@@ -30,7 +28,7 @@ void readGyro(void)
 
 void readGyroTemp(void)
 {
-    gyro->temperature(&rawGyroTemperature);
+    gyro->temperature(&sensors.gyroTemperature);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,9 +36,7 @@ void readGyroTemp(void)
 ///////////////////////////////////////////////////////////////////////////////
 
 void computeGyroTCBias(void)
-{
-    sensors.gyroTemperature     = (float) (rawGyroTemperature + 13200) / 280.0f + 35.0f;
-    
+{   
     sensors.gyroTCBias[ROLL]    = cfg.gyroTCBiasSlope[ROLL] * sensors.gyroTemperature + cfg.gyroTCBiasIntercept[ROLL];
     sensors.gyroTCBias[PITCH]   = cfg.gyroTCBiasSlope[PITCH] * sensors.gyroTemperature + cfg.gyroTCBiasIntercept[PITCH];
     sensors.gyroTCBias[YAW]     = cfg.gyroTCBiasSlope[YAW] * sensors.gyroTemperature + cfg.gyroTCBiasIntercept[YAW];
@@ -75,7 +71,7 @@ void gyroTempCalibration(void)
         bias1[ROLL]     += rawGyro[ROLL];
         bias1[PITCH]    += rawGyro[PITCH];
         bias1[YAW]      += rawGyro[YAW];
-        temperature1    += ((float) rawGyroTemperature + 13200.0f) / 280.0f + 35.0f;
+        temperature1    += sensors.gyroTemperature;
         delay(1);
     }
     
@@ -98,7 +94,7 @@ void gyroTempCalibration(void)
         delay(1000);
         LED0_TOGGLE();
         readGyroTemp();
-        printf_min("T: %f\n", ((float) rawGyroTemperature + 13200.0f) / 280.0f + 35.0f);
+        printf_min("T: %f\n", sensors.gyroTemperature);
     }
     
     ///////////////////////////////////
@@ -110,7 +106,7 @@ void gyroTempCalibration(void)
         bias2[ROLL]     += rawGyro[ROLL];
         bias2[PITCH]    += rawGyro[PITCH];
         bias2[YAW]      += rawGyro[YAW];
-        temperature2    += ((float) rawGyroTemperature + 13200.0f) / 280.0f + 35.0f;
+        temperature2    += sensors.gyroTemperature;
         delay(1);
     }
 

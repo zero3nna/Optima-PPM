@@ -58,13 +58,14 @@ ringBuffer_typedef(SensorSample, MagBuffer);
 
 typedef void (* sensorFuncPtr)(void);                   // sensor init prototype
 typedef void (* sensorReadFuncPtr)(int16_t *data);          // sensor read and align prototype
+typedef void (* sensorReadFloatFuncPtr)(float *data);
 typedef int32_t (* baroCalculateFuncPtr)(void);             // baro calculation (returns altitude in cm based on static data collected)
 
 typedef struct
 {
     sensorFuncPtr init;
     sensorReadFuncPtr read;
-    sensorReadFuncPtr temperature;
+    sensorReadFloatFuncPtr temperature;
 } gyro_t;
 
 typedef struct
