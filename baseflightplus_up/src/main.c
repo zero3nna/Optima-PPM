@@ -17,7 +17,7 @@
 #include "drivers/i2c.h"
 #include "drivers/pwm_ppm.h"
 
-#ifdef MAVLINK
+#ifdef THESIS
 #include "core/mavlink.h"
 #endif
 
@@ -60,7 +60,7 @@ int main(void)
 
     initPIDs();
     
-#ifdef MAVLINK
+#ifdef THESIS
     uart2Init(9600, currentDataReceive);
     mavlinkInit();
 #endif
@@ -71,6 +71,7 @@ int main(void)
     periodicEvent(accelSample, 500);
     
     periodicEvent(updateAttitude, 3000);
+    
     periodicEvent(updateActuators, 4000);
     periodicEvent(updateCommands, 20000);
     if(cfg.magDriftCompensation)

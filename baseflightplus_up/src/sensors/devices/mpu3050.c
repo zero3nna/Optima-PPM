@@ -52,6 +52,12 @@
 // scale factor to get rad/s: (1/14.375*PI/180) = 0.00121414208834388144
 #define MPU3050_GYRO_SCALE_FACTOR     0.00121414208834388144f
 
+static void mpu3050Init(void);
+
+static void mpu3050GyroRead(int16_t* values);
+
+static void mpu3050TempRead(float* temperature);
+
 ///////////////////////////////////////////////////////////////////////////////
 // Read Gyro
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,14 +74,16 @@ void mpu3050GyroRead(int16_t *values)
     values[ZAXIS] = -((buf[4] << 8) | buf[5]);
 }
 
-void mpu3050TempRead(int16_t *temperature)
+void mpu3050TempRead(float *temperature)
 {
     uint8_t buf[2];
+    int16_t temp;
 
     // Get data from device
     i2cRead(MPU3050_ADDRESS, MPU3050_TEMP_OUT, 2, buf);
 
-    *temperature = (buf[0] << 8) | buf[1];
+    temp = (buf[0] << 8) | buf[1];
+    *temperature = ((float) temp + 13200.0f) / 280.0f + 35.0f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

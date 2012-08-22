@@ -106,11 +106,16 @@ void sensorsInit(void)
     bufferInit(magSampleBuffer, magSamples, MAG_BUFF);
     
     mpu3050Detect(gyro);
-    if(mpu6050Detect(gyro, accel))
-        set(sensorsAvailable, SENSOR_ACC);
     
     if(adxl345Detect(accel))
+    {
         set(sensorsAvailable, SENSOR_ACC);
+    }
+    
+    if(mpu6050Detect(gyro, accel, false))
+    {
+        set(sensorsAvailable, SENSOR_ACC);
+    }
     
     initGyro();
     initAccel();
