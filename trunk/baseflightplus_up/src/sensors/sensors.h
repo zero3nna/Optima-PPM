@@ -74,7 +74,7 @@ typedef struct
     sensorReadFuncPtr read;
 } accel_t;
 
-typedef struct baro_t
+typedef struct
 {
     uint16_t ut_delay;
     uint16_t up_delay;
