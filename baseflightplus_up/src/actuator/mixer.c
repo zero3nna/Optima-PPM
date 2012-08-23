@@ -246,12 +246,21 @@ void mixTable(void)
             motor[3] = PIDMIX(+1, -1, -1);      //FRONT_L
             break;
 
+#ifdef THESIS
+        case MULTITYPE_Y4:
+            motor[0] = PIDMIX(+0, +0, +0);      //MIDDLE CW
+            motor[1] = PIDMIX(+1, -2/3, +1);    //LEFT CCW
+            motor[2] = PIDMIX(-1, -2/3, +1);      //RIGHT CCW
+            motor[3] = PIDMIX(+0, +4/3, +1);      //REAR CCW
+            break;    
+#else
         case MULTITYPE_Y4:
             motor[0] = PIDMIX(+0, +1, -1);      //REAR_1 CW
             motor[1] = PIDMIX(-1, -1, 0);       //FRONT_R CCW
             motor[2] = PIDMIX(+0, +1, +1);      //REAR_2 CCW
             motor[3] = PIDMIX(+1, -1, 0);       //FRONT_L CW
             break;
+#endif
 
         case MULTITYPE_Y6:
             motor[0] = PIDMIX(+0, +4 / 3, +1);  //REAR

@@ -7,26 +7,34 @@
 #include "sensors/sensors.h"
 #include "core/filters.h"
 
-#define BARO_TAB_SIZE   40
+#define ALT_TAB_SIZE   20
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void updateAltitude(void)
 {
     uint32_t index;
-    static int16_t BaroHistTab[BARO_TAB_SIZE];
-    static uint32_t BaroHistIdx;
-    static int32_t BaroHigh = 0;
+    static int16_t altHistTab[ALT_TAB_SIZE];
+    static uint32_t altHistIdx;
+    static int32_t altHigh = 0;
 
-    BaroHistTab[BaroHistIdx] = sensors.baroAltitude / 10;
-    BaroHigh += BaroHistTab[BaroHistIdx];
-    index = (BaroHistIdx + (BARO_TAB_SIZE / 2)) % BARO_TAB_SIZE;
-    BaroHigh -= BaroHistTab[index];
-    BaroHistIdx++;
-    if (BaroHistIdx >= BARO_TAB_SIZE)
-        BaroHistIdx = 0;
+#ifdef SONAR
+    int16_t sonarAltitude;
+    hcsr04_get_distance(&sonarAltitude);
+    altHistTab[altHistIdx] = sonarAltitude / 10;
+#else
+    altHistTab[altHistIdx] = sensors.baroAltitude / 10;
+#endif
+    altHigh += altHistTab[altHistIdx];
+    index = (altHistIdx + (ALT_TAB_SIZE / 2)) % ALT_TAB_SIZE;
+    altHigh -= altHistTab[index];
+    altHistIdx++;
+    if (altHistIdx >= ALT_TAB_SIZE)
+        altHistIdx = 0;
 
-    sensors.altitude = BaroHigh * 10 / (BARO_TAB_SIZE / 2);
+    sensors.altitude = altHigh * 10 / (ALT_TAB_SIZE / 2);
+    
+    
 
 }
 

@@ -29,28 +29,6 @@ void statusLED(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define CURRENT_SCALE_FACTOR    5.0f/(1023.0f * 0.133f)
-
-static float current; // A
-
-// UART2 Receive ISR callback
-void currentDataReceive(uint16_t c)
-{
-    static char data[5];
-    static uint8_t index;
-    
-    if(c == '\n' && index) {
-        data[index] = '\0';
-        current = (float)atoi(data);
-        current = (current - 102.3) * CURRENT_SCALE_FACTOR;
-        index = 0;
-    } else if(index < 5){
-        data[index++] = (uint8_t)c;
-    } else {
-        index = 0;
-    }
-}
-
 int main(void)
 {
     drv_pwm_config_t pwm_params;
