@@ -194,8 +194,8 @@ const clivalue_t valueTable[] = {
     { "i_altitude",     VAR_FLOAT, &cfg.pids[ALTITUDE_PID].i,      0, 400 },
     { "d_altitude",     VAR_FLOAT, &cfg.pids[ALTITUDE_PID].d,      0, 400 },
     { "ilim_altitude",  VAR_FLOAT, &cfg.pids[ALTITUDE_PID].iLim,    0, 50000},    
-    { "imuKp",  VAR_FLOAT, &cfg.twoKp,    0, 50},
-    { "imuKi",  VAR_FLOAT, &cfg.twoKi,    0, 50},
+    { "imuKp",  VAR_FLOAT, &cfg.imuKp,    0, 50},
+    { "imuKi",  VAR_FLOAT, &cfg.imuKi,    0, 50},
     { "accelCutoff",  VAR_FLOAT, &cfg.accelCutoff,    0, 50},
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
     { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
@@ -694,7 +694,7 @@ static void telemetry(void)
             printf_min("%f,%f,%f\n", sensors.mag[ROLL], sensors.mag[PITCH], sensors.mag[YAW]);
             break;
         case 'q':
-            printf_min("%f,%f,%f,%f\n", q0, q1, q2, q3);
+            printf_min("%f,%f,%f,%f\n", q[0], q[1], q[2], q[3]);
             break;
         case 't':
             printEventDeltas();

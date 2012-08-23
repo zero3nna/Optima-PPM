@@ -35,6 +35,8 @@ unsigned dbl2stri(double dbl, char *outbfr, unsigned dec_digits);
 
 float standardRadianFormat(float angle);
 
+void CrossProduct(const float v1[3], const float v2[3], float result[3]);
+
 void Quaternion2RPY(const float q[4], float rpy[3]);
 
 // ****** find quaternion from roll, pitch, yaw ********

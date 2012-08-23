@@ -11,10 +11,10 @@
 static bool convDone = false;
 static uint16_t convOverrun = 0;
 
-#define BARO_GPIO       GPIOC
-#define BARO_PIN        GPIO_Pin_13
-#define BARO_OFF()                 digitalLo(BARO_GPIO, BARO_PIN);
-#define BARO_ON()                  digitalHi(BARO_GPIO, BARO_PIN);
+#define BMP085_GPIO     GPIOC
+#define BMP085_PIN      GPIO_Pin_13
+#define BMP085_OFF()    digitalLo(BMP085_GPIO, BMP085_PIN);
+#define BMP085_ON()     digitalHi(BMP085_GPIO, BMP085_PIN);
 
 // EXTI14 for BMP085 End of Conversion Interrupt
 void EXTI15_10_IRQHandler(void)
@@ -115,7 +115,7 @@ bool bmp085Detect(baro_t *baro)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
-    BARO_ON();
+    BMP085_ON();
 
     // EXTI interrupt for barometer EOC
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource14);
@@ -154,7 +154,7 @@ bool bmp085Detect(baro_t *baro)
         baro->calculate = bmp085_calculate;
         return true;
     }
-    BARO_OFF();
+    BMP085_OFF();
     return false;
 }
 

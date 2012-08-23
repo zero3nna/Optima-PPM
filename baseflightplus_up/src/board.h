@@ -55,6 +55,11 @@
 #define BEEP_OFF()      digitalHi(BEEP_GPIO, BEEP_PIN);
 #define BEEP_ON()       digitalLo(BEEP_GPIO, BEEP_PIN);
 
+#define BMP085_GPIO     GPIOC
+#define BMP085_PIN      GPIO_Pin_13
+#define BMP085_OFF()    digitalLo(BMP085_GPIO, BMP085_PIN);
+#define BMP085_ON()     digitalHi(BMP085_GPIO, BMP085_PIN);
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "baseflight_proto.h"
@@ -73,12 +78,12 @@
 #include "sensors/mag.h"
 #include "sensors/devices/adxl345.h"
 #include "sensors/devices/bmp085.h"
+#include "sensors/devices/hcsr04.h"
 #include "sensors/devices/hmc5883.h"
 #include "sensors/devices/mpu3050.h"
 #include "sensors/devices/mpu6050.h"
 
 #include "estimator/altitude.h"
 #include "estimator/attitude.h"
-#include "estimator/MahonyAHRS.h"
 
 ///////////////////////////////////////////////////////////////////////////////
