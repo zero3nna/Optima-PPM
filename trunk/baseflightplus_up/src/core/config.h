@@ -107,9 +107,9 @@ typedef struct {
     uint8_t magDriftCompensation;
     float magDeclination;
 
-    float twoKp;
+    float imuKp;
 
-    float twoKi;
+    float imuKi;
     
     uint8_t battery;
     float batScale;

@@ -120,16 +120,25 @@ void sensorsInit(void)
     initGyro();
     initAccel();
     
-    initMag();
+    if(cfg.magDriftCompensation)
+        initMag();
     set(sensorsAvailable, SENSOR_MAG);
     
+#ifdef SONAR
+    if(cfg.usePPM) {
+        hcsr04_init(sonar_rc78);
+        set(sensorsAvailable, SENSOR_SONAR);
+    }
+#else
     if (bmp085Detect(baro)) {
         set(sensorsAvailable, SENSOR_BARO);
-        singleEvent(baroUpdate, baro->repeat_delay); // Begin baro conversion state machine
     }
+    singleEvent(baroUpdate, baro->repeat_delay); // Begin baro conversion state machine
+#endif
           
     if(cfg.battery)
         batteryInit();
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

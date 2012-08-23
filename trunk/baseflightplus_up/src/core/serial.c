@@ -11,10 +11,6 @@
 
 #include "drivers/i2c.h"
 
-#ifdef THESIS
-#include "core/mavlink.h"
-#endif
-
 // Multiwii Serial Protocol 0 
 #define VERSION                  210
 #define MSP_VERSION              0
@@ -464,12 +460,6 @@ static void evaluateCommand(void)
 static void evaluateOtherData(uint8_t sr)
 {
     switch (sr) {
-#ifdef THESIS
-        case '~':
-            mavlinkMode = true;
-            singleEvent(mavlinkSendData, 10000);
-            break;
-#endif
         case '#':
             cliProcess();
             break;
@@ -492,13 +482,6 @@ void serialCom(void)
         HEADER_SIZE,
         HEADER_CMD,
     } c_state = IDLE;
-
-#ifdef THESIS
-    if(mavlinkMode){
-        mavlinkComm();
-        return;
-    }
-#endif
 
     // in cli mode, all uart stuff goes to here. enter cli mode by sending #
     if (cliMode) {
