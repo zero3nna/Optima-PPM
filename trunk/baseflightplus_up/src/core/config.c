@@ -211,21 +211,21 @@ void checkFirstTime(bool reset)
         cfg.magBias[PITCH]             = 0.0f;
         cfg.magBias[YAW]               = 0.0f;
         
-        cfg.mpu6050Scale        = false; // Shitty hack
+        cfg.mpu6050Scale            = false; // Shitty hack
 
         // For Mahony AHRS
         
-        cfg.imuKp                      = 1.0f;
-        cfg.imuKi                      = 0.00f;
-        cfg.accelInfluenceCutoff       = 2 * ACCEL_1G;
-        cfg.magDriftCompensation       = true;
+        cfg.imuKp                       = 1.0f;
+        cfg.imuKi                       = 0.00f;
+        
+        cfg.magDriftCompensation        = true;
 
         // Get your magnetic decliniation from here : http://magnetic-declination.com/
         // For example, -6deg 37min, = -6.37 Japan, format is [sign]ddd.mm (degreesminutes)
         cfg.magDeclination             = 10.59f; 
 
         cfg.batScale                   = 11.0f;
-        cfg.batMinCellVoltage          = 3.3f;
+        cfg.batMinCellVoltage           = 3.3f;
         cfg.batMaxCellVoltage          = 4.2f;
 
         writeParams();

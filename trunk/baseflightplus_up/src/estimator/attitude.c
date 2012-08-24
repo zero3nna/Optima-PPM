@@ -134,35 +134,36 @@ void updateAttitude(void)
 void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT) { 
     static float integralFB[3] = { 0.0f, 0.0f, 0.0f };	// integral error terms scaled by Ki
 	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
-	float norm;
 	float hx, hy, bx, bz;
-	float halfMagRot[3];
-    float halfAccelRot[3];
+	float halfMagRot[3], halfAccelRot[3];
     float halfErr[3];
-    float accelInfluence;
+    float norm, angleNorm;
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
 	if(!(ax == 0.0f && ay == 0.0f && az == 0.0f)) {
 	    
 		// Normalise accelerometer measurement
 		norm = sqrtf(ax * ax + ay * ay + az * az);
+		angleNorm = sqrtf(sensors.attitude[ROLL] * sensors.attitude[ROLL] + sensors.attitude[PITCH] * sensors.attitude[PITCH]) * RAD2DEG;
 		
-		if(!isinf(norm) && norm > 1.0e-3f) {    
+		// Sanity check and multiwii style accel cutoff
+		// This deals with hard accelerations where the accelerometer is less trusted and 0G cases
+		// When we are at large angles, level mode will act like rate mode.
+		// Maybe we could think of scaling it so it doesn't turn off suddenly? This works with multiwii though...
+		if(!isinf(norm) && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G && angleNorm < 25) {    
     		ax /= norm;
     		ay /= norm;
-    		az /= norm;     
+    		az /= norm;
 
     		// Estimated direction of gravity and vector perpendicular to magnetic flux
     		halfAccelRot[XAXIS] = q[1] * q[3] - q[0] * q[2];
     		halfAccelRot[YAXIS] = q[0] * q[1] + q[2] * q[3];
     		halfAccelRot[ZAXIS] = (q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]) * 0.5f;
-    		
-            accelInfluence = constrain(norm / cfg.accelInfluenceCutoff, 0.0f, 1.0f);
 	
     		// Error is sum of cross product between estimated and measured direction of gravity
-    		halfErr[XAXIS] = (az * halfAccelRot[YAXIS] - ay * halfAccelRot[ZAXIS]) * accelInfluence;
-    		halfErr[YAXIS] = (ax * halfAccelRot[ZAXIS] - az * halfAccelRot[XAXIS]) * accelInfluence;
-    		halfErr[ZAXIS] = (ay * halfAccelRot[XAXIS] - ax * halfAccelRot[YAXIS]) * accelInfluence;      
+    		halfErr[XAXIS] = (az * halfAccelRot[YAXIS] - ay * halfAccelRot[ZAXIS]);
+    		halfErr[YAXIS] = (ax * halfAccelRot[ZAXIS] - az * halfAccelRot[XAXIS]);
+    		halfErr[ZAXIS] = (ay * halfAccelRot[XAXIS] - ax * halfAccelRot[YAXIS]);      
 
             // Auxiliary variables to avoid repeated arithmetic
             q0q0 = q[0] * q[0];
