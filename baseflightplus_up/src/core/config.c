@@ -87,22 +87,23 @@ void checkFirstTime(bool reset)
     {
 		// Default settings
         cfg.version = checkNewSystemConf;
+        cfg.mixerConfiguration                 = MULTITYPE_QUADX;
+        
+        featureClearAll();
+        featureSet(FEATURE_VBAT);
+        featureSet(FEATURE_PPM);
         
         parseRcChannels("AETR1234");
         
-        cfg.usePPM                         = true;
         cfg.escPwmRate                     = 400;
         cfg.servoPwmRate                   = 50;
         
-        cfg.failsafe                       = false;
         cfg.failsafeOnDelay                = 50; // Number of command loops (50Hz) until failsafe kicks in
         cfg.failsafeOffDelay               = 20000; // Number of command loops until failsafe stops
         cfg.failsafeThrottle               = 1200;
         
         for(i = 0; i < AUX_OPTIONS; ++i)
             cfg.auxActivate[i] = 0;
-
-        cfg.mixerConfiguration                 = MULTITYPE_QUADX;
 
         cfg.minCommand                         = 1000;
         cfg.midCommand                         = 1500;
@@ -111,7 +112,6 @@ void checkFirstTime(bool reset)
         cfg.maxCheck                           = 1900;
         cfg.minThrottle                        = 1150;
         cfg.maxThrottle                        = 1850;
-        cfg.motorStop                          = true;
         
         cfg.deadBand[ROLL]                     = 12;
         cfg.deadBand[PITCH]                    = 12;
@@ -129,6 +129,8 @@ void checkFirstTime(bool reset)
         cfg.triYawServoMin                     = 1000;
         cfg.triYawServoMid                     = 1500;
         cfg.triYawServoMax                     = 2000;
+        
+        cfg.gimbalFlags = GIMBAL_NORMAL;
 
         cfg.gimbalRollServoMin                 = 1000;
 		cfg.gimbalRollServoMid                 = 1500;
@@ -219,7 +221,6 @@ void checkFirstTime(bool reset)
         // For example, -6deg 37min, = -6.37 Japan, format is [sign]ddd.mm (degreesminutes)
         cfg.magDeclination             = 10.59f; 
 
-        cfg.battery                    = true;
         cfg.batScale                   = 11.0f;
         cfg.batMinCellVoltage          = 3.3f;
         cfg.batMaxCellVoltage          = 4.2f;
@@ -229,3 +230,28 @@ void checkFirstTime(bool reset)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool feature(uint32_t mask)
+{
+    return cfg.enabledFeatures & mask;
+}
+
+void featureSet(uint32_t mask)
+{
+    cfg.enabledFeatures |= mask;
+}
+
+void featureClear(uint32_t mask)
+{
+    cfg.enabledFeatures &= ~(mask);
+}
+
+void featureClearAll()
+{
+    cfg.enabledFeatures = 0;
+}
+
+uint32_t featureMask(void)
+{
+    return cfg.enabledFeatures;
+}

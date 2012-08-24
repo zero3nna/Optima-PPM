@@ -132,7 +132,7 @@ void updateCommands(void)
     // Failsafe
     ///////////////////////////////////////////////////////////////////////////////
     
-    if(cfg.failsafe) {
+    if(feature(FEATURE_FAILSAFE)) {
         if(failsafeCnt > cfg.failsafeOnDelay && mode.ARMED) {
             // Stabilise and set Throttle to failsafe level
             for(i = 0; i < 3; ++i) {

@@ -45,10 +45,10 @@ int main(void)
     // when using airplane/wing mixer, servo/motor outputs are remapped
     if (cfg.mixerConfiguration == MULTITYPE_AIRPLANE || cfg.mixerConfiguration == MULTITYPE_FLYING_WING)
         pwm_params.airplane = true;
-    pwm_params.usePPM = cfg.usePPM;
+    pwm_params.usePPM = feature(FEATURE_PPM);
     pwm_params.enableInput = true;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
     pwm_params.useServos = useServos;
-    pwm_params.extraServos = false;//cfg.gimbal_flags & GIMBAL_FORWARDAUX;
+    pwm_params.extraServos = cfg.gimbalFlags & GIMBAL_FORWARDAUX;
     pwm_params.motorPwmRate = cfg.escPwmRate;
     pwm_params.servoPwmRate = cfg.servoPwmRate;
     
@@ -74,7 +74,7 @@ int main(void)
     periodicEvent(updateAltitude, 40000);
     periodicEvent(serialCom, 20000);
     periodicEvent(statusLED, 100000);
-    if(cfg.battery)
+    if(feature(FEATURE_VBAT))
         periodicEvent(batterySample, 40000);
 
     while (1)

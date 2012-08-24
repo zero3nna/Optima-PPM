@@ -14,6 +14,7 @@
 uint8_t cliMode;
 static void cliDefaults(char *cmdline);
 static void cliExit(char *cmdline);
+static void cliFeature(char *cmdline);
 static void cliHelp(char *cmdline);
 static void cliMap(char *cmdline);
 static void cliMixer(char *cmdline);
@@ -55,15 +56,22 @@ const char *mixerNames[] = {
     "AIRPLANE", "HELI_120_CCPM", "HELI_90_DEG", "VTAIL4", "CUSTOM", NULL
 };
 
+// sync this with AvailableFeatures enum from board.h
+const char *featureNames[] = {
+    "PPM", "VBAT", "MOTOR_STOP", "SERVO_TILT", "FAILSAFE", "SONAR",
+    NULL
+};
+
 // sync this with AvailableSensors enum from board.h
 const char *sensorNames[] = {
     "ACC", "BARO", "MAG", "SONAR", "GPS", NULL
 };
 
 // 
+/*
 const char *accNames[] = {
     "", "ADXL345", "MPU6050", NULL
-};
+};*/
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -78,6 +86,7 @@ const clicmd_t cmdTable[] = {
     { "calibrate", "sensor calibration", cliCalibrate },
     { "defaults", "reset to defaults and reboot", cliDefaults },
     { "exit", "", cliExit },
+    { "feature", "list or -val or val", cliFeature },
     { "help", "", cliHelp },
     { "map", "mapping of rc channel order", cliMap },
     { "mixer", "mixer name or list", cliMixer },
@@ -122,10 +131,8 @@ typedef struct {
 } clivalue_t;
 
 const clivalue_t valueTable[] = {
-    { "ppm", VAR_UINT8, &cfg.usePPM, 0, 1},
     { "escPwmRate", VAR_UINT16, &cfg.escPwmRate, 50, 498},
     { "servoPwmRate", VAR_UINT16, &cfg.servoPwmRate, 50, 498},
-    { "failsafe", VAR_UINT8, &cfg.failsafe, 0, 1},
     { "failsafeOnDelay",    VAR_UINT16, &cfg.failsafeOnDelay, 0, 1000 },
     { "dailsafeOffDelay",   VAR_UINT16, &cfg.failsafeOffDelay, 0, 100000 },
     { "failsafeThrottle",   VAR_UINT16, &cfg.failsafeThrottle, 1000, 2000 },
@@ -136,7 +143,6 @@ const clivalue_t valueTable[] = {
     { "maxCheck", VAR_UINT16, &cfg.maxCheck, 0, 2000 },
     { "minThrottle", VAR_UINT16, &cfg.minThrottle, 0, 2000 },
     { "maxThrottle", VAR_UINT16, &cfg.maxThrottle, 0, 2000 },
-    { "maxStop", VAR_UINT8, &cfg.motorStop, 0, 1 },
     { "rollDeadband",   VAR_UINT8, &cfg.deadBand[ROLL], 0, 32 },
     { "pitchDeadband",  VAR_UINT8, &cfg.deadBand[PITCH], 0, 32 },
     { "yawDeadband",    VAR_UINT8, &cfg.deadBand[YAW], 0, 32 },
@@ -203,7 +209,6 @@ const clivalue_t valueTable[] = {
     { "accelLPF", VAR_UINT8, &cfg.accelLPF, 0, 1},
     { "accelLPF_Factor",  VAR_FLOAT, &cfg.accelLPF_Factor,    -100, 100},
     { "gyroLPF", VAR_UINT16, &cfg.gyroLPF, 10, 256},
-    { "battery",  VAR_UINT8, &cfg.battery,    0, 1},
     { "batScale",  VAR_FLOAT, &cfg.batScale,    0, 50},
     { "batMinCellVoltage",  VAR_FLOAT, &cfg.batMinCellVoltage,    0, 5},
     { "batMaxCellVoltage",  VAR_FLOAT, &cfg.batMaxCellVoltage,    0, 5},
@@ -252,6 +257,67 @@ static void cliExit(char *cmdline)
     cliMode = 0;
     // save and reboot... I think this makes the most sense
     cliSave(cmdline);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static void cliFeature(char *cmdline)
+{
+    uint32_t i;
+    uint32_t len;
+    uint32_t mask;
+
+    len = strlen(cmdline);
+    mask = featureMask();
+
+    if (len == 0) {
+        uartPrint("Enabled features: ");
+        for (i = 0; ; i++) {
+            if (featureNames[i] == NULL)
+                break;
+            if (mask & (1 << i))
+                uartPrint((char *)featureNames[i]);
+            uartWrite(' ');
+        }
+        uartPrint("\r\n");
+    } else if (strncasecmp(cmdline, "list", len) == 0) {
+        uartPrint("Available features: ");
+        for (i = 0; ; i++) {
+            if (featureNames[i] == NULL)
+                break;
+            uartPrint((char *)featureNames[i]);
+            uartWrite(' ');
+        }
+        uartPrint("\r\n");
+        return;
+    } else {
+        bool remove = false;
+        if (cmdline[0] == '-') {
+            // remove feature
+            remove = true;
+            cmdline++; // skip over -
+            len--;
+        }
+
+        for (i = 0; ; i++) {
+            if (featureNames[i] == NULL) {
+                uartPrint("Invalid feature name...\r\n");
+                break;
+            }
+            if (strncasecmp(cmdline, featureNames[i], len) == 0) {
+                if (remove) {
+                    featureClear(1 << i);
+                    uartPrint("Disabled ");
+                } else {
+                    featureSet(1 << i);
+                    uartPrint("Enabled ");
+                }
+                uartPrint((char *)featureNames[i]);
+                uartPrint("\r\n");
+                break;
+            }
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -567,7 +633,7 @@ static void cliCalibrate(char *cmdline)
 
 static void cliVersion(char *cmdline)
 {
-    uartPrint("Afro32 CLI version 2.0 " __DATE__ " / " __TIME__);
+    uartPrint("Baseflight U.P. CLI version 1.0 " __DATE__ " / " __TIME__);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
