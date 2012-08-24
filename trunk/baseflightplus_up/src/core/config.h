@@ -20,12 +20,26 @@ typedef struct {
     float iLim;
 } pidConfig;
 
+typedef enum {
+    FEATURE_PPM = 1 << 0,
+    FEATURE_VBAT = 1 << 1,
+    FEATURE_MOTOR_STOP = 1 << 2,
+    FEATURE_SERVO_TILT = 1 << 3,
+    FEATURE_FAILSAFE = 1 << 4,
+    FEATURE_SONAR = 1 << 5,
+} AvailableFeatures;
+
+typedef enum {
+    GIMBAL_NORMAL = 1 << 0,
+    GIMBAL_TILTONLY = 1 << 1,
+    GIMBAL_DISABLEAUX34 = 1 << 2,
+    GIMBAL_FORWARDAUX = 1 << 3,
+} GimbalFlags;
+
 typedef struct {
     uint8_t version;
-
-    uint8_t usePPM;
+    uint32_t enabledFeatures;
     
-    uint8_t failsafe;
     uint16_t failsafeOnDelay;
     uint16_t failsafeOffDelay;
     uint16_t failsafeThrottle;
@@ -46,7 +60,6 @@ typedef struct {
     uint16_t maxCheck;
     uint16_t minThrottle;
     uint16_t maxThrottle;
-    uint8_t motorStop;
     
     uint16_t deadBand[3];
     
@@ -66,6 +79,8 @@ typedef struct {
     uint16_t triYawServoMid;
     uint16_t triYawServoMax;
 
+    uint8_t gimbalFlags;
+    
     uint16_t gimbalRollServoMin;
     uint16_t gimbalRollServoMid;
     uint16_t gimbalRollServoMax;
@@ -111,7 +126,6 @@ typedef struct {
     
     float magDeclination;
     
-    uint8_t battery;
     float batScale;
     float batMinCellVoltage;
     float batMaxCellVoltage;
@@ -131,11 +145,14 @@ extern const char rcChannelLetters[8];
 ///////////////////////////////////////////////////////////////////////////////
 
 void parseRcChannels(const char *input);
-
 void readEEPROM(void);
-
 void writeParams(void);
-
 void checkFirstTime(bool reset);
+
+bool feature(uint32_t mask);
+void featureSet(uint32_t mask);
+void featureClear(uint32_t mask);
+void featureClearAll(void);
+uint32_t featureMask(void);
 
 ///////////////////////////////////////////////////////////////////////////////

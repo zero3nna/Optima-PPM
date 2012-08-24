@@ -128,7 +128,7 @@ void sensorsInit(void)
     set(sensorsAvailable, SENSOR_MAG);
     
 #ifdef SONAR
-    if(cfg.usePPM) {
+    if(feature(FEATURE_PPM);) {
         hcsr04_init(sonar_rc78);
         set(sensorsAvailable, SENSOR_SONAR);
     }
@@ -139,7 +139,7 @@ void sensorsInit(void)
     }
 #endif
           
-    if(cfg.battery)
+    if(feature(FEATURE_VBAT))
         batteryInit();
 
 }

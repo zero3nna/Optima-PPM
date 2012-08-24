@@ -34,9 +34,9 @@ void mixerInit(void)
         cfg.mixerConfiguration == MULTITYPE_AIRPLANE || cfg.mixerConfiguration == MULTITYPE_GIMBAL)
         useServos = 1;
     // if we want camstab/trig, that also enabled servos. this is kinda lame. maybe rework feature bits later.
-    /*if (feature(FEATURE_SERVO_TILT))
+    if (feature(FEATURE_SERVO_TILT))
         useServos = 1;
-        */
+    
 
     switch (cfg.mixerConfiguration) {
         case MULTITYPE_GIMBAL:
@@ -109,13 +109,11 @@ void writeServos(void)
             break;
 
         default:
-        /*
             // Two servos for SERVO_TILT, if enabled
             if (feature(FEATURE_SERVO_TILT)) {
                 pwmWriteServo(0, servo[0]);
                 pwmWriteServo(1, servo[1]);
             }
-            */
             break;
     }
 }
@@ -352,36 +350,34 @@ void mixTable(void)
             break;
     }
 
-/*
     // do camstab
     if (feature(FEATURE_SERVO_TILT)) {
         uint16_t aux[2] = { 0, 0 };
 
-        if ((cfg.gimbal_flags & GIMBAL_NORMAL) || (cfg.gimbal_flags & GIMBAL_TILTONLY))
-            aux[0] = rcData[AUX3] - cfg.midrc;
-        if (!(cfg.gimbal_flags & GIMBAL_DISABLEAUX34))
-            aux[1] = rcData[AUX4] - cfg.midrc;
+        if ((cfg.gimbalFlags & GIMBAL_NORMAL) || (cfg.gimbalFlags & GIMBAL_TILTONLY))
+            aux[0] = rcData[AUX3] - cfg.midCommand;
+        if (!(cfg.gimbalFlags & GIMBAL_DISABLEAUX34))
+            aux[1] = rcData[AUX4] - cfg.midCommand;
 
-        servo[0] = cfg.gimbal_pitch_mid + aux[0];
-        servo[1] = cfg.gimbal_roll_mid + aux[1];
+        servo[0] = cfg.gimbalPitchServoMid + aux[0];
+        servo[1] = cfg.gimbalRollServoMid + aux[1];
 
-        if (rcOptions[BOXCAMSTAB]) {
-            servo[0] += cfg.gimbal_pitch_gain * angle[PITCH] / 16;
-            servo[1] += cfg.gimbal_roll_gain * angle[ROLL]  / 16;
+        if (auxOptions[OPT_CAMSTAB]) {
+            servo[0] += cfg.gimbalPitchServoGain * sensors.attitude[PITCH] * 32;
+            servo[1] += cfg.gimbalRollServoGain * sensors.attitude[ROLL] * 32;
         }
 
-        servo[0] = constrain(servo[0], cfg.gimbal_pitch_min, cfg.gimbal_pitch_max);
-        servo[1] = constrain(servo[1], cfg.gimbal_roll_min, cfg.gimbal_roll_max);
+        servo[0] = constrain(servo[0], cfg.gimbalPitchServoMin, cfg.gimbalPitchServoMax);
+        servo[1] = constrain(servo[1], cfg.gimbalRollServoMin, cfg.gimbalRollServoMax);
     }
 
-    if (cfg.gimbal_flags & GIMBAL_FORWARDAUX) {
+    if (cfg.gimbalFlags & GIMBAL_FORWARDAUX) {
         int offset = 0;
         if (feature(FEATURE_SERVO_TILT))
             offset = 2;
         for (i = 0; i < 4; i++)
             pwmWriteServo(i + offset, rcData[AUX1 + i]);
     }
-*/
 
     maxMotor = motor[0];
     for (i = 1; i < numberMotor; i++)
@@ -392,7 +388,7 @@ void mixTable(void)
             motor[i] -= maxMotor - cfg.maxThrottle;
         motor[i] = constrain(motor[i], cfg.minThrottle, cfg.maxThrottle);
         if ((rcData[THROTTLE]) < cfg.minCheck) {
-            if (cfg.motorStop)
+            if (feature(FEATURE_MOTOR_STOP))
                 motor[i] = cfg.minCommand;
             else
                 motor[i] = cfg.minThrottle;
