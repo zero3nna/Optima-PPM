@@ -70,6 +70,7 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			sensors/mag.c \
 			sensors/devices/mpu3050.c \
 			sensors/devices/mpu6050.c \
+			sensors/devices/ms5611.c \
 			$(CMSIS_SRC) \
 			$(STDPERIPH_SRC)
 
