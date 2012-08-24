@@ -105,7 +105,6 @@ uint8_t mpu3050Detect(gyro_t *gyro)
 
 void mpu3050Init(void)
 {
-    uint8_t i;
     uint8_t mpu3050LPF = MPU3050_DLPF_42HZ;
     
     delay(20);
@@ -131,9 +130,7 @@ void mpu3050Init(void)
             break;
     }
     
-    for(i = 0; i < 3; ++i) {
-        sensors.gyroScaleFactor[i] = MPU3050_GYRO_SCALE_FACTOR;
-    }
+    sensors.gyroScaleFactor = MPU3050_GYRO_SCALE_FACTOR;
     
     i2cWrite(MPU3050_ADDRESS, MPU3050_PWR_MGM, H_RESET);
     i2cWrite(MPU3050_ADDRESS, MPU3050_PWR_MGM, INTERNAL_OSC);

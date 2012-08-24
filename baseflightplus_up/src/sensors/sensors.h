@@ -25,18 +25,18 @@
 
 typedef struct {
     float accel[3]; // m/s/s
-    float accelScaleFactor[3];
+    float accelScaleFactor;
     
     float attitude[3]; // rad
     
     float gyro[3]; // rad/s
-    float gyroScaleFactor[3];
+    float gyroScaleFactor;
     float gyroRTBias[3];
     float gyroTCBias[3];
     float gyroTemperature;
     
     float mag[3];
-    float magScaleFactor[3];
+    float magScaleFactor;
     
     int32_t baroAltitude;
     int32_t altitude;
