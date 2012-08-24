@@ -203,7 +203,6 @@ const clivalue_t valueTable[] = {
     { "mpu6050Scale", VAR_UINT8, &cfg.mpu6050Scale, 0, 1 },   
     { "imuKp",  VAR_FLOAT, &cfg.imuKp,    0, 50},
     { "imuKi",  VAR_FLOAT, &cfg.imuKi,    0, 50},
-    { "accelInfluenceCutoff",  VAR_FLOAT, &cfg.accelInfluenceCutoff,    0, 50},
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
     { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
     { "accelLPF", VAR_UINT8, &cfg.accelLPF, 0, 1},
