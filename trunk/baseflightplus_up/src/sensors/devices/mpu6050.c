@@ -144,7 +144,6 @@ float dmpdata[2];
 int16_t dmpGyroData[3];
 #endif
 
-extern uint16_t acc_1G;
 uint8_t mpuProductID = 0;
 
 bool mpu6050Detect(gyro_t *gyro, accel_t *accel, uint8_t scale)
@@ -182,11 +181,7 @@ bool mpu6050Detect(gyro_t *gyro, accel_t *accel, uint8_t scale)
 
 static void mpu6050AccInit(void)
 {
-    uint8_t i = 0;
-
-    for(i = 0; i < 3; i++) {
-        sensors.accelScaleFactor[i] = ACCEL_1G / 4096.0f; 
-    }
+    sensors.accelScaleFactor = ACCEL_1G / 4096.0f; 
 }
 
 static void mpu6050AccRead(int16_t * accData)
@@ -206,8 +201,6 @@ static void mpu6050AccRead(int16_t * accData)
 static void mpu6050GyroInit(void)
 {
 #ifndef MPU6050_DMP
-    uint8_t i = 0;
-    
     i2cWrite(MPU6050_ADDRESS, MPU_RA_PWR_MGMT_1, 0x80);      //PWR_MGMT_1    -- DEVICE_RESET 1
     delay(5);
     i2cWrite(MPU6050_ADDRESS, MPU_RA_SMPLRT_DIV, 0x00);      //SMPLRT_DIV    -- SMPLRT_DIV = 0  Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
@@ -226,9 +219,7 @@ static void mpu6050GyroInit(void)
         i2cWrite(MPU6050_ADDRESS, MPU_RA_ACCEL_CONFIG, 2 << 3);
     }
     
-    for(i = 0; i < 3; ++i) {
-        sensors.gyroScaleFactor[i] = MPU6050_GYRO_SCALE_FACTOR;
-    }
+    sensors.gyroScaleFactor = MPU6050_GYRO_SCALE_FACTOR;
 #endif
 }
 

@@ -108,12 +108,8 @@ void hmc5883Init(void)
 
        readMag();
      */
-     
-    uint8_t i;
-    
-    for(i = 0; i < 3; ++i) {
-        sensors.magScaleFactor[i] = 1.0f; // (1.16F * 1090.0F) / (float)rawMag[i];
-    }
+
+    sensors.magScaleFactor = 1.0f; // (1.16F * 1090.0F) / (float)rawMag[i];
 
     i2cWrite(HMC5883_ADDRESS, HMC5883_CONFIG_REG_A, SENSOR_CONFIG | NORMAL_MEASUREMENT_CONFIGURATION);
     delay(20);

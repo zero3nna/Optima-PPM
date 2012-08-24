@@ -68,6 +68,7 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			sensors/devices/hcsr04.c \
 			sensors/devices/hmc5883.c \
 			sensors/mag.c \
+			sensors/devices/mma845x.c \
 			sensors/devices/mpu3050.c \
 			sensors/devices/mpu6050.c \
 			sensors/devices/ms5611.c \

@@ -80,6 +80,7 @@
 #include "sensors/devices/bmp085.h"
 #include "sensors/devices/hcsr04.h"
 #include "sensors/devices/hmc5883.h"
+#include "sensors/devices/mma845x.h"
 #include "sensors/devices/mpu3050.h"
 #include "sensors/devices/mpu6050.h"
 #include "sensors/devices/ms5611.h"

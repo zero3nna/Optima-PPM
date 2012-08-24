@@ -46,7 +46,7 @@ void accelCalibration(void)
 
     cfg.accelBias[XAXIS] = accelSum[XAXIS] / 2000.0f;
     cfg.accelBias[YAXIS] = accelSum[YAXIS] / 2000.0f;
-    cfg.accelBias[ZAXIS] = (accelSum[ZAXIS] / 2000.0f) + (ACCEL_1G / fabs(sensors.accelScaleFactor[ZAXIS]));
+    cfg.accelBias[ZAXIS] = (accelSum[ZAXIS] / 2000.0f) + (ACCEL_1G / fabs(sensors.accelScaleFactor));
     
     cfg.accelCalibrated = true;
 }

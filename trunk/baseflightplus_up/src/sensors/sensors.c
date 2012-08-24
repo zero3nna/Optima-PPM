@@ -117,6 +117,9 @@ void sensorsInit(void)
         set(sensorsAvailable, SENSOR_ACC);
     }
     
+    // At the moment we will do this after mpu6050 and overrride mpu6050 accel if detected
+    mma8452Detect(accel);
+    
     initGyro();
     initAccel();
     

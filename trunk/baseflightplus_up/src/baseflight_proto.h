@@ -34,7 +34,7 @@
 #define MIDCOMMAND  1500
 #define MAXCOMMAND  2000
 
-#define THESIS
+//#define THESIS
 
 //#define SONAR
 

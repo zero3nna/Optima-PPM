@@ -94,9 +94,7 @@ uint8_t adxl345Detect(accel_t *accel)
 }
 
 void adxl345Init(void)
-{
-    uint8_t i;
-    
+{   
     i2cWrite(ADXL345_ADDRESS, ADXL345_POWER_CTL, MEASURE);
 
     delay(10);
@@ -109,9 +107,7 @@ void adxl345Init(void)
 
     delay(100);
     
-    for(i = 0; i < 3; ++i) {
-        sensors.accelScaleFactor[i] = ACCEL_1G / 256.0f;
-    }
+    sensors.accelScaleFactor = ACCEL_1G / 256.0f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
