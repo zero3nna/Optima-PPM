@@ -187,6 +187,9 @@ void checkFirstTime(bool reset)
         cfg.pids[ALTITUDE_PID].d                 =   7.0f;
         cfg.pids[ALTITUDE_PID].iLim              =   30000.0f; // 0.1 m
         
+        cfg.angleTrim[ROLL]     = 0.0f;
+        cfg.angleTrim[PITCH]    = 0.0f;
+        
         cfg.accelLPF            = true;
         cfg.accelLPF_Factor     = 0.90f;
         

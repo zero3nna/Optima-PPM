@@ -103,6 +103,8 @@ typedef struct {
     
     pidConfig pids[NUM_PIDS];
     
+    float angleTrim[2];
+    
     uint8_t accelLPF;
     float accelLPF_Factor;
     uint8_t accelCalibrated;
