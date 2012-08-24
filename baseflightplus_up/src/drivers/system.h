@@ -38,4 +38,6 @@ void systemReset(bool toBootloader);
 
 void systemInit(void);
 
+void failureMode(uint8_t mode);
+
 ///////////////////////////////////////////////////////////////////////////////
