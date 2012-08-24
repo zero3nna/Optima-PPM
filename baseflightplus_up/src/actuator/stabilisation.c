@@ -44,8 +44,12 @@ void stabilisation(void)
     if (mode.LEVEL_MODE) {
         desired[ROLL]    = command[ROLL] * ATTITUDE_SCALING;
         desired[PITCH]   = command[PITCH] * ATTITUDE_SCALING;
-        desired[ROLL]  = standardRadianFormat(applyPID(&pids[ROLL_LEVEL_PID], standardRadianFormat(desired[ROLL] - sensors.attitude[ROLL]), dT));
-        desired[PITCH] = standardRadianFormat(applyPID(&pids[PITCH_LEVEL_PID], standardRadianFormat(desired[PITCH] - sensors.attitude[PITCH]), dT));
+        desired[ROLL]  = standardRadianFormat(applyPID(&pids[ROLL_LEVEL_PID], 
+                            standardRadianFormat(desired[ROLL] - sensors.attitude[ROLL] - cfg.angleTrim[ROLL]), 
+                            dT));
+        desired[PITCH] = standardRadianFormat(applyPID(&pids[PITCH_LEVEL_PID], 
+                            standardRadianFormat(desired[PITCH] - sensors.attitude[PITCH] - cfg.angleTrim[PITCH]), 
+                            dT));
     } else if(mode.HEADFREE_MODE) {
         float radDiff       = sensors.attitude[YAW] - headfreeReference;
         float cosDiff       = cosf(radDiff);

@@ -106,7 +106,7 @@ void updateCommands(void)
         } else if(rcData[YAW] < cfg.minCheck && rcData[PITCH] > cfg.minCheck && !mode.ARMED) {
             if(commandDelay++ == 20) {
                 computeGyroRTBias();
-        		//pulseMotors(3);
+        		pulseMotors(3);
         		// GPS Reset
             }
         } else {
@@ -117,15 +117,26 @@ void updateCommands(void)
             if(commandDelay++ == 20) {
                 magCalibration();
             }
-        }else if(rcData[YAW] < cfg.minCheck && rcData[PITCH] < cfg.minCheck) {
+        } else if(rcData[YAW] < cfg.minCheck && rcData[PITCH] < cfg.minCheck) {
             if(commandDelay++ == 20) {
                 accelCalibration();
                 pulseMotors(3);
             }
+        } else if (rcData[PITCH] > cfg.maxCheck) {
+                cfg.angleTrim[PITCH] += 0.01;
+                writeParams();
+        } else if (rcData[PITCH] < cfg.minCheck) {
+                cfg.angleTrim[PITCH] -= 0.01;
+                writeParams();
+        } else if (rcData[ROLL] > cfg.maxCheck) {
+                cfg.angleTrim[ROLL] += 0.01;
+                writeParams();
+        } else if (rcData[ROLL] < cfg.minCheck) {
+                cfg.angleTrim[ROLL] -= 0.01;
+                writeParams();
         } else {
             commandDelay = 0;
         }
-        // Add angle trimming?
     }
     
     ///////////////////////////////////////////////////////////////////////////////
