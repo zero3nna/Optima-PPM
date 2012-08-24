@@ -105,23 +105,25 @@ void sensorsInit(void)
     bufferInit(gyroSampleBuffer, gyroSamples, GYRO_BUFF);
     bufferInit(magSampleBuffer, magSamples, MAG_BUFF);
     
-    mpu3050Detect(gyro);
+    // TODO allow user to select harddware id there are multiple choices
     
-    if(adxl345Detect(accel))
-    {
+    if(mpu6050Detect(gyro, accel, cfg.mpu6050Scale)) {
         set(sensorsAvailable, SENSOR_ACC);
+    } else if(!mpu3050Detect(gyro)) {
+        failureMode(3);
     }
     
-    if(mpu6050Detect(gyro, accel, cfg.mpu6050Scale))
-    {
+    if(adxl345Detect(accel)) {
         set(sensorsAvailable, SENSOR_ACC);
     }
     
     // At the moment we will do this after mpu6050 and overrride mpu6050 accel if detected
-    mma8452Detect(accel);
+    if(mma8452Detect(accel)) {
+        set(sensorsAvailable, SENSOR_ACC);
+    }
     
-    initGyro();
-    initAccel();
+    gyro->init();
+    accel->init();
     
     if(cfg.magDriftCompensation)
         initMag();

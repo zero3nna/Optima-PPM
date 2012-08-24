@@ -198,6 +198,20 @@ void systemReset(bool toBootloader)
     SCB->AIRCR = AIRCR_VECTKEY_MASK | (uint32_t) 0x04;
 }
 
+void failureMode(uint8_t mode)
+{
+    LED1_ON();
+    LED0_OFF();
+    while (1) {
+        LED1_TOGGLE();
+        LED0_TOGGLE();
+        delay(475 * mode - 2);
+        //BEEP_ON
+        delay(25);
+        //BEEP_OFF;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // System Initialization
 ///////////////////////////////////////////////////////////////////////////////
