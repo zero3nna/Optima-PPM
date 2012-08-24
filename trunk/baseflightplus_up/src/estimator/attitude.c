@@ -139,6 +139,7 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 	float halfMagRot[3];
     float halfAccelRot[3];
     float halfErr[3];
+    float accelInfluence;
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
 	if(!(ax == 0.0f && ay == 0.0f && az == 0.0f)) {
@@ -146,7 +147,7 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 		// Normalise accelerometer measurement
 		norm = sqrtf(ax * ax + ay * ay + az * az);
 		
-		if(!isinf(norm) && norm > 1.0e-3f && norm < cfg.accelCutoff) {    
+		if(!isinf(norm) && norm > 1.0e-3f) {    
     		ax /= norm;
     		ay /= norm;
     		az /= norm;     
@@ -155,11 +156,13 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
     		halfAccelRot[XAXIS] = q[1] * q[3] - q[0] * q[2];
     		halfAccelRot[YAXIS] = q[0] * q[1] + q[2] * q[3];
     		halfAccelRot[ZAXIS] = (q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]) * 0.5f;
+    		
+            accelInfluence = constrain(norm / cfg.accelInfluenceCutoff, 0.0f, 1.0f);
 	
     		// Error is sum of cross product between estimated and measured direction of gravity
-    		halfErr[XAXIS] = (az * halfAccelRot[YAXIS] - ay * halfAccelRot[ZAXIS]);
-    		halfErr[YAXIS] = (ax * halfAccelRot[ZAXIS] - az * halfAccelRot[XAXIS]);
-    		halfErr[ZAXIS] = (ay * halfAccelRot[XAXIS] - ax * halfAccelRot[YAXIS]);      
+    		halfErr[XAXIS] = (az * halfAccelRot[YAXIS] - ay * halfAccelRot[ZAXIS]) * accelInfluence;
+    		halfErr[YAXIS] = (ax * halfAccelRot[ZAXIS] - az * halfAccelRot[XAXIS]) * accelInfluence;
+    		halfErr[ZAXIS] = (ay * halfAccelRot[XAXIS] - ax * halfAccelRot[YAXIS]) * accelInfluence;      
 
             // Auxiliary variables to avoid repeated arithmetic
             q0q0 = q[0] * q[0];

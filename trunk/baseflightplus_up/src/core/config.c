@@ -215,9 +215,9 @@ void checkFirstTime(bool reset)
 
         // For Mahony AHRS
         
-        cfg.imuKp                      = 1.0f;
-        cfg.imuKi                      = 0.05f;
-        cfg.accelCutoff                 = 2 * ACCEL_1G;
+        cfg.imuKp                      = 2.0f;
+        cfg.imuKi                      = 0.01f;
+        cfg.accelInfluenceCutoff       = 2 * ACCEL_1G;
         cfg.magDriftCompensation       = true;
 
         // Get your magnetic decliniation from here : http://magnetic-declination.com/
