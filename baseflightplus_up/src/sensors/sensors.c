@@ -112,7 +112,7 @@ void sensorsInit(void)
         set(sensorsAvailable, SENSOR_ACC);
     }
     
-    if(mpu6050Detect(gyro, accel, false))
+    if(mpu6050Detect(gyro, accel, cfg.mpu6050Scale))
     {
         set(sensorsAvailable, SENSOR_ACC);
     }
@@ -130,10 +130,10 @@ void sensorsInit(void)
         set(sensorsAvailable, SENSOR_SONAR);
     }
 #else
-    if (bmp085Detect(baro)) {
+    if (ms5611Detect(baro) || bmp085Detect(baro)) {
         set(sensorsAvailable, SENSOR_BARO);
+        singleEvent(baroUpdate, baro->repeat_delay); // Begin baro conversion state machine
     }
-    singleEvent(baroUpdate, baro->repeat_delay); // Begin baro conversion state machine
 #endif
           
     if(cfg.battery)

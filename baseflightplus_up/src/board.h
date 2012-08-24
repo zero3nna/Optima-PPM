@@ -82,6 +82,7 @@
 #include "sensors/devices/hmc5883.h"
 #include "sensors/devices/mpu3050.h"
 #include "sensors/devices/mpu6050.h"
+#include "sensors/devices/ms5611.h"
 
 #include "estimator/altitude.h"
 #include "estimator/attitude.h"

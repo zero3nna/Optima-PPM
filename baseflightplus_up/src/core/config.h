@@ -99,17 +99,17 @@ typedef struct {
 
     uint8_t magCalibrated;
     float magBias[3];
+    
+    uint8_t mpu6050Scale;
 
     // For Mahony AHRS
     
-    float accelCutoff;
-    
-    uint8_t magDriftCompensation;
-    float magDeclination;
-
     float imuKp;
-
     float imuKi;
+    float accelCutoff;
+    uint8_t magDriftCompensation;
+    
+    float magDeclination;
     
     uint8_t battery;
     float batScale;
