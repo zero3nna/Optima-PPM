@@ -215,8 +215,8 @@ void checkFirstTime(bool reset)
 
         // For Mahony AHRS
         
-        cfg.imuKp                      = 2.0f;
-        cfg.imuKi                      = 0.01f;
+        cfg.imuKp                      = 1.0f;
+        cfg.imuKi                      = 0.00f;
         cfg.accelInfluenceCutoff       = 2 * ACCEL_1G;
         cfg.magDriftCompensation       = true;
 
