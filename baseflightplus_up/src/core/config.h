@@ -123,7 +123,8 @@ typedef struct {
     
     float imuKp;
     float imuKi;
-    float accelCutoff;
+    float accelInfluenceCutoff;
+
     uint8_t magDriftCompensation;
     
     float magDeclination;
