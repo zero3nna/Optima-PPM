@@ -132,6 +132,10 @@ typedef struct {
     float batMinCellVoltage;
     float batMaxCellVoltage;
 
+#ifdef THESIS  
+    float thesisScaler;
+#endif
+
 } cfg_t;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -151,7 +155,7 @@ void readEEPROM(void);
 void writeParams(void);
 void checkFirstTime(bool reset);
 
-bool feature(uint32_t mask);
+bool featureGet(uint32_t mask);
 void featureSet(uint32_t mask);
 void featureClear(uint32_t mask);
 void featureClearAll(void);

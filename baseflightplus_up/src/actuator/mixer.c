@@ -34,7 +34,7 @@ void mixerInit(void)
         cfg.mixerConfiguration == MULTITYPE_AIRPLANE || cfg.mixerConfiguration == MULTITYPE_GIMBAL)
         useServos = 1;
     // if we want camstab/trig, that also enabled servos. this is kinda lame. maybe rework feature bits later.
-    if (feature(FEATURE_SERVO_TILT))
+    if (featureGet(FEATURE_SERVO_TILT))
         useServos = 1;
     
 
@@ -110,7 +110,7 @@ void writeServos(void)
 
         default:
             // Two servos for SERVO_TILT, if enabled
-            if (feature(FEATURE_SERVO_TILT)) {
+            if (featureGet(FEATURE_SERVO_TILT)) {
                 pwmWriteServo(0, servo[0]);
                 pwmWriteServo(1, servo[1]);
             }
@@ -151,7 +151,7 @@ void pulseMotors(uint8_t quantity)
     }
 }
 
-
+#define THESISMIX(R, P, Y) cfg.minThrottle + cfg.thesisScaler * (command[THROTTLE] + axisPID[THROTTLE] - cfg.minThrottle) + axisPID[ROLL] * R + axisPID[PITCH] * P + cfg.yawDirection * axisPID[YAW] * Y
 #define PIDMIX(R, P, Y) command[THROTTLE] + axisPID[THROTTLE] + axisPID[ROLL] * R + axisPID[PITCH] * P + cfg.yawDirection * axisPID[YAW] * Y
 
 static void airplaneMixer(void)
@@ -247,9 +247,9 @@ void mixTable(void)
 #ifdef THESIS
         case MULTITYPE_Y4:
             motor[0] = PIDMIX(+0, +0, +0);      //MIDDLE CW
-            motor[1] = PIDMIX(+1, -2/3, +1);    //LEFT CCW
-            motor[2] = PIDMIX(-1, -2/3, +1);      //RIGHT CCW
-            motor[3] = PIDMIX(+0, +4/3, +1);      //REAR CCW
+            motor[1] = (int16_t)THESISMIX(-1, -2/3, +1);    //RIGHT CCW
+            motor[2] = (int16_t)THESISMIX(+0, +4/3, +1);    //REAR CCW
+            motor[3] = (int16_t)THESISMIX(+1, -2/3, +1);    //LEFT CCW
             break;    
 #else
         case MULTITYPE_Y4:
@@ -351,7 +351,7 @@ void mixTable(void)
     }
 
     // do camstab
-    if (feature(FEATURE_SERVO_TILT)) {
+    if (featureGet(FEATURE_SERVO_TILT)) {
         uint16_t aux[2] = { 0, 0 };
 
         if ((cfg.gimbalFlags & GIMBAL_NORMAL) || (cfg.gimbalFlags & GIMBAL_TILTONLY))
@@ -373,7 +373,7 @@ void mixTable(void)
 
     if (cfg.gimbalFlags & GIMBAL_FORWARDAUX) {
         int offset = 0;
-        if (feature(FEATURE_SERVO_TILT))
+        if (featureGet(FEATURE_SERVO_TILT))
             offset = 2;
         for (i = 0; i < 4; i++)
             pwmWriteServo(i + offset, rcData[AUX1 + i]);
@@ -388,7 +388,7 @@ void mixTable(void)
             motor[i] -= maxMotor - cfg.maxThrottle;
         motor[i] = constrain(motor[i], cfg.minThrottle, cfg.maxThrottle);
         if ((rcData[THROTTLE]) < cfg.minCheck) {
-            if (feature(FEATURE_MOTOR_STOP))
+            if (featureGet(FEATURE_MOTOR_STOP))
                 motor[i] = cfg.minCommand;
             else
                 motor[i] = cfg.minThrottle;

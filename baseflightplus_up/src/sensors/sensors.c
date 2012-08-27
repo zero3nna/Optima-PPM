@@ -141,7 +141,7 @@ void sensorsInit(void)
     }
 #endif
           
-    if(feature(FEATURE_VBAT))
+    if(featureGet(FEATURE_VBAT))
         batteryInit();
 
 }

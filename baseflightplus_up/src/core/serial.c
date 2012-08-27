@@ -458,35 +458,12 @@ static void evaluateCommand(void)
 
 #ifdef THESIS
 
-#define CURRENT_SCALE_FACTOR    5.0f/(1023.0f * 0.133f)
-
-static float current; // A
-
-// UART2 Receive ISR callback
-void currentDataReceive(uint16_t c)
-{
-    static char data[5];
-    static uint8_t index;
-    
-    if(c == '\n' && index) {
-        data[index] = '\0';
-        current = (float)atoi(data);
-        current = (current - 102.3) * CURRENT_SCALE_FACTOR;
-        index = 0;
-    } else if(index < 5){
-        data[index++] = (uint8_t)c;
-    } else {
-        index = 0;
-    }
-}
-
 static uint8_t highSpeedTelemetry = false;
 
 static void highSpeedTelemetryCallback(void)
 {
-    printf_min("%0.2f,%0.2f,%0.2f,%d,%0.2f,%0.2f\n", 
-            sensors.attitude[ROLL] * RAD2DEG, sensors.attitude[PITCH] * RAD2DEG, sensors.attitude[YAW] * RAD2DEG, 
-            sensors.altitude, sensors.batteryVoltage, current);
+    printf_min("%0.2f,%0.2f,%0.2f,%d\n", 
+            sensors.attitude[ROLL] * RAD2DEG, sensors.attitude[PITCH] * RAD2DEG, sensors.attitude[YAW] * RAD2DEG, sensors.altitude);
     
     if(highSpeedTelemetry)
         singleEvent(highSpeedTelemetryCallback, 5000);

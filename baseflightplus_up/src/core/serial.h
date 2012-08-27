@@ -5,7 +5,3 @@
  */
 
 void serialCom(void);
-
-#ifdef THESIS
-void currentDataReceive(uint16_t c);
-#endif
