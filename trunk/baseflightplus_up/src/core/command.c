@@ -106,7 +106,7 @@ void updateCommands(void)
         } else if(rcData[YAW] < cfg.minCheck && rcData[PITCH] > cfg.minCheck && !mode.ARMED) {
             if(commandDelay++ == 20) {
                 computeGyroRTBias();
-        		pulseMotors(3);
+        		//pulseMotors(3);
         		// GPS Reset
             }
         } else {
@@ -143,7 +143,7 @@ void updateCommands(void)
     // Failsafe
     ///////////////////////////////////////////////////////////////////////////////
     
-    if(feature(FEATURE_FAILSAFE)) {
+    if(featureGet(FEATURE_FAILSAFE)) {
         if(failsafeCnt > cfg.failsafeOnDelay && mode.ARMED) {
             // Stabilise and set Throttle to failsafe level
             for(i = 0; i < 3; ++i) {

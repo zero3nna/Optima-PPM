@@ -45,7 +45,7 @@ int main(void)
     // when using airplane/wing mixer, servo/motor outputs are remapped
     if (cfg.mixerConfiguration == MULTITYPE_AIRPLANE || cfg.mixerConfiguration == MULTITYPE_FLYING_WING)
         pwm_params.airplane = true;
-    pwm_params.usePPM = feature(FEATURE_PPM);
+    pwm_params.usePPM = featureGet(FEATURE_PPM);
     pwm_params.enableInput = true;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
     pwm_params.useServos = useServos;
     pwm_params.extraServos = cfg.gimbalFlags & GIMBAL_FORWARDAUX;
@@ -55,10 +55,6 @@ int main(void)
     pwmInit(&pwm_params);
 
     initPIDs();
-    
-#ifdef THESIS
-    uart2Init(9600, currentDataReceive);
-#endif
     
     delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....
     
@@ -74,7 +70,7 @@ int main(void)
     periodicEvent(updateAltitude, 40000);
     periodicEvent(serialCom, 20000);
     periodicEvent(statusLED, 100000);
-    if(feature(FEATURE_VBAT))
+    if(featureGet(FEATURE_VBAT))
         periodicEvent(batterySample, 40000);
 
     while (1)

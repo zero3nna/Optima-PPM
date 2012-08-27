@@ -227,6 +227,10 @@ void checkFirstTime(bool reset)
         cfg.batScale                   = 11.0f;
         cfg.batMinCellVoltage           = 3.3f;
         cfg.batMaxCellVoltage          = 4.2f;
+        
+#ifdef THESIS
+        cfg.thesisScaler    = 0.3f;
+#endif
 
         writeParams();
 	}
@@ -234,7 +238,7 @@ void checkFirstTime(bool reset)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool feature(uint32_t mask)
+bool featureGet(uint32_t mask)
 {
     return cfg.enabledFeatures & mask;
 }

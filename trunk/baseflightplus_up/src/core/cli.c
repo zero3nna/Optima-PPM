@@ -211,6 +211,9 @@ const clivalue_t valueTable[] = {
     { "batScale",  VAR_FLOAT, &cfg.batScale,    0, 50},
     { "batMinCellVoltage",  VAR_FLOAT, &cfg.batMinCellVoltage,    0, 5},
     { "batMaxCellVoltage",  VAR_FLOAT, &cfg.batMaxCellVoltage,    0, 5},
+#ifdef THESIS
+    { "thesisScaler",  VAR_FLOAT, &cfg.thesisScaler,    0, 1},
+#endif
 };
 
 #define VALUE_COUNT (sizeof(valueTable) / sizeof(valueTable[0]))
@@ -745,13 +748,14 @@ static void telemetry(void)
     switch (query) {
         case '#':
             telemetryEnabled = false;
+            query = 'x';
             cliPrompt();
             break;
         case 'a':
             printf_min("%f,%f,%f\n", sensors.accel[ROLL], sensors.accel[PITCH], sensors.accel[YAW]);
             break;
         case 'b':
-            printf_min("%f\n", sensors.baroAltitude);
+            printf_min("%d\n", sensors.baroAltitude);
             break;
         case 'g':
             printf_min("%f,%f,%f\n", sensors.gyro[ROLL], sensors.gyro[PITCH], sensors.gyro[YAW]);
