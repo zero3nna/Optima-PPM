@@ -107,7 +107,10 @@ void writeServos(void)
         case MULTITYPE_FLYING_WING:
 
             break;
-
+        case MULTITYPE_GIMBAL:
+            pwmWriteServo(0, servo[0]);
+            pwmWriteServo(1, servo[1]);
+            break;
         default:
             // Two servos for SERVO_TILT, if enabled
             if (featureGet(FEATURE_SERVO_TILT)) {
@@ -151,7 +154,6 @@ void pulseMotors(uint8_t quantity)
     }
 }
 
-#define THESISMIX(R, P, Y) cfg.minThrottle + cfg.thesisScaler * (command[THROTTLE] + axisPID[THROTTLE] - cfg.minThrottle) + axisPID[ROLL] * R + axisPID[PITCH] * P + cfg.yawDirection * axisPID[YAW] * Y
 #define PIDMIX(R, P, Y) command[THROTTLE] + axisPID[THROTTLE] + axisPID[ROLL] * R + axisPID[PITCH] * P + cfg.yawDirection * axisPID[YAW] * Y
 
 static void airplaneMixer(void)
@@ -247,9 +249,9 @@ void mixTable(void)
 #ifdef THESIS
         case MULTITYPE_Y4:
             motor[0] = PIDMIX(+0, +0, +0);      //MIDDLE CW
-            motor[1] = (int16_t)THESISMIX(-1, -2/3, +1);    //RIGHT CCW
-            motor[2] = (int16_t)THESISMIX(+0, +4/3, +1);    //REAR CCW
-            motor[3] = (int16_t)THESISMIX(+1, -2/3, +1);    //LEFT CCW
+            motor[1] = PIDMIX(-1, -2/3, +1);    //RIGHT CCW
+            motor[2] = PIDMIX(+0, +4/3, +1);    //REAR CCW
+            motor[3] = PIDMIX(+1, -2/3, +1);    //LEFT CCW
             break;    
 #else
         case MULTITYPE_Y4:
@@ -328,8 +330,8 @@ void mixTable(void)
             break;
 
         case MULTITYPE_GIMBAL:
-            servo[0] = constrain(cfg.gimbalPitchServoMid + cfg.gimbalPitchServoGain /** angle[PITCH] / 16*/ + command[PITCH], cfg.gimbalPitchServoMin, cfg.gimbalPitchServoMax);
-            servo[1] = constrain(cfg.gimbalRollServoMid + cfg.gimbalRollServoGain /** angle[ROLL] / 16*/ + command[ROLL], cfg.gimbalRollServoMin, cfg.gimbalRollServoMax);
+            servo[0] = constrain(cfg.gimbalPitchServoMid + cfg.gimbalPitchServoGain * sensors.attitude[PITCH] * 128 + command[PITCH], cfg.gimbalPitchServoMin, cfg.gimbalPitchServoMax);
+            servo[1] = constrain(cfg.gimbalRollServoMid + cfg.gimbalRollServoGain * sensors.attitude[ROLL] * 128 + command[ROLL], cfg.gimbalRollServoMin, cfg.gimbalRollServoMax);
             break;
         
         case MULTITYPE_AIRPLANE:
@@ -363,8 +365,8 @@ void mixTable(void)
         servo[1] = cfg.gimbalRollServoMid + aux[1];
 
         if (auxOptions[OPT_CAMSTAB]) {
-            servo[0] += cfg.gimbalPitchServoGain * sensors.attitude[PITCH] * 32;
-            servo[1] += cfg.gimbalRollServoGain * sensors.attitude[ROLL] * 32;
+            servo[0] += cfg.gimbalPitchServoGain * sensors.attitude[PITCH] * 128;
+            servo[1] += cfg.gimbalRollServoGain * sensors.attitude[ROLL] * 128;
         }
 
         servo[0] = constrain(servo[0], cfg.gimbalPitchServoMin, cfg.gimbalPitchServoMax);
@@ -379,6 +381,28 @@ void mixTable(void)
             pwmWriteServo(i + offset, rcData[AUX1 + i]);
     }
 
+#ifdef THESIS
+    uint8_t motorNumber = 0;
+    maxMotor = motor[0];
+    for (i = 1; i < numberMotor; i++)
+        if (motor[i] > maxMotor){
+            maxMotor = motor[i];
+            motorNumber = i;
+        }
+    for (i = 0; i < numberMotor; i++) {
+        if (maxMotor > cfg.maxThrottle && motorNumber != 0 && i != 0)     // this is a way to still have good gyro corrections if at least one motor reaches its max.
+            motor[i] -= maxMotor - cfg.maxThrottle;
+        motor[i] = constrain(motor[i], cfg.minThrottle, cfg.maxThrottle);
+        if ((rcData[THROTTLE]) < cfg.minCheck) {
+            if (featureGet(FEATURE_MOTOR_STOP))
+                motor[i] = cfg.minCommand;
+            else
+                motor[i] = cfg.minThrottle;
+        }
+        if (!mode.ARMED)
+            motor[i] = cfg.minCommand;
+    }
+#else
     maxMotor = motor[0];
     for (i = 1; i < numberMotor; i++)
         if (motor[i] > maxMotor)
@@ -396,4 +420,5 @@ void mixTable(void)
         if (!mode.ARMED)
             motor[i] = cfg.minCommand;
     }
+#endif
 }

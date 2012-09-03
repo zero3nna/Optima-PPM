@@ -17,13 +17,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Cycle counter stuff - these should be defined by CMSIS, but they aren't
-#define DWT_CTRL    (*(volatile uint32_t *)0xE0001000)
-#define DWT_CYCCNT  ((volatile uint32_t *)0xE0001004)
-#define CYCCNTENA   (1 << 0)
-
-///////////////////////////////////////////////////////////////////////////////
-
 typedef struct gpio_config_t {
     GPIO_TypeDef *gpio;
     uint16_t pin;
@@ -40,7 +33,6 @@ static volatile uint32_t usTicks = 0;
 // Current uptime for 1kHz systick timer. will rollover after 49 days.
 // Hopefully we won't care.
 static volatile uint32_t sysTickUptime = 0;
-static volatile uint32_t sysTickCycleCounter = 0;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Cycle Counter
@@ -51,11 +43,6 @@ static void cycleCounterInit(void)
     RCC_ClocksTypeDef clocks;
     RCC_GetClocksFreq(&clocks);
     usTicks = clocks.SYSCLK_Frequency / 1000000;
-    
-    // enable DWT access
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    // enable the CPU cycle counter
-    DWT_CTRL |= CYCCNTENA;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,7 +121,6 @@ void printEventDeltas(void)
 void SysTick_Handler(void)
 {
     sysTickUptime++;
-    sysTickCycleCounter = *DWT_CYCCNT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -143,13 +129,12 @@ void SysTick_Handler(void)
 
 uint32_t micros(void)
 {
-    register uint32_t oldCycle, cycle, timeMs;
-    __disable_irq();
-    cycle = *DWT_CYCCNT;
-    oldCycle = sysTickCycleCounter;
-    timeMs = sysTickUptime;
-    __enable_irq();
-    return (timeMs * 1000) + (cycle - oldCycle) / usTicks;
+    register uint32_t ms, cycle_cnt;
+    do {
+        ms = sysTickUptime;
+        cycle_cnt = SysTick->VAL;
+    } while (ms != sysTickUptime);
+    return (ms * 1000) + (72000 - cycle_cnt) / 72;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
