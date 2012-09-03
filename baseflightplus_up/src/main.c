@@ -56,6 +56,10 @@ int main(void)
 
     initPIDs();
     
+#ifdef THESIS
+    uart2Init(9600, currentDataReceive);
+#endif
+    
     delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....
     
     periodicEvent(gyroSample, 500);

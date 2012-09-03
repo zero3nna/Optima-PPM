@@ -211,9 +211,6 @@ const clivalue_t valueTable[] = {
     { "batScale",  VAR_FLOAT, &cfg.batScale,    0, 50},
     { "batMinCellVoltage",  VAR_FLOAT, &cfg.batMinCellVoltage,    0, 5},
     { "batMaxCellVoltage",  VAR_FLOAT, &cfg.batMaxCellVoltage,    0, 5},
-#ifdef THESIS
-    { "thesisScaler",  VAR_FLOAT, &cfg.thesisScaler,    0, 1},
-#endif
 };
 
 #define VALUE_COUNT (sizeof(valueTable) / sizeof(valueTable[0]))

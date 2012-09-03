@@ -33,6 +33,7 @@ typedef struct {
     float iLim;
     float iAccum;
     float lastErr;
+    float dTerm1, dTerm2;
 } pidData;
 
 ///////////////////////////////////////////////////////////////////////////////

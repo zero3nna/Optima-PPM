@@ -206,12 +206,14 @@ static void evaluateCommand(void)
     case MSP_SET_PID:
         for(i = 0; i < 3; ++i) {
             cfg.pids[i].p = read8();
-            cfg.pids[i].i = read8() / 1000.0f;
+            //cfg.pids[i].i = read8() / 1000.0f;
+            read8();
             cfg.pids[i].d = read8();
         }
         
         cfg.pids[ALTITUDE_PID].p = read8();
-        cfg.pids[ALTITUDE_PID].i = read8() / 1000.0f;
+        //cfg.pids[ALTITUDE_PID].i = read8() / 1000.0f;
+        read8();
         cfg.pids[ALTITUDE_PID].d = read8();
         
         // POS, POSR, NAVR
@@ -221,15 +223,18 @@ static void evaluateCommand(void)
             read8();
         }
         cfg.pids[ROLL_LEVEL_PID].p = read8();
-        cfg.pids[ROLL_LEVEL_PID].i = read8() / 1000.0f;
+        //cfg.pids[ROLL_LEVEL_PID].i = read8() / 1000.0f;
+        read8();
         cfg.pids[ROLL_LEVEL_PID].d = read8();
         
         cfg.pids[PITCH_LEVEL_PID].p = cfg.pids[ROLL_LEVEL_PID].p;
-        cfg.pids[PITCH_LEVEL_PID].i = cfg.pids[ROLL_LEVEL_PID].i;
+        //cfg.pids[PITCH_LEVEL_PID].i = cfg.pids[ROLL_LEVEL_PID].i;
+        read8();
         cfg.pids[PITCH_LEVEL_PID].d = cfg.pids[ROLL_LEVEL_PID].d;
     
         cfg.pids[HEADING_PID].p = read8();
-        cfg.pids[HEADING_PID].i = read8() / 1000.0f;
+        //cfg.pids[HEADING_PID].i = read8() / 1000.0f;
+        read8();
         cfg.pids[HEADING_PID].d = read8();
     
         // Velocity
@@ -460,10 +465,33 @@ static void evaluateCommand(void)
 
 static uint8_t highSpeedTelemetry = false;
 
+#define CURRENT_SCALE_FACTOR    5.0f/(1023.0f * 0.133f)
+
+static float current; // A
+
+// UART2 Receive ISR callback
+void currentDataReceive(uint16_t c)
+{
+    static char data[5];
+    static uint8_t index;
+    
+    if(c == '\n' && index) {
+        data[index] = '\0';
+        current = (float)atoi(data);
+        current = (current - 102.3) * CURRENT_SCALE_FACTOR;
+        index = 0;
+    } else if(index < 5){
+        data[index++] = (uint8_t)c;
+    } else {
+        index = 0;
+    }
+}
+
 static void highSpeedTelemetryCallback(void)
 {
-    printf_min("%0.2f,%0.2f,%0.2f,%d\n", 
-            sensors.attitude[ROLL] * RAD2DEG, sensors.attitude[PITCH] * RAD2DEG, sensors.attitude[YAW] * RAD2DEG, sensors.altitude);
+    printf_min("%0.2f,%0.2f,%0.2f,%d,%0.2f,%0.2f\n", 
+            sensors.attitude[ROLL] * RAD2DEG, sensors.attitude[PITCH] * RAD2DEG, sensors.attitude[YAW] * RAD2DEG, 
+            sensors.altitude, sensors.batteryVoltage, current);
     
     if(highSpeedTelemetry)
         singleEvent(highSpeedTelemetryCallback, 5000);

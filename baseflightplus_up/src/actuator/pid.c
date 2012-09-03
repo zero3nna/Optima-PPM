@@ -7,6 +7,9 @@
 #include "board.h"
 #include "actuator/pid.h"
 
+#define F_CUT   20.0f
+#define RC      1.0f / (TWO_PI * F_CUT)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 pidData pids[NUM_PIDS];
@@ -40,6 +43,8 @@ void zeroPIDs(void)
     for (i = 0; i < NUM_PIDS; ++i) {
         pids[i].iAccum = 0.0f;
         pids[i].lastErr = 0.0f;
+        pids[i].dTerm1 = 0.0f;
+        pids[i].dTerm2 = 0.0f;
     }
 }
 
@@ -53,20 +58,33 @@ void zeroPID(pidData *pid)
 {
     pid->iAccum = 0.0f;
     pid->lastErr = 0.0f;
+    pids->dTerm1 = 0.0f;
+    pids->dTerm2 = 0.0f;
 }
 
 /* Pretty much the Openpilot PID code */
 float applyPID(pidData *pid, const float err, float dT)
 {
     float diff = (err - pid->lastErr);
-    pid->lastErr = err;
+    float dTerm, dSum;
     
     // Scale by 1000 during calculation to avoid loss of precision
     pid->iAccum += err * (pid->i * dT * 1000.0f);
     // Stop the integrators from winding up
     pid->iAccum = constrain(pid->iAccum, -pid->iLim * 1000.0f, pid->iLim * 1000.0f);
     
-    return ((err * pid->p) + pid->iAccum / 1000.0f + (diff * pid->d / dT));
+    dTerm = diff / dT;
+    // Discrete low pass filter, cuts out the
+    // high frequency noise that can drive controller crazy
+    dTerm = pid->lastErr + (dT / (RC + dT)) * (dTerm - pid->lastErr);
+
+    pid->lastErr = err;
+
+    dSum =  dTerm + pid->dTerm1 + pid->dTerm2;
+    pid->dTerm2 = pid->dTerm1;
+    pid->dTerm1 = dTerm;
+    
+    return ((pid->p * err) + pid->iAccum / 1000.0f + (pid->d * dSum));
 }
 
 

@@ -132,10 +132,6 @@ typedef struct {
     float batMinCellVoltage;
     float batMaxCellVoltage;
 
-#ifdef THESIS  
-    float thesisScaler;
-#endif
-
 } cfg_t;
 
 ///////////////////////////////////////////////////////////////////////////////
