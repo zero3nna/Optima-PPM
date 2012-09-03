@@ -7,7 +7,6 @@
 #pragma once
 
 #include "board.h"
-#include "core/ring_buffer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Sensor Definitions
@@ -47,14 +46,9 @@ typedef struct {
 } sensors_t;
 
 typedef struct {
-    int16_t x;
-    int16_t y;
-    int16_t z;
-} SensorSample;
-
-ringBuffer_typedef(SensorSample, AccelBuffer);
-ringBuffer_typedef(SensorSample, GyroBuffer);
-ringBuffer_typedef(SensorSample, MagBuffer);
+    float accum[3];
+    uint8_t numSamples;
+} SensorSamples;
 
 typedef void (* sensorFuncPtr)(void);                   // sensor init prototype
 typedef void (* sensorReadFuncPtr)(int16_t *data);          // sensor read and align prototype
@@ -92,9 +86,9 @@ typedef struct
 
 extern uint16_t sensorsAvailable;
 extern sensors_t sensors;
-extern AccelBuffer *accelSampleBuffer;
-extern GyroBuffer *gyroSampleBuffer;
-extern MagBuffer *magSampleBuffer;
+extern SensorSamples accelSamples;
+extern SensorSamples gyroSamples;
+extern SensorSamples magSamples;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -109,6 +103,8 @@ void gyroSample(void);
 void readMag();
 
 void batterySample(void);
+
+void zeroSensorSamples(SensorSamples* accum);
 
 void sensorsInit(void);
 
