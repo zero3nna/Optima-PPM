@@ -12,27 +12,12 @@
 // Local Definitions
 ///////////////////////////////////////////////////////////////////////////////
 
-#define ACCEL_BUFF  16
-#define GYRO_BUFF   16
-#define MAG_BUFF    8
-#define BARO_BUFF   8
-
-///////////////////////////////////////////////////////////////////////////////
-
 sensors_t sensors;
 uint16_t sensorsAvailable = 0;
 
-AccelBuffer _accelSampleBuffer;
-AccelBuffer *accelSampleBuffer = &_accelSampleBuffer;
-SensorSample accelSamples[ACCEL_BUFF];
-
-GyroBuffer _gyroSampleBuffer;
-GyroBuffer *gyroSampleBuffer = &_gyroSampleBuffer;
-SensorSample gyroSamples[GYRO_BUFF];
-
-MagBuffer _magSampleBuffer;
-MagBuffer *magSampleBuffer = &_magSampleBuffer;
-SensorSample magSamples[MAG_BUFF];
+SensorSamples accelSamples;
+SensorSamples gyroSamples;
+SensorSamples magSamples;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,51 +46,53 @@ void batterySample(void)
 
 void magSample(void)
 {
-    SensorSample magSample;
     readMag();
-    magSample.x = rawMag[XAXIS];
-    magSample.y = rawMag[YAXIS];
-    magSample.z = rawMag[ZAXIS];
-    bufferWrite(magSampleBuffer, &magSample);
+    magSamples.accum[XAXIS] += rawMag[XAXIS];
+    magSamples.accum[YAXIS] += rawMag[YAXIS];
+    magSamples.accum[ZAXIS] += rawMag[ZAXIS];
+    magSamples.numSamples++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void accelSample(void)
-{
-    SensorSample accelSample;
-    
+{   
     readAccel();
-    
-    accelSample.x = rawAccel[XAXIS];
-    accelSample.y = rawAccel[YAXIS];
-    accelSample.z = rawAccel[ZAXIS];
-    bufferWrite(accelSampleBuffer, &accelSample);
+    accelSamples.accum[XAXIS] += rawAccel[XAXIS];
+    accelSamples.accum[YAXIS] += rawAccel[YAXIS];
+    accelSamples.accum[ZAXIS] += rawAccel[ZAXIS];
+    accelSamples.numSamples++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void gyroSample(void)
 {   
-    SensorSample gyroSample;
-    
-    readGyro();
-    
-    gyroSample.x = rawGyro[XAXIS];
-    gyroSample.y = rawGyro[YAXIS];
-    gyroSample.z = rawGyro[ZAXIS];
-    bufferWrite(gyroSampleBuffer, &gyroSample);
+    readGyro();  
+    gyroSamples.accum[XAXIS] += rawGyro[XAXIS];
+    gyroSamples.accum[YAXIS] += rawGyro[YAXIS];
+    gyroSamples.accum[ZAXIS] += rawGyro[ZAXIS];
+    gyroSamples.numSamples++;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void zeroSensorSamples(SensorSamples* samples) {
+    uint8_t i;
+    
+    for(i = 0; i < 3; ++i)
+        samples->accum[i] = 0;
+        
+    samples->numSamples = 0;
+}
+
 void sensorsInit(void)
 {
-    bufferInit(accelSampleBuffer, accelSamples, ACCEL_BUFF);
-    bufferInit(gyroSampleBuffer, gyroSamples, GYRO_BUFF);
-    bufferInit(magSampleBuffer, magSamples, MAG_BUFF);
+    zeroSensorSamples(&accelSamples);
+    zeroSensorSamples(&gyroSamples);
+    zeroSensorSamples(&magSamples);
     
-    // TODO allow user to select harddware id there are multiple choices
+    // TODO allow user to select harddware if there are multiple choices
     
     if(mpu6050Detect(gyro, accel, cfg.mpu6050Scale)) {
         set(sensorsAvailable, SENSOR_ACC);

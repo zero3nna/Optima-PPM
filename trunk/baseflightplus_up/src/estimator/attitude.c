@@ -4,7 +4,6 @@
  */
 
 #include "board.h"
-#include "core/ring_buffer.h"
 #include "core/filters.h"
 
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f}; // quaternion of sensor frame relative to auxiliary frame
@@ -15,56 +14,31 @@ static void updateSensors(void)
 {
     ///////////////////////////////////////////////////////////////////////////////
     
-    uint8_t numAccelSamples = 0;
-    int32_t accelAccum[3] = {0, 0, 0};
-    SensorSample accelSample;
-    
-    uint8_t numGyroSamples = 0;
-    int32_t gyroAccum[3] = {0, 0, 0};
-    SensorSample gyroSample;
-    
-    uint8_t numMagSamples = 0;
-    int32_t magAccum[3] = {0, 0, 0};
-    SensorSample magSample;
-    
-    float temp[3] = {0.0f, 0.0f, 0.0f};
-    
     uint8_t i;
+    float temp[3];
     
     ///////////////////////////////////////////////////////////////////////////////
     
     if(cfg.magDriftCompensation) {
-        while(bufferUsed(magSampleBuffer)) {
-            bufferRead(magSampleBuffer, &magSample);
-            magAccum[XAXIS] += magSample.x;
-            magAccum[YAXIS] += magSample.y;
-            magAccum[ZAXIS] += magSample.z;
-            ++numMagSamples;
-        }
-    
-        if(numMagSamples) {
-            sensors.mag[XAXIS] = ((float) magAccum[XAXIS] / numMagSamples - cfg.magBias[XAXIS]) * sensors.magScaleFactor;
-        	sensors.mag[YAXIS] = ((float) magAccum[YAXIS] / numMagSamples - cfg.magBias[YAXIS]) * sensors.magScaleFactor;
-        	sensors.mag[ZAXIS] = ((float) magAccum[ZAXIS] / numMagSamples - cfg.magBias[ZAXIS]) * sensors.magScaleFactor; 
+        if(magSamples.numSamples) {
+            sensors.mag[XAXIS] = (magSamples.accum[XAXIS] / magSamples.numSamples - cfg.magBias[XAXIS]) * sensors.magScaleFactor;
+        	sensors.mag[YAXIS] = (magSamples.accum[YAXIS] / magSamples.numSamples - cfg.magBias[YAXIS]) * sensors.magScaleFactor;
+        	sensors.mag[ZAXIS] = (magSamples.accum[ZAXIS] / magSamples.numSamples - cfg.magBias[ZAXIS]) * sensors.magScaleFactor;
+            zeroSensorSamples(&magSamples);
         }
     }
     
     ///////////////////////////////////////////////////////////////////////////////
     
-    while(bufferUsed(accelSampleBuffer)) {
-        bufferRead(accelSampleBuffer, &accelSample);
-        accelAccum[XAXIS] += accelSample.x;
-        accelAccum[YAXIS] += accelSample.y;
-        accelAccum[ZAXIS] += accelSample.z;
-        ++numAccelSamples;
-    }
-    
-    if(numAccelSamples) {
-        for(i = 0; i < 3; ++i)
-            temp[i] = sensors.accel[i];
-        sensors.accel[XAXIS] = ((float) accelAccum[XAXIS] / numAccelSamples - cfg.accelBias[XAXIS]) * sensors.accelScaleFactor;
-        sensors.accel[YAXIS] = ((float) accelAccum[YAXIS] / numAccelSamples - cfg.accelBias[YAXIS]) * sensors.accelScaleFactor;
-        sensors.accel[ZAXIS] = ((float) accelAccum[ZAXIS] / numAccelSamples - cfg.accelBias[ZAXIS]) * sensors.accelScaleFactor;
+    if(accelSamples.numSamples) {
+        if(cfg.accelLPF) {
+            for(i = 0; i < 3; ++i)
+                temp[i] = sensors.accel[i];
+        }
+        sensors.accel[XAXIS] = (accelSamples.accum[XAXIS] / accelSamples.numSamples - cfg.accelBias[XAXIS]) * sensors.accelScaleFactor;
+        sensors.accel[YAXIS] = (accelSamples.accum[YAXIS] / accelSamples.numSamples - cfg.accelBias[YAXIS]) * sensors.accelScaleFactor;
+        sensors.accel[ZAXIS] = (accelSamples.accum[ZAXIS] / accelSamples.numSamples - cfg.accelBias[ZAXIS]) * sensors.accelScaleFactor;
+        zeroSensorSamples(&accelSamples);
         if(cfg.accelLPF) {
             for(i = 0; i < 3; ++i)
                 sensors.accel[i] = filterSmooth(sensors.accel[i], temp[i], cfg.accelLPF_Factor);
@@ -73,20 +47,13 @@ static void updateSensors(void)
     
     ///////////////////////////////////////////////////////////////////////////////
     
-    while(bufferUsed(gyroSampleBuffer)) {
-        bufferRead(gyroSampleBuffer, &gyroSample);
-        gyroAccum[XAXIS] += gyroSample.x;
-        gyroAccum[YAXIS] += gyroSample.y;
-        gyroAccum[ZAXIS] += gyroSample.z;
-        ++numGyroSamples;
-    }
-
-    if(numGyroSamples) {
+    if(gyroSamples.numSamples) {
         readGyroTemp();
         computeGyroTCBias();
-        sensors.gyro[XAXIS] = ((float) gyroAccum[XAXIS]  / numGyroSamples - sensors.gyroRTBias[XAXIS] - sensors.gyroTCBias[XAXIS]) * sensors.gyroScaleFactor;
-        sensors.gyro[YAXIS] = ((float) gyroAccum[YAXIS]  / numGyroSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor;
-        sensors.gyro[ZAXIS] = ((float) gyroAccum[ZAXIS]  / numGyroSamples - sensors.gyroRTBias[ZAXIS] - sensors.gyroTCBias[ZAXIS]) * sensors.gyroScaleFactor;
+        sensors.gyro[XAXIS] = (gyroSamples.accum[XAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[XAXIS] - sensors.gyroTCBias[XAXIS]) * sensors.gyroScaleFactor;
+        sensors.gyro[YAXIS] = (gyroSamples.accum[YAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor;
+        sensors.gyro[ZAXIS] = (gyroSamples.accum[ZAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[ZAXIS] - sensors.gyroTCBias[ZAXIS]) * sensors.gyroScaleFactor;
+        zeroSensorSamples(&gyroSamples);
     }
 }
 

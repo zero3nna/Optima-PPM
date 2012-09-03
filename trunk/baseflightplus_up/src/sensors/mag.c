@@ -28,6 +28,8 @@ void magCalibration(void)
         maxMag[i] = rawMag[i];
     }
 
+    LED0_ON();
+    LED1_OFF();
     for(samples = 0; samples < 500; ++samples) {
         readMag();
         
@@ -39,11 +41,9 @@ void magCalibration(void)
                 minMag[i] = rawMag[i];
             }
             delay(20);
-        }
-        
-        if(!(samples % 250))
-            LED0_TOGGLE();
+        }   
     };
+    LED0_OFF();
 
     for(i = 0; i < 3; ++i) {
         cfg.magBias[i] = (float)(maxMag[i] + minMag[i]) / 2.0f;
