@@ -11,7 +11,7 @@ static uint8_t AHRSInitialised = false;
 
 static void AHRSinit(float ax, float ay, float az, float mx, float my, float mz);
 static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT);
-static float calculateAccConfidence(float accNorm);
+//static float calculateAccConfidence(float accNorm);
 
 static void updateSensors(void)
 {
@@ -94,6 +94,7 @@ void updateAttitude(void)
 
 }
 
+/*
 #define CONFIDENCE_DECAY            1.0f
 #define CONFIDENCE_FILTER_FACTOR    0.75f
 
@@ -107,6 +108,7 @@ static float calculateAccConfidence(float accNorm) {
 
 	return constrain(1.0f - (CONFIDENCE_DECAY * sqrtf(abs(accNorm - 1.0f))), 0.0f, 1.0f);
 } // calculateAccConfidence
+*/
 
 //=====================================================================================================
 // S.O.H. Madgwick + OpenPilot attitude.c
@@ -184,7 +186,7 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
     float err[3];
     float norm;
     float halfT = dT * 0.5f;
-    float accConfidence;
+    //float accConfidence;
     //float angleNorm;
     
     if(!AHRSInitialised) {
@@ -203,7 +205,7 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
 		// This deals with hard accelerations where the accelerometer is less trusted and 0G cases
 		// When we are at large angles, level mode will act like rate mode.
 		// Maybe we could think of scaling it so it doesn't turn off suddenly? This works with multiwii though...
-		if(!isinf(norm)/* && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G && angleNorm < 25*/) {    
+		if(!isinf(norm) && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G/* && angleNorm < 25*/) {    
     		ax /= norm;
     		ay /= norm;
     		az /= norm;
@@ -225,12 +227,12 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
     		gravRot[YAXIS] = 2.0f * (q0q1 + q2q3);
     		gravRot[ZAXIS] = q0q0 - q1q1 - q2q2 + q3q3;
     		
-            accConfidence = calculateAccConfidence(norm);
+            //accConfidence = calculateAccConfidence(norm);
 	
     		// Error is sum of cross product between estimated and measured direction of gravity
-    		err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]) * accConfidence;
-    		err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]) * accConfidence;
-    		err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]) * accConfidence;      
+            err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]);// * accConfidence;
+            err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]);// * accConfidence;
+            err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]);// * accConfidence;      
     		
     		if(cfg.magDriftCompensation && !(mx == 0.0f && my == 0.0f && mz == 0.0f)) {
     		    // Normalise magnetometer measurement
