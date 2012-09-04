@@ -21,7 +21,7 @@ cfg_t cfg;
 
 const char rcChannelLetters[] = "AERT1234";
 
-static uint8_t checkNewSystemConf = 5;
+static uint8_t checkNewSystemConf = 6;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -198,24 +198,27 @@ void checkFirstTime(bool reset)
         cfg.accelBias[YAXIS]                = 0.0f;
         cfg.accelBias[ZAXIS]                = 0.0f;
 
-        cfg.gyroLPF                    = 42;
-        cfg.gyroTCBiasSlope[ROLL]      = 0.0f;
-        cfg.gyroTCBiasSlope[PITCH]     = 0.0f;
-        cfg.gyroTCBiasSlope[YAW]       = 0.0f;
-        cfg.gyroTCBiasIntercept[ROLL]  = 0.0f;
-        cfg.gyroTCBiasIntercept[PITCH] = 0.0f;
-        cfg.gyroTCBiasIntercept[YAW]   = 0.0f;
+        cfg.gyroBiasOnStartup           = false;
+        cfg.gyroWeakZero                = true;
+        cfg.gyroZeroFactor              = 0.98f;
+        cfg.gyroLPF                     = 42;
+        cfg.gyroTCBiasSlope[ROLL]       = 0.0f;
+        cfg.gyroTCBiasSlope[PITCH]      = 0.0f;
+        cfg.gyroTCBiasSlope[YAW]        = 0.0f;
+        cfg.gyroTCBiasIntercept[ROLL]   = 0.0f;
+        cfg.gyroTCBiasIntercept[PITCH]  = 0.0f;
+        cfg.gyroTCBiasIntercept[YAW]    = 0.0f;
 
-        cfg.magCalibrated              = false;
-        cfg.magBias[ROLL]              = 0.0f;
-        cfg.magBias[PITCH]             = 0.0f;
-        cfg.magBias[YAW]               = 0.0f;
+        cfg.magCalibrated               = false;
+        cfg.magBias[ROLL]               = 0.0f;
+        cfg.magBias[PITCH]              = 0.0f;
+        cfg.magBias[YAW]                = 0.0f;
         
-        cfg.mpu6050Scale            = false; // Shitty hack
+        cfg.mpu6050Scale                = false; // Shitty hack
 
         // For Mahony AHRS
         
-        cfg.imuKp                       = 1.0f;
+        cfg.imuKp                       = 3.0f;
         cfg.imuKi                       = 0.00f;
         
         cfg.magDriftCompensation        = false;

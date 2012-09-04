@@ -60,7 +60,10 @@ int main(void)
     uart2Init(9600, currentDataReceive);
 #endif
     
-    delay(1000);               // 1 sec delay for sensor stabilization - probably not long enough.....
+    delay(2000);               // 2 sec delay for sensor stabilisation - probably not long enough.....
+    
+    if(cfg.gyroBiasOnStartup)
+        computeGyroRTBias();
     
     periodicEvent(gyroSample, 500);
     periodicEvent(accelSample, 500);
@@ -69,8 +72,7 @@ int main(void)
     
     periodicEvent(updateActuators, 4000);
     periodicEvent(updateCommands, 20000);
-    if(cfg.magDriftCompensation)
-        periodicEvent(magSample, 20000);
+    periodicEvent(magSample, 20000);
     periodicEvent(updateAltitude, 40000);
     periodicEvent(serialCom, 20000);
     periodicEvent(statusLED, 100000);

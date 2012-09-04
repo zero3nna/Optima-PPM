@@ -7,8 +7,11 @@
 #include "core/filters.h"
 
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f}; // quaternion of sensor frame relative to auxiliary frame
+static uint8_t AHRSInitialised = false;
 
-void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT);
+static void AHRSinit(float ax, float ay, float az, float mx, float my, float mz);
+static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT);
+static float calculateAccConfidence(float accNorm);
 
 static void updateSensors(void)
 {
@@ -19,13 +22,11 @@ static void updateSensors(void)
     
     ///////////////////////////////////////////////////////////////////////////////
     
-    if(cfg.magDriftCompensation) {
-        if(magSamples.numSamples) {
-            sensors.mag[XAXIS] = (magSamples.accum[XAXIS] / magSamples.numSamples - cfg.magBias[XAXIS]) * sensors.magScaleFactor;
-        	sensors.mag[YAXIS] = (magSamples.accum[YAXIS] / magSamples.numSamples - cfg.magBias[YAXIS]) * sensors.magScaleFactor;
-        	sensors.mag[ZAXIS] = (magSamples.accum[ZAXIS] / magSamples.numSamples - cfg.magBias[ZAXIS]) * sensors.magScaleFactor;
-            zeroSensorSamples(&magSamples);
-        }
+    if(magSamples.numSamples) {
+        sensors.mag[XAXIS] = (magSamples.accum[XAXIS] / magSamples.numSamples - cfg.magBias[XAXIS]) * sensors.magScaleFactor;
+    	sensors.mag[YAXIS] = (magSamples.accum[YAXIS] / magSamples.numSamples - cfg.magBias[YAXIS]) * sensors.magScaleFactor;
+    	sensors.mag[ZAXIS] = (magSamples.accum[ZAXIS] / magSamples.numSamples - cfg.magBias[ZAXIS]) * sensors.magScaleFactor;
+        zeroSensorSamples(&magSamples);
     }
     
     ///////////////////////////////////////////////////////////////////////////////
@@ -54,6 +55,10 @@ static void updateSensors(void)
         sensors.gyro[YAXIS] = (gyroSamples.accum[YAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor;
         sensors.gyro[ZAXIS] = (gyroSamples.accum[ZAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[ZAXIS] - sensors.gyroTCBias[ZAXIS]) * sensors.gyroScaleFactor;
         zeroSensorSamples(&gyroSamples);
+        if(cfg.gyroWeakZero) {
+            for(i = 0; i < 3; ++i)
+                sensors.gyro[i] = filterSmooth(sensors.gyro[i], 0.0f, cfg.gyroZeroFactor);
+        }
     }
 }
 
@@ -89,16 +94,89 @@ void updateAttitude(void)
 
 }
 
+#define CONFIDENCE_DECAY            1.0f
+#define CONFIDENCE_FILTER_FACTOR    0.75f
+
+static float calculateAccConfidence(float accNorm) {
+	// G.K. Egan (C) computes confidence in accelerometers when
+	// aircraft is being accelerated over and above that due to gravity
+	static float accNormPrev = 1.0f;
+
+	accNorm = filterSmooth(accNormPrev, accNorm, CONFIDENCE_FILTER_FACTOR);
+	accNormPrev = accNorm;
+
+	return constrain(1.0f - (CONFIDENCE_DECAY * sqrtf(abs(accNorm - 1.0f))), 0.0f, 1.0f);
+} // calculateAccConfidence
+
 //=====================================================================================================
-// MahonyAHRS + Openpilot attitude.c
-//=====================================================================================================
-//
-// Madgwick's implementation of Mayhony's AHRS algorithm.
+// S.O.H. Madgwick + OpenPilot attitude.c
+// 25th August 2010
 // See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
+//=====================================================================================================
+// Description:
+//
+// Quaternion implementation of the 'DCM filter' [Mayhony et al].  Incorporates the magnetic distortion
+// compensation algorithms from my filter [Madgwick] which eliminates the need for a reference
+// direction of flux (bx bz) to be predefined and limits the effect of magnetic distortions to yaw
+// axis only.
+//
+// User must define 'dTOn2' as the (sample period / 2), and the filter gains 'Kp' and 'Ki'.
+//
+// Global variables 'q0', 'q1', 'q2', 'q3' are the quaternion elements representing the estimated
+// orientation.
+//
+// Gyroscope units are radians/second, accelerometer and magnetometer units are irrelevant as the
+// vector is normalised.
+//
+// adapted from John Ihlein's AQ version using Aerospace Coordinates
+// gain scaling with accelerometer magnitude above 1G Greg Egan
 //
 //=====================================================================================================
 
-void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT) { 
+static void AHRSinit(float ax, float ay, float az, float mx, float my, float mz)
+{
+    float initialRoll, initialPitch;
+    float cosRoll, sinRoll, cosPitch, sinPitch;
+    float magX, magY;
+    float initialHdg, cosHeading, sinHeading;
+
+    initialRoll = atan2(-ay, -az);
+    initialPitch = atan2(ax, -az);
+
+    cosRoll = cosf(initialRoll);
+    sinRoll = sinf(initialRoll);
+    cosPitch = cosf(initialPitch);
+    sinPitch = sinf(initialPitch);
+
+    magX = mx * cosPitch + my * sinRoll * sinPitch + mz * cosRoll * sinPitch;
+
+    magY = my * cosRoll - mz * sinRoll;
+
+    initialHdg = atan2f(-magY, magX);
+
+    cosRoll = cosf(initialRoll * 0.5f);
+    sinRoll = sinf(initialRoll * 0.5f);
+
+    cosPitch = cosf(initialPitch * 0.5f);
+    sinPitch = sinf(initialPitch * 0.5f);
+
+    cosHeading = cosf(initialHdg * 0.5f);
+    sinHeading = sinf(initialHdg * 0.5f);
+
+    q[0] = cosRoll * cosPitch * cosHeading + sinRoll * sinPitch * sinHeading;
+    q[1] = sinRoll * cosPitch * cosHeading - cosRoll * sinPitch * sinHeading;
+    q[2] = cosRoll * sinPitch * cosHeading + sinRoll * cosPitch * sinHeading;
+    q[3] = cosRoll * cosPitch * sinHeading - sinRoll * sinPitch * cosHeading;
+    
+    if(q[0] < 0) {
+		q[0] = -q[0];
+		q[1] = -q[1];
+		q[2] = -q[2];
+		q[3] = -q[3];
+	}
+}
+
+static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT) { 
     static float errInt[3] = { 0.0f, 0.0f, 0.0f };	// integral error terms scaled by Ki
 	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3; // auxiliary variables to reduce number of repeated operations
 	float hx, hy, hz, bx, bz;
@@ -106,7 +184,13 @@ void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, floa
     float err[3];
     float norm;
     float halfT = dT * 0.5f;
+    float accConfidence;
     //float angleNorm;
+    
+    if(!AHRSInitialised) {
+        AHRSinit(ax, ay, az, mx, my, mz);
+        AHRSInitialised = true;
+    }
 
 	// Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
 	if(!(ax == 0.0f && ay == 0.0f && az == 0.0f)) {
@@ -119,7 +203,7 @@ void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, floa
 		// This deals with hard accelerations where the accelerometer is less trusted and 0G cases
 		// When we are at large angles, level mode will act like rate mode.
 		// Maybe we could think of scaling it so it doesn't turn off suddenly? This works with multiwii though...
-		if(!isinf(norm) && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G/* && angleNorm < 25*/) {    
+		if(!isinf(norm)/* && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G && angleNorm < 25*/) {    
     		ax /= norm;
     		ay /= norm;
     		az /= norm;
@@ -140,11 +224,13 @@ void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, floa
     		gravRot[XAXIS] = 2.0f * (q1q3 - q0q2);
     		gravRot[YAXIS] = 2.0f * (q0q1 + q2q3);
     		gravRot[ZAXIS] = q0q0 - q1q1 - q2q2 + q3q3;
+    		
+            accConfidence = calculateAccConfidence(norm);
 	
     		// Error is sum of cross product between estimated and measured direction of gravity
-    		err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]);
-    		err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]);
-    		err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]);      
+    		err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]) * accConfidence;
+    		err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]) * accConfidence;
+    		err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]) * accConfidence;      
     		
     		if(cfg.magDriftCompensation && !(mx == 0.0f && my == 0.0f && mz == 0.0f)) {
     		    // Normalise magnetometer measurement
