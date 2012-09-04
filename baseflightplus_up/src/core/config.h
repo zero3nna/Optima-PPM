@@ -110,6 +110,9 @@ typedef struct {
     uint8_t accelCalibrated;
     float accelBias[3];
 
+    uint8_t gyroBiasOnStartup;
+    uint8_t gyroWeakZero;
+    float gyroZeroFactor;
     uint16_t gyroLPF;
     float gyroTCBiasSlope[3];
     float gyroTCBiasIntercept[3];

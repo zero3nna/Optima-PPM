@@ -112,8 +112,7 @@ void sensorsInit(void)
     gyro->init();
     accel->init();
     
-    if(cfg.magDriftCompensation)
-        initMag();
+    initMag();
     set(sensorsAvailable, SENSOR_MAG);
     
 #ifdef SONAR
