@@ -111,8 +111,7 @@ typedef struct {
     float accelBias[3];
 
     uint8_t gyroBiasOnStartup;
-    uint8_t gyroWeakZero;
-    float gyroZeroFactor;
+    float gyroWeakZeroFactor;
     uint16_t gyroLPF;
     float gyroTCBiasSlope[3];
     float gyroTCBiasIntercept[3];

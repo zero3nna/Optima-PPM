@@ -86,6 +86,21 @@ void hmc5883Read(int16_t *values)
     values[YAXIS] = (buf[4] << 8 | buf[5]);
 }
 
+bool hmc5883Detect(mag_t *mag)
+{
+    bool ack = false;
+    uint8_t sig = 0;
+
+    ack = i2cRead(HMC5883_ADDRESS, 0x0A, 1, &sig);
+    if (!ack || sig != 'H')
+        return false;
+        
+    mag->init = hmc5883Init;
+    mag->read = hmc5883Read;
+
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Initialize Magnetometer
 ///////////////////////////////////////////////////////////////////////////////

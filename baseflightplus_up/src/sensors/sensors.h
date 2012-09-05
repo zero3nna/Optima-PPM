@@ -70,6 +70,12 @@ typedef struct
 
 typedef struct
 {
+    sensorFuncPtr init;
+    sensorReadFuncPtr read;
+} mag_t;
+
+typedef struct
+{
     uint16_t ut_delay;
     uint16_t up_delay;
     uint16_t repeat_delay;
