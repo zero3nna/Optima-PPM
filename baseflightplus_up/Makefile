@@ -54,6 +54,7 @@ COMMON_SRC	 = startup_stm32f10x_md_gcc.S \
 			drivers/adc.c \
 			drivers/i2c.c \
 			drivers/pwm_ppm.c \
+			drivers/spektrum.c \
 			drivers/system.c \
 			drivers/uart.c \
 			estimator/altitude.c \

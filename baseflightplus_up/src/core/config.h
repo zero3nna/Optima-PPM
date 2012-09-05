@@ -27,6 +27,7 @@ typedef enum {
     FEATURE_SERVO_TILT = 1 << 3,
     FEATURE_FAILSAFE = 1 << 4,
     FEATURE_SONAR = 1 << 5,
+    FEATURE_SPEKTRUM = 1 << 6,
 } AvailableFeatures;
 
 typedef enum {
@@ -60,6 +61,7 @@ typedef struct {
     uint16_t maxCheck;
     uint16_t minThrottle;
     uint16_t maxThrottle;
+    uint8_t spektrumHiRes;
     
     uint16_t deadBand[3];
     

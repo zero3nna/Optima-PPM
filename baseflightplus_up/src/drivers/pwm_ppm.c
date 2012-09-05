@@ -3,6 +3,9 @@
  */
  
 #include "board.h"
+
+#include "core/command.h"
+
 #include "drivers/pwm_ppm.h"
 
 #define PULSE_1MS       (1000) // 1ms pulse width
@@ -151,7 +154,6 @@ static pwmPortData_t *servos[MAX_SERVOS];
 static uint8_t numMotors = 0;
 static uint8_t numServos = 0;
 static uint8_t  numInputs = 0;
-int16_t failsafeCnt;
 
 static const uint8_t multiPPM[] = {
     PWM1 | TYPE_IP,     // PPM input
@@ -528,4 +530,15 @@ void pwmWriteServo(uint8_t index, uint16_t value)
 uint16_t pwmRead(uint8_t channel)
 {
     return captures[channel];
+}
+
+uint16_t pwmReadRawRC(uint8_t chan)
+{
+    uint16_t data;
+
+    data = pwmRead(cfg.rcMap[chan]);
+    if (data < 750 || data > 2250)
+        data = cfg.midCommand;
+
+    return data;
 }
