@@ -57,7 +57,7 @@ int main(void)
     initPIDs();
     
 #ifdef THESIS
-    uart2Init(9600, currentDataReceive);
+    uart2Init(9600, currentDataReceive, true);
 #endif
     
     delay(2000);               // 2 sec delay for sensor stabilisation - probably not long enough.....
