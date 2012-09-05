@@ -66,16 +66,20 @@ int main(void)
         computeGyroRTBias();
     
     periodicEvent(gyroSample, 500);
-    periodicEvent(accelSample, 500);
+    
+    if(sensorsAvailable & SENSOR_ACC)
+        periodicEvent(accelSample, 500);
+    
+    if(sensorsAvailable & SENSOR_MAG)
+        periodicEvent(magSample, 20000);
     
     periodicEvent(updateAttitude, 3000);
-    
     periodicEvent(updateActuators, 4000);
     periodicEvent(updateCommands, 20000);
-    periodicEvent(magSample, 20000);
     periodicEvent(updateAltitude, 40000);
     periodicEvent(serialCom, 20000);
     periodicEvent(statusLED, 100000);
+    
     if(featureGet(FEATURE_VBAT))
         periodicEvent(batterySample, 40000);
 

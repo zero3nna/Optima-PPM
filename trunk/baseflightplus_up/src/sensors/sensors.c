@@ -112,8 +112,11 @@ void sensorsInit(void)
     gyro->init();
     accel->init();
     
-    initMag();
-    set(sensorsAvailable, SENSOR_MAG);
+    if(hmc5883Detect(mag)) {
+        mag->init();
+        set(sensorsAvailable, SENSOR_MAG);
+    }
+    
     
 #ifdef SONAR
     if(feature(FEATURE_PPM);) {

@@ -55,10 +55,8 @@ static void updateSensors(void)
         sensors.gyro[YAXIS] = (gyroSamples.accum[YAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor;
         sensors.gyro[ZAXIS] = (gyroSamples.accum[ZAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[ZAXIS] - sensors.gyroTCBias[ZAXIS]) * sensors.gyroScaleFactor;
         zeroSensorSamples(&gyroSamples);
-        if(cfg.gyroWeakZero) {
-            for(i = 0; i < 3; ++i)
-                sensors.gyro[i] = filterSmooth(sensors.gyro[i], 0.0f, cfg.gyroZeroFactor);
-        }
+        for(i = 0; i < 3; ++i)
+            sensors.gyro[i] = filterSmooth(sensors.gyro[i], 0.0f, cfg.gyroWeakZeroFactor);
     }
 }
 

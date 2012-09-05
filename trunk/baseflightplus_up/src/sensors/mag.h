@@ -14,6 +14,8 @@ extern float magScaleFactor[3];
 
 extern int16_t rawMag[3];
 
+extern mag_t *mag;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void magCalibration(void);

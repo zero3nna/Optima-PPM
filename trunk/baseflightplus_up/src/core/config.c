@@ -199,8 +199,7 @@ void checkFirstTime(bool reset)
         cfg.accelBias[ZAXIS]                = 0.0f;
 
         cfg.gyroBiasOnStartup           = false;
-        cfg.gyroWeakZero                = true;
-        cfg.gyroZeroFactor              = 0.98f;
+        cfg.gyroWeakZeroFactor          = 0.98f;
         cfg.gyroLPF                     = 42;
         cfg.gyroTCBiasSlope[ROLL]       = 0.0f;
         cfg.gyroTCBiasSlope[PITCH]      = 0.0f;
@@ -218,7 +217,7 @@ void checkFirstTime(bool reset)
 
         // For Mahony AHRS
         
-        cfg.imuKp                       = 3.0f;
+        cfg.imuKp                       = 1.0f;
         cfg.imuKi                       = 0.00f;
         
         cfg.magDriftCompensation        = false;
