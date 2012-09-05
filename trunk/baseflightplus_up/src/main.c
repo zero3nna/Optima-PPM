@@ -16,6 +16,7 @@
 #include "drivers/adc.h"
 #include "drivers/i2c.h"
 #include "drivers/pwm_ppm.h"
+#include "drivers/spektrum.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,13 @@ int main(void)
     pwm_params.servoPwmRate = cfg.servoPwmRate;
     
     pwmInit(&pwm_params);
+    
+    if(featureGet(FEATURE_SPEKTRUM)) {
+        readRawRC = spektrumReadRawRC;
+        spektrumInit();
+    } else {
+        readRawRC = pwmReadRawRC;
+    }
 
     initPIDs();
     

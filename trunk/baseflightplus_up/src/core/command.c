@@ -8,7 +8,10 @@
 
 #include "actuator/mixer.h"
 
+#include "core/command.h"
+
 #include "drivers/pwm_ppm.h"
+#include "drivers/spektrum.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Process Pilot Commands Defines and Variables
@@ -16,7 +19,10 @@
 
 #define THROTTLE_HOLD_DEADBAND  20
 
-int16_t rcData[8];
+readRawRCFuncPtr readRawRC;
+
+int16_t rcData[8] = { 1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502 }; // interval [1000;2000]
+int16_t failsafeCnt;
 
 uint8_t auxOptions[AUX_OPTIONS];
 modeFlags_t mode;
@@ -30,19 +36,6 @@ float headingHold;
 float altitudeThrottleHold;
 float altitudeHold;
 
-///////////////////////////////////////////////////////////////////////////////
-// From Multiwii
-///////////////////////////////////////////////////////////////////////////////
-static uint16_t readRawRC(uint8_t chan)
-{
-    uint16_t data;
-
-    data = pwmRead(cfg.rcMap[chan]);
-    if (data < 750 || data > 2250)
-        data = cfg.midCommand;
-
-    return data;
-}
 ///////////////////////////////////////////////////////////////////////////////
 // From Multiwii
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,16 +60,14 @@ static void computeRC(void)
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 void updateCommands(void)
 {
     uint8_t i;
     static uint8_t commandDelay;
 
-    computeRC();
+    if(!featureGet(FEATURE_SPEKTRUM) || spektrumFrameComplete())
+        computeRC();
     
-    // TODO Add spektrum support
     // TODO fix multiwii serial protocol RC injection
     // Can choose to inject RCData here if needed
     

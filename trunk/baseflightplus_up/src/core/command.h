@@ -50,11 +50,14 @@ typedef struct {
     uint8_t FAILSAFE;
 } modeFlags_t;
 
+typedef uint16_t (* readRawRCFuncPtr)(uint8_t chan);
+
 ///////////////////////////////////////////////////////////////////////////////
 // External Variables
 ///////////////////////////////////////////////////////////////////////////////
 
 extern int16_t rcData[8];
+extern int16_t failsafeCnt;
 
 extern uint8_t auxOptions[AUX_OPTIONS];
 extern modeFlags_t mode;
@@ -67,6 +70,8 @@ extern float headfreeReference;;
 extern float headingHold;
 extern float altitudeThrottleHold;
 extern float altitudeHold;
+
+extern readRawRCFuncPtr readRawRC;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Functions

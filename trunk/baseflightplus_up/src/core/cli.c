@@ -56,13 +56,13 @@ const char *mixerNames[] = {
     "AIRPLANE", "HELI_120_CCPM", "HELI_90_DEG", "VTAIL4", "CUSTOM", NULL
 };
 
-// sync this with AvailableFeatures enum from board.h
+// sync this with AvailableFeatures enum from config.h
 const char *featureNames[] = {
-    "PPM", "VBAT", "MOTOR_STOP", "SERVO_TILT", "FAILSAFE", "SONAR",
+    "PPM", "VBAT", "MOTOR_STOP", "SERVO_TILT", "FAILSAFE", "SONAR", "SPEKTRUM",
     NULL
 };
 
-// sync this with AvailableSensors enum from board.h
+// sync this with AvailableSensors enum from sensors.h
 const char *sensorNames[] = {
     "ACC", "BARO", "MAG", "SONAR", "GPS", NULL
 };
@@ -143,6 +143,7 @@ const clivalue_t valueTable[] = {
     { "maxCheck", VAR_UINT16, &cfg.maxCheck, 0, 2000 },
     { "minThrottle", VAR_UINT16, &cfg.minThrottle, 0, 2000 },
     { "maxThrottle", VAR_UINT16, &cfg.maxThrottle, 0, 2000 },
+    { "spektrumHiRes", VAR_UINT8, &cfg.spektrumHiRes, 0, 1 },
     { "rollDeadband",   VAR_UINT8, &cfg.deadBand[ROLL], 0, 32 },
     { "pitchDeadband",  VAR_UINT8, &cfg.deadBand[PITCH], 0, 32 },
     { "yawDeadband",    VAR_UINT8, &cfg.deadBand[YAW], 0, 32 },

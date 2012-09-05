@@ -112,6 +112,7 @@ void checkFirstTime(bool reset)
         cfg.maxCheck                           = 1900;
         cfg.minThrottle                        = 1150;
         cfg.maxThrottle                        = 1850;
+        cfg.spektrumHiRes                      = false;
         
         cfg.deadBand[ROLL]                     = 12;
         cfg.deadBand[PITCH]                    = 12;
