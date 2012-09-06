@@ -9,9 +9,13 @@
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f}; // quaternion of sensor frame relative to auxiliary frame
 static uint8_t AHRSInitialised = false;
 
+static float accelLPF_A[4] = {-3.878129734998890f, 5.641762572815880f, -3.648875955419103f, 0.885247737995618f};
+static float accelLPF_B[5] = {9.877867510385060e-04, -0.003762348901931f, 0.005553744695291f, -0.003762348901931f, 9.877867510385030e-04};
+static fourthOrderData_t accelFilter[3];
+
 static void AHRSinit(float ax, float ay, float az, float mx, float my, float mz);
 static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT);
-//static float calculateAccConfidence(float accNorm);
+static float calculateAccConfidence(float accNorm);
 
 static void updateSensors(void)
 {
@@ -32,17 +36,21 @@ static void updateSensors(void)
     ///////////////////////////////////////////////////////////////////////////////
     
     if(accelSamples.numSamples) {
-        if(cfg.accelLPF) {
-            for(i = 0; i < 3; ++i)
-                temp[i] = sensors.accel[i];
-        }
+        for(i = 0; i < 3; ++i)
+            temp[i] = sensors.accel[i];
         sensors.accel[XAXIS] = (accelSamples.accum[XAXIS] / accelSamples.numSamples - cfg.accelBias[XAXIS]) * sensors.accelScaleFactor;
         sensors.accel[YAXIS] = (accelSamples.accum[YAXIS] / accelSamples.numSamples - cfg.accelBias[YAXIS]) * sensors.accelScaleFactor;
         sensors.accel[ZAXIS] = (accelSamples.accum[ZAXIS] / accelSamples.numSamples - cfg.accelBias[ZAXIS]) * sensors.accelScaleFactor;
         zeroSensorSamples(&accelSamples);
-        if(cfg.accelLPF) {
+        if(cfg.accelSmoothFactor < 1.0f) {
             for(i = 0; i < 3; ++i)
-                sensors.accel[i] = filterSmooth(sensors.accel[i], temp[i], cfg.accelLPF_Factor);
+                sensors.accel[i] = filterSmooth(sensors.accel[i], temp[i], cfg.accelSmoothFactor);
+        }
+        
+        if(cfg.accelLPF) {
+            for(i = 0; i < 3; ++i) {
+                sensors.accel[i] = fourthOrderFilter(sensors.accel[i], &accelFilter[i], accelLPF_A, accelLPF_B);
+            }
         }
     }
     
@@ -55,8 +63,6 @@ static void updateSensors(void)
         sensors.gyro[YAXIS] = (gyroSamples.accum[YAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[YAXIS] - sensors.gyroTCBias[YAXIS]) * sensors.gyroScaleFactor;
         sensors.gyro[ZAXIS] = (gyroSamples.accum[ZAXIS] / gyroSamples.numSamples - sensors.gyroRTBias[ZAXIS] - sensors.gyroTCBias[ZAXIS]) * sensors.gyroScaleFactor;
         zeroSensorSamples(&gyroSamples);
-        for(i = 0; i < 3; ++i)
-            sensors.gyro[i] = filterSmooth(sensors.gyro[i], 0.0f, cfg.gyroWeakZeroFactor);
     }
 }
 
@@ -92,7 +98,7 @@ void updateAttitude(void)
 
 }
 
-/*
+
 #define CONFIDENCE_DECAY            1.0f
 #define CONFIDENCE_FILTER_FACTOR    0.75f
 
@@ -101,12 +107,16 @@ static float calculateAccConfidence(float accNorm) {
 	// aircraft is being accelerated over and above that due to gravity
 	static float accNormPrev = 1.0f;
 
-	accNorm = filterSmooth(accNormPrev, accNorm, CONFIDENCE_FILTER_FACTOR);
+#ifdef DEBUG
+    debug[0] = accNorm * 1000.0f;
+#endif
+
+	accNorm = filterSmooth(accNorm, accNormPrev, CONFIDENCE_FILTER_FACTOR);
 	accNormPrev = accNorm;
 
-	return constrain(1.0f - (CONFIDENCE_DECAY * sqrtf(abs(accNorm - 1.0f))), 0.0f, 1.0f);
+	return constrain(1.0f - (CONFIDENCE_DECAY * sqrtf(abs(accNorm - ACCEL_1G))), 0.0f, 1.0f);
 } // calculateAccConfidence
-*/
+
 
 //=====================================================================================================
 // S.O.H. Madgwick + OpenPilot attitude.c
@@ -184,7 +194,7 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
     float err[3];
     float norm;
     float halfT = dT * 0.5f;
-    //float accConfidence;
+    float accConfidence;
     //float angleNorm;
     
     if(!AHRSInitialised) {
@@ -203,7 +213,7 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
 		// This deals with hard accelerations where the accelerometer is less trusted and 0G cases
 		// When we are at large angles, level mode will act like rate mode.
 		// Maybe we could think of scaling it so it doesn't turn off suddenly? This works with multiwii though...
-		if(!isinf(norm) && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G/* && angleNorm < 25*/) {    
+		if(!isinf(norm)/* && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G && angleNorm < 25*/) {    
     		ax /= norm;
     		ay /= norm;
     		az /= norm;
@@ -225,12 +235,16 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
     		gravRot[YAXIS] = 2.0f * (q0q1 + q2q3);
     		gravRot[ZAXIS] = q0q0 - q1q1 - q2q2 + q3q3;
     		
-            //accConfidence = calculateAccConfidence(norm);
+            accConfidence = calculateAccConfidence(norm);
+            
+#ifdef DEBUG
+            debug[1] = accConfidence * 1000.0f;
+#endif
 	
     		// Error is sum of cross product between estimated and measured direction of gravity
-            err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]);// * accConfidence;
-            err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]);// * accConfidence;
-            err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]);// * accConfidence;      
+            err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]) * accConfidence;
+            err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]) * accConfidence;
+            err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]) * accConfidence;      
     		
     		if(cfg.magDriftCompensation && !(mx == 0.0f && my == 0.0f && mz == 0.0f)) {
     		    // Normalise magnetometer measurement

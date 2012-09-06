@@ -207,13 +207,13 @@ const clivalue_t valueTable[] = {
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
     { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
     { "accelLPF", VAR_UINT8, &cfg.accelLPF, 0, 1},
-    { "accelLPF_Factor",  VAR_FLOAT, &cfg.accelLPF_Factor,    -100, 100},
+    { "accelSmoothFactor",  VAR_FLOAT, &cfg.accelSmoothFactor, 0, 1},
     { "gyroBiasOnStartup", VAR_UINT8, &cfg.gyroBiasOnStartup, 0, 1},
-    { "gyroWeakZeroFactor",  VAR_FLOAT, &cfg.gyroWeakZeroFactor, 0, 1},
     { "gyroLPF", VAR_UINT16, &cfg.gyroLPF, 10, 256},
     { "batScale",  VAR_FLOAT, &cfg.batScale,    0, 50},
     { "batMinCellVoltage",  VAR_FLOAT, &cfg.batMinCellVoltage,    0, 5},
     { "batMaxCellVoltage",  VAR_FLOAT, &cfg.batMaxCellVoltage,    0, 5},
+    { "startupDelay", VAR_UINT16, &cfg.startupDelay, 0, 6000},
 };
 
 #define VALUE_COUNT (sizeof(valueTable) / sizeof(valueTable[0]))

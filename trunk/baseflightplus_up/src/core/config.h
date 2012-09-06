@@ -108,12 +108,11 @@ typedef struct {
     float angleTrim[2];
     
     uint8_t accelLPF;
-    float accelLPF_Factor;
+    float accelSmoothFactor;
     uint8_t accelCalibrated;
     float accelBias[3];
 
     uint8_t gyroBiasOnStartup;
-    float gyroWeakZeroFactor;
     uint16_t gyroLPF;
     float gyroTCBiasSlope[3];
     float gyroTCBiasIntercept[3];
@@ -135,6 +134,8 @@ typedef struct {
     float batScale;
     float batMinCellVoltage;
     float batMaxCellVoltage;
+    
+    uint16_t startupDelay;
 
 } cfg_t;
 
