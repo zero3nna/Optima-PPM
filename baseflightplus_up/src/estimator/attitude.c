@@ -105,7 +105,7 @@ void updateAttitude(void)
 static float calculateAccConfidence(float accNorm) {
 	// G.K. Egan (C) computes confidence in accelerometers when
 	// aircraft is being accelerated over and above that due to gravity
-	static float accNormPrev = 1.0f;
+	static float accNormPrev = ACCEL_1G;
 
 #ifdef DEBUG
     debug[0] = accNorm * 1000.0f;
