@@ -68,7 +68,7 @@ int main(void)
     uart2Init(9600, currentDataReceive, true);
 #endif
     
-    delay(2000);               // 2 sec delay for sensor stabilisation - probably not long enough.....
+    delay(cfg.startupDelay);               // 2 sec delay for sensor stabilisation - probably not long enough.....
     
     if(cfg.gyroBiasOnStartup)
         computeGyroRTBias();

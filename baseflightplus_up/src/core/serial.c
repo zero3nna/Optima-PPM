@@ -53,6 +53,8 @@
 
 #define INBUF_SIZE 64
 
+uint16_t debug[4];
+
 static const char boxnames[] =
     "LEVEL;"
     "ALTITUDE;"
@@ -448,11 +450,9 @@ static void evaluateCommand(void)
         headSerialReply(0);
         break;
     case MSP_DEBUG:
-        headSerialReply(0);
-        /*headSerialReply(8);
+        headSerialReply(8);
         for (i = 0; i < 4; i++)
             serialize16(debug[i]);      // 4 variables are here for general monitoring purpose
-            */
         break;
     default:                   // we do not know how to handle the (valid) message, indicate error MSP $M!
         headSerialError(0);

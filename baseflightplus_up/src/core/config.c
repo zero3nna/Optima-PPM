@@ -192,7 +192,7 @@ void checkFirstTime(bool reset)
         cfg.angleTrim[PITCH]    = 0.0f;
         
         cfg.accelLPF            = true;
-        cfg.accelLPF_Factor     = 0.90f;
+        cfg.accelSmoothFactor     = 1.0f;
         
         cfg.accelCalibrated                 = false;
         cfg.accelBias[XAXIS]                = 0.0f;
@@ -200,7 +200,6 @@ void checkFirstTime(bool reset)
         cfg.accelBias[ZAXIS]                = 0.0f;
 
         cfg.gyroBiasOnStartup           = false;
-        cfg.gyroWeakZeroFactor          = 0.98f;
         cfg.gyroLPF                     = 42;
         cfg.gyroTCBiasSlope[ROLL]       = 0.0f;
         cfg.gyroTCBiasSlope[PITCH]      = 0.0f;
@@ -218,18 +217,20 @@ void checkFirstTime(bool reset)
 
         // For Mahony AHRS
         
-        cfg.imuKp                       = 1.0f;
+        cfg.imuKp                       = 5.0f;
         cfg.imuKi                       = 0.00f;
         
         cfg.magDriftCompensation        = false;
 
         // Get your magnetic decliniation from here : http://magnetic-declination.com/
         // For example, -6deg 37min, = -6.37 Japan, format is [sign]ddd.mm (degreesminutes)
-        cfg.magDeclination             = 10.59f; 
+        cfg.magDeclination              = 10.59f; 
 
-        cfg.batScale                   = 11.0f;
+        cfg.batScale                    = 11.0f;
         cfg.batMinCellVoltage           = 3.3f;
-        cfg.batMaxCellVoltage          = 4.2f;
+        cfg.batMaxCellVoltage           = 4.2f;
+        
+        cfg.startupDelay                = 1000;
 
         writeParams();
 	}
