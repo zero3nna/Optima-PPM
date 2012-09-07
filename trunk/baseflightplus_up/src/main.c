@@ -48,7 +48,7 @@ int main(void)
         pwm_params.airplane = true;
     pwm_params.usePPM = featureGet(FEATURE_PPM);
     pwm_params.enableInput = true;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
-    pwm_params.useServos = useServos;
+    pwm_params.useServos = useServo;
     pwm_params.extraServos = cfg.gimbalFlags & GIMBAL_FORWARDAUX;
     pwm_params.motorPwmRate = cfg.escPwmRate;
     pwm_params.servoPwmRate = cfg.servoPwmRate;

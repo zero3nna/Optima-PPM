@@ -6,12 +6,14 @@
 
 #include "board.h"
 
+#include "actuator/mixer.h"
 #include "core/printf_min.h"
 
 #include "drivers/i2c.h"
 
 // we unset this on 'exit'
 uint8_t cliMode;
+static void cliCMix(char *cmdline);
 static void cliDefaults(char *cmdline);
 static void cliExit(char *cmdline);
 static void cliFeature(char *cmdline);
@@ -84,6 +86,7 @@ typedef struct {
 // should be sorted a..z for bsearch()
 const clicmd_t cmdTable[] = {
     { "calibrate", "sensor calibration", cliCalibrate },
+    { "cmix", "design custom mixer", cliCMix },
     { "defaults", "reset to defaults and reboot", cliDefaults },
     { "exit", "", cliExit },
     { "feature", "list or -val or val", cliFeature },
@@ -91,7 +94,7 @@ const clicmd_t cmdTable[] = {
     { "map", "mapping of rc channel order", cliMap },
     { "mixer", "mixer name or list", cliMixer },
     { "save", "save and reboot", cliSave },
-    { "set", "name=value or blank for list", cliSet },
+    { "set", "name=value or blank or * for list", cliSet },
     { "status", "show system status", cliStatus },
     { "telemetry", "", telemetryOn },
     { "version", "", cliVersion },
@@ -207,7 +210,7 @@ const clivalue_t valueTable[] = {
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
     { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
     { "accelLPF", VAR_UINT8, &cfg.accelLPF, 0, 1},
-    { "accelCutout",  VAR_FLOAT, &cfg.accelCutout,    0, 100},
+    //{ "accelCutout",  VAR_FLOAT, &cfg.accelCutout,    0, 100},
     { "accelSmoothFactor",  VAR_FLOAT, &cfg.accelSmoothFactor, 0, 1},
     { "gyroBiasOnStartup", VAR_UINT8, &cfg.gyroBiasOnStartup, 0, 1},
     { "gyroLPF", VAR_UINT16, &cfg.gyroLPF, 10, 256},
@@ -231,15 +234,94 @@ static void cliPrompt(void)
     uartPrint("\r\n# ");
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
 static int cliCompare(const void *a, const void *b)
 {
     const clicmd_t *ca = a, *cb = b;
     return strncasecmp(ca->name, cb->name, strlen(cb->name));
 }
 
-///////////////////////////////////////////////////////////////////////////////
+static void cliCMix(char *cmdline)
+{
+    int i, check = 0;
+    int num_motors = 0;
+    uint8_t len;
+    float mixsum[3];
+    char *ptr;
+
+    len = strlen(cmdline);
+
+    if (len == 0) {
+        uartPrint("Custom mixer: \r\nMotor\tThr\tRoll\tPitch\tYaw\r\n");
+        for (i = 0; i < MAX_MOTORS; i++) {
+            if (cfg.customMixer[i].throttle == 0.0f)
+                break;
+            mixsum[i] = 0.0f;
+            num_motors++;
+            printf_min("#%d:\t", i + 1);
+            printf_min("%f\t%f\t%f\t%f\r\n", cfg.customMixer[i].throttle, 
+                            cfg.customMixer[i].roll, cfg.customMixer[i].pitch, cfg.customMixer[i].yaw);
+        }
+        for (i = 0; i < num_motors; i++) {
+            mixsum[0] += cfg.customMixer[i].roll;
+            mixsum[1] += cfg.customMixer[i].pitch;
+            mixsum[2] += cfg.customMixer[i].yaw;
+        }
+        uartPrint("Sanity check:\t");
+        for (i = 0; i < 3; i++)
+            uartPrint(fabs(mixsum[i]) > 0.01f ? "NG\t" : "OK\t");
+        uartPrint("\r\n");
+        return;
+    } else if (strncasecmp(cmdline, "load", 4) == 0) {
+        ptr = strchr(cmdline, ' ');
+        if (ptr) {
+            len = strlen(++ptr);
+            for (i = 0; ; i++) {
+                if (mixerNames[i] == NULL) {
+                    uartPrint("Invalid mixer type...\r\n");
+                    break;
+                }
+                if (strncasecmp(ptr, mixerNames[i], len) == 0) {
+                    mixerLoadMix(i);
+                    printf_min("Loaded %s mix...\r\n", mixerNames[i]);
+                    cliCMix("");
+                    break;
+                }
+            }
+        }
+    } else {
+        ptr = cmdline;
+        i = atoi(ptr); // get motor number
+        if (--i < MAX_MOTORS) {
+            ptr = strchr(ptr, ' ');
+            if (ptr) {
+                cfg.customMixer[i].throttle = stringToFloat(++ptr); 
+                check++;
+            }
+            ptr = strchr(ptr, ' ');
+            if (ptr) {
+                cfg.customMixer[i].roll = stringToFloat(++ptr);
+                check++;
+            }
+            ptr = strchr(ptr, ' ');
+            if (ptr) {
+                cfg.customMixer[i].pitch = stringToFloat(++ptr);
+                check++;
+            }
+            ptr = strchr(ptr, ' ');
+            if (ptr) {
+                cfg.customMixer[i].yaw = stringToFloat(++ptr);
+                check++;
+            }
+            if (check != 4) {
+                uartPrint("Wrong number of arguments, needs idx thr roll pitch yaw\r\n");
+            } else {
+                cliCMix("");
+            }
+        } else {
+            printf_min("Motor number must be between 1 and %d\r\n", MAX_MOTORS);
+        }
+    }
+}
 
 static void cliDefaults(char *cmdline)
 {
@@ -249,8 +331,6 @@ static void cliDefaults(char *cmdline)
     delay(10);
     systemReset(false);
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 static void cliExit(char *cmdline)
 {
@@ -279,8 +359,7 @@ static void cliFeature(char *cmdline)
             if (featureNames[i] == NULL)
                 break;
             if (mask & (1 << i))
-                uartPrint((char *)featureNames[i]);
-            uartWrite(' ');
+                printf_min("%s ", featureNames[i]);
         }
         uartPrint("\r\n");
     } else if (strncasecmp(cmdline, "list", len) == 0) {
@@ -288,8 +367,7 @@ static void cliFeature(char *cmdline)
         for (i = 0; ; i++) {
             if (featureNames[i] == NULL)
                 break;
-            uartPrint((char *)featureNames[i]);
-            uartWrite(' ');
+            printf_min("%s ", featureNames[i]);
         }
         uartPrint("\r\n");
         return;
@@ -315,8 +393,8 @@ static void cliFeature(char *cmdline)
                     featureSet(1 << i);
                     uartPrint("Enabled ");
                 }
-                uartPrint((char *)featureNames[i]);
-                uartPrint("\r\n");
+                printf_min("%s\r\n", featureNames[i]);
+                
                 break;
             }
         }
@@ -332,10 +410,7 @@ static void cliHelp(char *cmdline)
     uartPrint("Available commands:\r\n");    
 
     for (i = 0; i < CMD_COUNT; i++) {
-        uartPrint(cmdTable[i].name);
-        uartWrite('\t');
-        uartPrint(cmdTable[i].param);
-        uartPrint("\r\n");
+        printf_min("%s\t%s\r\n", cmdTable[i].name, cmdTable[i].param);
         while (!uartTransmitEmpty());
     }
 }
@@ -366,8 +441,7 @@ static void cliMap(char *cmdline)
     for (i = 0; i < 8; i++)
         out[cfg.rcMap[i]] = rcChannelLetters[i];
     out[i] = '\0';
-    uartPrint(out);
-    uartPrint("\r\n");
+    printf_min("%s\r\n", out);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -380,17 +454,14 @@ static void cliMixer(char *cmdline)
     len = strlen(cmdline);
 
     if (len == 0) {
-        uartPrint("Current mixer: ");
-        uartPrint((char *)mixerNames[cfg.mixerConfiguration - 1]);
-        uartPrint("\r\n");
+        printf_min("Current mixer: %s\r\n", mixerNames[cfg.mixerConfiguration - 1]);
         return;
     } else if (strncasecmp(cmdline, "list", len) == 0) {
         uartPrint("Available mixers: ");
         for (i = 0; ; i++) {
             if (mixerNames[i] == NULL)
                 break;
-            uartPrint((char *)mixerNames[i]);
-            uartWrite(' ');
+            printf_min("%s ", mixerNames[i]);
         }
         uartPrint("\r\n");
         return;
@@ -403,9 +474,7 @@ static void cliMixer(char *cmdline)
         }
         if (strncasecmp(cmdline, mixerNames[i], len) == 0) {
             cfg.mixerConfiguration = i + 1;
-            uartPrint("Mixer set to ");
-            uartPrint((char *)mixerNames[i]);
-            uartPrint("\r\n");
+            printf_min("Mixer set to %s\r\n", mixerNames[i]);
             break;
         }
     }
@@ -456,12 +525,7 @@ static void cliPrintVar(const clivalue_t *var, uint32_t full)
     uartPrint(buf);
 
     if (full) {
-        uartPrint(" ");
-        itoa(var->min, buf, 10);
-        uartPrint(buf);
-        uartPrint(" ");
-        itoa(var->max, buf, 10);
-        uartPrint(buf);
+        printf_min(" %d %d", var->min, var->max);
     }
 }
 
@@ -524,8 +588,7 @@ static void cliSet(char *cmdline)
         uartPrint("Current settings: \r\n");
         for (i = 0; i < VALUE_COUNT; i++) {
             val = &valueTable[i];
-            uartPrint((char *)valueTable[i].name);
-            uartPrint(" = ");
+            printf_min("%s = ", valueTable[i].name);
             cliPrintVar(val, len); // when len is 1 (when * is passed as argument), it will print min/max values as well, for gui
             uartPrint("\r\n");
             while (!uartTransmitEmpty());
@@ -587,10 +650,7 @@ static void calibHelp(void)
     uint8_t i;
     uartPrint("Available calibration commands: \r\n");
     for(i = 0; i < CALIB_CMD_COUNT ; ++i) {
-        uartPrint(calibCmdTable[i].name);
-        uartWrite('\t');
-        uartPrint(calibCmdTable[i].param);
-        uartPrint("\r\n");
+        printf_min("%s\t%s\r\n", calibCmdTable[i].name, calibCmdTable[i].param);
         while (!uartTransmitEmpty());
     }
 }

@@ -6,8 +6,10 @@
 
 #pragma once
 
-#include "core/command.h"
+#include "actuator/mixer.h"
 #include "actuator/pid.h"
+
+#include "core/command.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Config Typedefs
@@ -108,7 +110,7 @@ typedef struct {
     float angleTrim[2];
     
     uint8_t accelLPF;
-    float accelCutout;
+    //float accelCutout;
     float accelSmoothFactor;
     uint8_t accelCalibrated;
     float accelBias[3];
@@ -137,6 +139,8 @@ typedef struct {
     float batMaxCellVoltage;
     
     uint16_t startupDelay;
+    
+    motorMixer_t customMixer[MAX_MOTORS];   // custom mixtable
 
 } cfg_t;
 

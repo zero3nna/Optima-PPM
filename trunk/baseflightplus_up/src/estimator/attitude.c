@@ -15,7 +15,7 @@ static fourthOrderData_t accelFilter[3];
 
 static void AHRSinit(float ax, float ay, float az, float mx, float my, float mz);
 static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT);
-static float calculateAccConfidence(float accNorm);
+//static float calculateAccConfidence(float accNorm);
 
 static void updateSensors(void)
 {
@@ -98,7 +98,7 @@ void updateAttitude(void)
 
 }
 
-
+/*
 static float accelConfidenceDecay;
 #define CONFIDENCE_FILTER_FACTOR    0.75f
 
@@ -116,7 +116,7 @@ static float calculateAccConfidence(float accNorm) {
 
 	return constrain(1.0f - (accelConfidenceDecay * sqrtf(abs(accNorm - ACCEL_1G))), 0.0f, 1.0f);
 } // calculateAccConfidence
-
+*/
 
 //=====================================================================================================
 // S.O.H. Madgwick + OpenPilot attitude.c
@@ -185,7 +185,7 @@ static void AHRSinit(float ax, float ay, float az, float mx, float my, float mz)
 		q[3] = -q[3];
 	}
 	
-	accelConfidenceDecay = 1.0f / sqrtf(cfg.accelCutout);
+	//accelConfidenceDecay = 1.0f / sqrtf(cfg.accelCutout);
 }
 
 static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT) { 
@@ -196,7 +196,7 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
     float err[3];
     float norm;
     float halfT = dT * 0.5f;
-    float accConfidence = 1.0f;
+    //float accConfidence = 1.0f;
     //float angleNorm;
     
     if(!AHRSInitialised) {
@@ -244,9 +244,9 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
 #endif
 	
     		// Error is sum of cross product between estimated and measured direction of gravity
-            err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]) * accConfidence;
-            err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]) * accConfidence;
-            err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]) * accConfidence;      
+            err[XAXIS] = (az * gravRot[YAXIS] - ay * gravRot[ZAXIS]);// * accConfidence;
+            err[YAXIS] = (ax * gravRot[ZAXIS] - az * gravRot[XAXIS]);// * accConfidence;
+            err[ZAXIS] = (ay * gravRot[XAXIS] - ax * gravRot[YAXIS]);// * accConfidence;      
     		
     		if(cfg.magDriftCompensation && !(mx == 0.0f && my == 0.0f && mz == 0.0f)) {
     		    // Normalise magnetometer measurement

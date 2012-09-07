@@ -69,6 +69,8 @@
 
 #include "drivers/system.h"
 #include "drivers/uart.h"
+#include "drivers/pwm_ppm.h"
+#include "drivers/spektrum.h"
 
 #include "sensors/accel.h"
 #include "sensors/baro.h"
