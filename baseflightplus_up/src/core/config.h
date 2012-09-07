@@ -108,6 +108,7 @@ typedef struct {
     float angleTrim[2];
     
     uint8_t accelLPF;
+    float accelCutout;
     float accelSmoothFactor;
     uint8_t accelCalibrated;
     float accelBias[3];

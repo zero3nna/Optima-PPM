@@ -192,6 +192,7 @@ void checkFirstTime(bool reset)
         cfg.angleTrim[PITCH]    = 0.0f;
         
         cfg.accelLPF            = true;
+        cfg.accelCutout         = ACCEL_1G;
         cfg.accelSmoothFactor     = 1.0f;
         
         cfg.accelCalibrated                 = false;
@@ -217,7 +218,7 @@ void checkFirstTime(bool reset)
 
         // For Mahony AHRS
         
-        cfg.imuKp                       = 5.0f;
+        cfg.imuKp                       = 1.0f;
         cfg.imuKi                       = 0.00f;
         
         cfg.magDriftCompensation        = false;

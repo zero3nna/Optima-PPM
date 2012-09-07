@@ -99,7 +99,7 @@ void updateAttitude(void)
 }
 
 
-#define CONFIDENCE_DECAY            1.0f
+static float accelConfidenceDecay;
 #define CONFIDENCE_FILTER_FACTOR    0.75f
 
 static float calculateAccConfidence(float accNorm) {
@@ -114,7 +114,7 @@ static float calculateAccConfidence(float accNorm) {
 	accNorm = filterSmooth(accNorm, accNormPrev, CONFIDENCE_FILTER_FACTOR);
 	accNormPrev = accNorm;
 
-	return constrain(1.0f - (CONFIDENCE_DECAY * sqrtf(abs(accNorm - ACCEL_1G))), 0.0f, 1.0f);
+	return constrain(1.0f - (accelConfidenceDecay * sqrtf(abs(accNorm - ACCEL_1G))), 0.0f, 1.0f);
 } // calculateAccConfidence
 
 
@@ -184,6 +184,8 @@ static void AHRSinit(float ax, float ay, float az, float mx, float my, float mz)
 		q[2] = -q[2];
 		q[3] = -q[3];
 	}
+	
+	accelConfidenceDecay = 1.0f / sqrtf(cfg.accelCutout);
 }
 
 static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float dT) { 
@@ -194,7 +196,7 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
     float err[3];
     float norm;
     float halfT = dT * 0.5f;
-    float accConfidence;
+    float accConfidence = 1.0f;
     //float angleNorm;
     
     if(!AHRSInitialised) {
@@ -213,7 +215,7 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
 		// This deals with hard accelerations where the accelerometer is less trusted and 0G cases
 		// When we are at large angles, level mode will act like rate mode.
 		// Maybe we could think of scaling it so it doesn't turn off suddenly? This works with multiwii though...
-		if(!isinf(norm)/* && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G && angleNorm < 25*/) {    
+		if(!isinf(norm) && norm > 0.6f * ACCEL_1G && norm < 1.4f * ACCEL_1G/* && angleNorm < 25*/) {    
     		ax /= norm;
     		ay /= norm;
     		az /= norm;
@@ -235,10 +237,10 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
     		gravRot[YAXIS] = 2.0f * (q0q1 + q2q3);
     		gravRot[ZAXIS] = q0q0 - q1q1 - q2q2 + q3q3;
     		
-            accConfidence = calculateAccConfidence(norm);
+            //accConfidence = calculateAccConfidence(norm);
             
 #ifdef DEBUG
-            debug[1] = accConfidence * 1000.0f;
+            //debug[1] = accConfidence * 1000.0f;
 #endif
 	
     		// Error is sum of cross product between estimated and measured direction of gravity

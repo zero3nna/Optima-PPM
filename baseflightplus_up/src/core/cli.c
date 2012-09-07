@@ -42,7 +42,7 @@ typedef enum {
 ///////////////////////////////////////////////////////////////////////////////
 // buffer
 ///////////////////////////////////////////////////////////////////////////////
-static char cliBuffer[32];
+static char cliBuffer[48];
 static uint32_t bufferIndex = 0;
 static uint8_t telemetryEnabled = false;
 
@@ -207,6 +207,7 @@ const clivalue_t valueTable[] = {
     { "magDriftCompensation",  VAR_UINT8, &cfg.magDriftCompensation,    0, 1},
     { "magDeclination",  VAR_FLOAT, &cfg.magDeclination,    -18000, 18000},
     { "accelLPF", VAR_UINT8, &cfg.accelLPF, 0, 1},
+    { "accelCutout",  VAR_FLOAT, &cfg.accelCutout,    0, 100},
     { "accelSmoothFactor",  VAR_FLOAT, &cfg.accelSmoothFactor, 0, 1},
     { "gyroBiasOnStartup", VAR_UINT8, &cfg.gyroBiasOnStartup, 0, 1},
     { "gyroLPF", VAR_UINT16, &cfg.gyroLPF, 10, 256},
