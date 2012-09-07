@@ -47,7 +47,7 @@ int main(void)
     if (cfg.mixerConfiguration == MULTITYPE_AIRPLANE || cfg.mixerConfiguration == MULTITYPE_FLYING_WING)
         pwm_params.airplane = true;
     pwm_params.usePPM = featureGet(FEATURE_PPM);
-    pwm_params.enableInput = true;//!feature(FEATURE_SPEKTRUM); // disable inputs if using spektrum
+    pwm_params.enableInput = !featureGet(FEATURE_SPEKTRUM); // disable inputs if using spektrum
     pwm_params.useServos = useServo;
     pwm_params.extraServos = cfg.gimbalFlags & GIMBAL_FORWARDAUX;
     pwm_params.motorPwmRate = cfg.escPwmRate;
