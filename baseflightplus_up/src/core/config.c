@@ -6,7 +6,6 @@
 
 #include "board.h"
 #include "core/command.h"
-#include "actuator/mixer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +20,7 @@ cfg_t cfg;
 
 const char rcChannelLetters[] = "AERT1234";
 
-static uint8_t checkNewSystemConf = 6;
+static uint8_t checkNewSystemConf = 7;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -192,7 +191,7 @@ void checkFirstTime(bool reset)
         cfg.angleTrim[PITCH]    = 0.0f;
         
         cfg.accelLPF            = true;
-        cfg.accelCutout         = ACCEL_1G;
+        //cfg.accelCutout         = ACCEL_1G;
         cfg.accelSmoothFactor     = 1.0f;
         
         cfg.accelCalibrated                 = false;
@@ -232,6 +231,10 @@ void checkFirstTime(bool reset)
         cfg.batMaxCellVoltage           = 4.2f;
         
         cfg.startupDelay                = 1000;
+        
+        // custom mixer. clear by defaults.
+        for (i = 0; i < MAX_MOTORS; i++)
+            cfg.customMixer[i].throttle = 0.0f;
 
         writeParams();
 	}
