@@ -1,47 +1,56 @@
 /*
- * Copyright (c) 2012 Baseflight U.P.
- * Licensed under the MIT License
- * @author  Scott Driessens v0.1 (August 2012)
- *
- * Based on https://github.com/pthrasher/c-generic-ring-buffer
- * Philip Thrasher's Crazy Awesome Ring Buffer Macros!
- *
- * Below you will find some naughty macros for easy owning and manipulating
- * generic ring buffers. Yes, they are slightly evil in readability, but they
- * are really fast, and they work great.
- *
- * Example usage:
- *
- * // So we can use this in any method, this gives us a typedef
- * // named 'intBuffer'.
- * ringBuffer_typedef(int, intBuffer);
- *
- * int main() {
- *   // Declare vars.
- *   intBuffer myBuffer;
- *   intBuffer* myBuffer_ptr;
- *   myBuffer_ptr = &myBuffer;
- * 
- *   int buffer[128];
- *
- *   bufferInit(myBuffer_ptr,buffer,128);
- *
- *   // Write two values.
- *   bufferWrite(myBuffer_ptr,37);
- *   bufferWrite(myBuffer_ptr,72);
- *
- *   // Read a value into a local variable.
- *   int first;
- *   bufferRead(myBuffer_ptr,first);
- *   assert(first == 37); // true
- *
- *   int second;
- *   bufferRead(myBuffer_ptr,second);
- *   assert(second == 72); // true
- *
- *   return 0;
- * }
- */
+    BaseflightPlus U.P
+    Copyright (C) 2012 Scott Driessens
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+ 
+    Based on https://github.com/pthrasher/c-generic-ring-buffer
+    Philip Thrasher's Crazy Awesome Ring Buffer Macros!
+
+    Below you will find some naughty macros for easy owning and manipulating
+    generic ring buffers. Yes, they are slightly evil in readability, but they
+    are really fast, and they work great.
+
+    Example usage:
+
+    // So we can use this in any method, this gives us a typedef
+    // named 'intBuffer'.
+    ringBuffer_typedef(int, intBuffer);
+
+    int main() {
+    // Declare vars.
+    intBuffer myBuffer;
+    intBuffer* myBuffer_ptr;
+    myBuffer_ptr = &myBuffer;
+
+    int buffer[128];
+
+    bufferInit(myBuffer_ptr,buffer,128);
+
+    // Write two values.
+    bufferWrite(myBuffer_ptr,37);
+    bufferWrite(myBuffer_ptr,72);
+
+    // Read a value into a local variable.
+    int first;
+    bufferRead(myBuffer_ptr,first);
+    assert(first == 37); // true
+
+    int second;
+    bufferRead(myBuffer_ptr,second);
+    assert(second == 72); // true
+
+    return 0;
+    }
+*/
 
 #ifndef _ringbuffer_h
 #define _ringbuffer_h

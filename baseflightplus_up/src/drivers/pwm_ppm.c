@@ -9,6 +9,7 @@
 #include "drivers/pwm_ppm.h"
 
 #define PULSE_1MS       (1000) // 1ms pulse width
+#define PULSE_MID       (1500)
 
 /* FreeFlight/Naze32 timer layout
     TIM2_CH1    RC1             PWM1
@@ -508,7 +509,7 @@ bool pwmInit(drv_pwm_config_t *init)
         } else if (mask & TYPE_M) {
             motors[numMotors++] = pwmOutConfig(port, 1000000 / init->motorPwmRate, PULSE_1MS);
         } else if (mask & TYPE_S) {
-            servos[numServos++] = pwmOutConfig(port, 1000000 / init->servoPwmRate, PULSE_1MS);
+            servos[numServos++] = pwmOutConfig(port, 1000000 / init->servoPwmRate, PULSE_MID);
         }
     }
 
