@@ -79,7 +79,8 @@ static void mma8452Init(void)
     i2cWrite(MMA8452_ADDRESS, MMA8452_CTRL_REG5, 0); // DRDY routed to INT2
     i2cWrite(MMA8452_ADDRESS, MMA8452_CTRL_REG1, MMA8452_CTRL_REG1_LNOISE | MMA8452_CTRL_REG1_ACTIVE); // Turn on measurements, low noise at max scale mode, Data Rate 800Hz. LNoise mode makes range +-4G.
     
-    sensorParams.accelScaleFactor = ACCEL_1G / 256.0f;
+    //sensorParams.accelScaleFactor = ACCEL_1G / 256.0f;
+    sensorParams.accelScaleFactor = ACCEL_1G / 2048.0f;
 }
 
 static void mma8452Read(int16_t *accelData)
@@ -90,17 +91,18 @@ static void mma8452Read(int16_t *accelData)
     accelData[1] = (buf[0] << 8) | buf[1];
     accelData[0] = (buf[2] << 8) | buf[3];
     accelData[2] = (buf[4] << 8) | buf[5];
-    
+    /*
     accelData[0] >>= 2;
     accelData[1] >>= 2;
     accelData[2] >>= 2;
+    */
     
     mma8452Align(accelData);
 }
 
 static void mma8452Align(int16_t *accelData)
 {
-    accelData[0] = accelData[0] / 4;
-    accelData[1] = accelData[1] / 4;
-    accelData[2] = -accelData[2] / 4;
+    accelData[0] = accelData[0];
+    accelData[1] = accelData[1];
+    accelData[2] = -accelData[2];
 }

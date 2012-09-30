@@ -243,7 +243,4 @@ void systemInit(void)
     LED1_OFF();
 
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);     // 2 bits for pre-emption priority, 2 bits for subpriority
-
-    checkFirstTime(false);
-    readEEPROM();
 }

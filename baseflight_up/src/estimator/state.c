@@ -151,9 +151,9 @@ static void AHRSUpdate(float gx, float gy, float gz, float ax, float ay, float a
             err[Y] = (ax * gravRot[Z] - az * gravRot[X]) * cfg.accelKp;
             err[Z] = (ay * gravRot[X] - ax * gravRot[Y]) * cfg.accelKp;
             
-            errInt[X] += cfg.accelKi * err[X] * halfT;	// integral error scaled by Ki
-    		errInt[Y] += cfg.accelKi * err[Y] * halfT;
-    		errInt[Z] += cfg.accelKi * err[Z] * halfT;
+            errInt[X] += cfg.accelKi * err[X];	// integral error scaled by Ki
+    		errInt[Y] += cfg.accelKi * err[Y];
+    		errInt[Z] += cfg.accelKi * err[Z];
     		
     		// Apply proportional feedback
         	gx += err[X];
