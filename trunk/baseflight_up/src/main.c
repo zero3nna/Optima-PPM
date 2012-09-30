@@ -39,6 +39,9 @@ int main(void)
     
     systemInit();
     
+    checkFirstTime(false);
+    readEEPROM();
+    
     adcInit();
     i2cInit(I2C2);
     uartInit(115200);

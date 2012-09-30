@@ -48,6 +48,9 @@ typedef enum {
 
 typedef struct {
     uint8_t version;
+    uint16_t size;
+    uint8_t magic_be;       // magic number, should be 0xBE
+    
     uint32_t enabledFeatures;
     
     uint16_t failsafeOnDelay;
@@ -162,12 +165,14 @@ typedef struct {
     uint16_t startupDelay;
     
     motorMixer_t customMixer[MAX_MOTORS];   // custom mixtable
-
-} cfg_t;
+    
+    uint8_t magic_ef;        // magic number, should be 0xEF
+    uint8_t chk;             // XOR checksum
+} config_t;
 
 // External Variables
 
-extern cfg_t cfg;
+extern config_t cfg;
 extern int16_t lookupPitchRollRC[6];   // lookup table for expo & RC rate PITCH+ROLL
 extern int16_t lookupThrottleRC[11];   // lookup table for expo & mid THROTTLE
 extern const char rcChannelLetters[8];
