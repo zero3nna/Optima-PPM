@@ -256,8 +256,8 @@ static void resetConf(void)
     cfg.angleTrim[ROLL]         = 0.0f;
     cfg.angleTrim[PITCH]        = 0.0f;
     
-    cfg.accelLPF                = true;
-    cfg.accelSmoothFactor       = 1.0f;
+    cfg.accelLPF                = false;
+    cfg.accelSmoothFactor       = 0.75f;
     
     cfg.accelCalibrated                 = false;
     cfg.accelBias[XAXIS]                = 0;
@@ -282,7 +282,7 @@ static void resetConf(void)
 
     // For Mahony AHRS
     
-    cfg.accelKp                     = 0.25f;
+    cfg.accelKp                     = 2.0f;
     cfg.accelKi                     = 0.01f;
     
     cfg.magKp                       = 1.0f;
