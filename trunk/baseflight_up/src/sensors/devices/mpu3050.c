@@ -43,9 +43,9 @@
 #define SAMPLE_RATE_DIVISOR_8KHZ 0x07        // 1000 Hz = 8000/(7 + 1)
 #define SAMPLE_RATE_DIVISOR_1KHZ 0x00        // 1000 Hz = 1000/(0 + 1)
 
-// MPU3050 14.375 LSBs per dps at Â±2000 Âº/s
-// scale factor to get rad/s: (1/14.375*PI/180) = 0.00121414208834388144
-#define MPU3050_GYRO_SCALE_FACTOR     0.00121414208834388144f
+// MPU3050 16.4 LSBs per dps at Â±2000 Âº/s
+// scale factor to get rad/s: (1/16.4*PI/180) = 0.00106422515365507901
+#define MPU3050_GYRO_SCALE_FACTOR     0.00106422515365507901f
 
 static void mpu3050Init(void);
 

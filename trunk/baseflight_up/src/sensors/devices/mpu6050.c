@@ -128,9 +128,9 @@
 #define MPU6000_REV_D8          0x58
 #define MPU6000_REV_D9          0x59
 
-// MPU3050 14.375 LSBs per dps at Â±2000 Âº/s
-// scale factor to get rad/s: (1/14.375*PI/180) = 0.00121414208834388144
-#define MPU6050_GYRO_SCALE_FACTOR     0.00121414208834388144f
+// MPU6050 16.4 LSBs per dps at Â±2000 Âº/s
+// scale factor to get rad/s: (1/16.4*PI/180) = 0.00106422515365507901
+#define MPU6050_GYRO_SCALE_FACTOR     0.00106422515365507901f
 
 static void mpu6050AccInit(void);
 static void mpu6050AccRead(int16_t * accData);
