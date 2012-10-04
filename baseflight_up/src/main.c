@@ -87,7 +87,7 @@ int main(void)
     if(cfg.gyroBiasOnStartup)
         computeGyroRTBias();
     
-    periodicEvent(gyroSample, 500);
+    periodicEvent(gyroSample, 0);
     if(sensorsGet(SENSOR_ACC))
         periodicEvent(accelSample, 2000);
     if(sensorsGet(SENSOR_MAG))
