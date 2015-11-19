@@ -44,20 +44,23 @@ Next step is to solder the corresponding cables to the Optima reciever pins.
 I powered the reciever directly over the SPC-Pins with a lipo battery.
 But before we power the reciever and connect the USBAsp, we have to install avrdude.
 For windows you can follow this tutorial: [ladyada.net](http://www.ladyada.net/learn/avr/avrdude.html)
+
 On linux:
 ```
 apt-get install avrdude
 ```
 
-I used Mac OS X with [Homebrew](http://brew.sh/)
+I used Mac OS X with [Homebrew](http://brew.sh/):
 ```
 brew install avrdude
 ```
 
 Next thing is to find out the programmer and partno.
-Have a look at the [ladyada.net](http://www.ladyada.net/learn/avr/avrdude.html) site if you not sure about your programmer.
+Have a look at the [ladyada.net](http://www.ladyada.net/learn/avr/avrdude.html) site if you are not sure about your programmer.
 My programmer is ```usbasp``` and for partno we use ```m48``` because the chip on those Optima recievers is a **ATMega A48**.
-So were good to go now. Navigate to your .hex-files location, power everything up and use the following command:
+
+So we are good to go now.
+Navigate to your .hex-files location, power everything up and use the following command:
 ```
 avrdude -c <programmer> -p m48 -U flash:w:<hexfile>
 ```
