@@ -27,7 +27,7 @@ There are two variations of the firmware:
   * Regular PWM on all channels or
   * Connect the signal pin to ground (with a bind plug) on channel 1. Enables combined PPM on the highest channel of the receiver.
   
-All builds are available as .hex-file: [Releases](https://github.com/Zero3nna/untestedprototype/releases/)
+All builds are available as .hex-file: [Releases](https://github.com/Zero3nna/optima-ppm/releases/)
 
 If you want to build the firmware yourself, you will need to set up a proper build environment and use the provided Rakefile.
 
