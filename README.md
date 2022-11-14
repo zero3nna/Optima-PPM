@@ -4,20 +4,20 @@
 
 The lack of PPM output on Hitec Optima receivers is disappointing. To fill the void I have written firmware that will work with the regular Optima series (Optima Lite not tested) with a combined PPM output. The project origin is hosted (read only) [@code.google](https://code.google.com/p/untestedprototype/)
 
-For more infomation please visit the blog entry from [untestedprototype](http://untestedprototype.com/2012/08/hitec-optima-ppm/)
-
 First of all there are two options to go for:
   * Flash onto the existing slave AVR of the receiver.
   * Solder to the RX line and intercept the signal with another microcontroller.
-  
+
 *Personaly I decided to go for the first option, but the process of flashing is still the same.*
 
 **Flashing this firmware is not reversible and will void your warranty. I'm not responsible for anything that happens. Use at your own risk!**
 
 Typical usecases are Optima 6 or 7 recievers because you can strip the body and keep them really minimal. A Optima  9 is kind of waste cause they will remain big and bulky. Small Optimas can be stripped like this:
-![Optima 7 Reciever](http://tomsik.eu/sites/tomsik.eu/files/IMG_0592.JPG)
+![Stripped Optima 6 Reciever](resources/optima6_stripped.jpg)
 
-and you can replace the big (BODA) antenna with a smaller one: [FrSky 15cm Antenna](http://www.hobbyking.com/hobbyking/store/__16666__FrSky_Receiver_antenna_15_cm.html)
+and you can replace the big (BODA) antenna with a smaller one:
+![FrSky 15cm Antenna](resources/frsky_antenna.jpg)
+[HobbyKing](https://hobbyking.com/en_us/frsky-receiver-antenna-15-cm.html)
 
 There are two variations of the firmware:
 
@@ -26,20 +26,21 @@ There are two variations of the firmware:
 2. SELECTABLE MODE (Not tested extensively, only bench tested)
   * Regular PWM on all channels or
   * Connect the signal pin to ground (with a bind plug) on channel 1. Enables combined PPM on the highest channel of the receiver.
-  
+
 All builds are available as .hex-file: [Releases](https://github.com/Zero3nna/optima-ppm/releases/)
 
 If you want to build the firmware yourself, you will need to set up a proper build environment and use the provided Rakefile.
 
 **Make sure you flash the correct microcontroller. You want the slave, not the controller for wireless transfer.** Optima 6 and 7 have the pads in similar locations.
 
-![Optima 6 Reciever](http://untestedprototype.com/wp-content/uploads/2013/12/hitec.jpeg)
+![Optima 6 reciever](resources/optima6.jpg)
+![Optima 7 Reciever](resources/optima7.jpg)
 
 I started by downloading the xxx_mixed.hex file for my reciever and connected the pins of the AVR device **USBAsp** to GPIO cables. **If you use a UBS-device with 5V VCC like mine, you have to leave out this pin on both sides and power your reciever serperatly over the BEC or SPC pins. Optima recievers operate with 3.3V**
-![USBAsp](http://zero3nna.de/public/img/usbasp.jpg)
+![USBAsp](resources/usbasp.jpg)
 
 Next step is to solder the corresponding cables to the Optima reciever pins.
-![Optima 6 reciever](http://zero3nna.de/public/img/reciever.jpg)
+![Optima 6 reciever](resources/optima6_pins.jpg)
 
 I powered the reciever directly over the SPC-Pins with a lipo battery.
 But before we power the reciever and connect the USBAsp, we have to install avrdude.
@@ -105,7 +106,3 @@ avrdude done.  Thank you.
 ```
 
 Thats it! We can now use our reciever in PPM-Mode.
-
-
-
-
